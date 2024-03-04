@@ -1,0 +1,339 @@
+1,Cin1,Conveyor,O,Motor +,0
+1,Cin1,Conveyor,O,Motor -,1
+1,Cin1,Conveyor,I,Sensor 0,0
+2,Cin2,Conveyor,O,Motor +,2
+2,Cin2,Conveyor,O,Motor -,3
+2,Cin2,Conveyor,I,Sensor 0,1
+3,Cin3,Conveyor,O,Motor +,4
+3,Cin3,Conveyor,O,Motor -,5
+3,Cin3,Conveyor,I,Sensor 0,2
+4,Cin4,Conveyor,O,Motor +,6
+4,Cin4,Conveyor,O,Motor -,7
+4,Cin4,Conveyor,I,Sensor 0,3
+5,AT1_in0,Warehouse In,O,Motor +,8
+5,AT1_in0,Warehouse In,O,Motor -,9
+5,AT1_in0,Warehouse In,O,Warehouse In,10
+5,AT1_in0,Warehouse In,I,Sensor 0,4
+6,AT1_in1,Warehouse In,O,Motor +,11
+6,AT1_in1,Warehouse In,O,Motor -,12
+6,AT1_in1,Warehouse In,O,Warehouse In,13
+6,AT1_in1,Warehouse In,I,Sensor 0,5
+7,AT1_in2,Warehouse In,O,Motor +,14
+7,AT1_in2,Warehouse In,O,Motor -,15
+7,AT1_in2,Warehouse In,O,Warehouse In,16
+7,AT1_in2,Warehouse In,I,Sensor 0,6
+8,AT1_in3,Warehouse In,O,Motor +,17
+8,AT1_in3,Warehouse In,O,Motor -,18
+8,AT1_in3,Warehouse In,O,Warehouse In,19
+8,AT1_in3,Warehouse In,I,Sensor 0,7
+9,AT1_in4,Warehouse In,O,Motor +,20
+9,AT1_in4,Warehouse In,O,Motor -,21
+9,AT1_in4,Warehouse In,O,Warehouse In,22
+9,AT1_in4,Warehouse In,I,Sensor 0,8
+10,AT1_out1,Warehouse Out,O,Motor +,23
+10,AT1_out1,Warehouse Out,O,Motor -,24
+10,AT1_out1,Warehouse Out,I,Sensor 0,9
+10,AT1_out1,Warehouse Out,R,Warehouse Out,0
+11,AT1_out2,Warehouse Out,O,Motor +,25
+11,AT1_out2,Warehouse Out,O,Motor -,26
+11,AT1_out2,Warehouse Out,I,Sensor 0,10
+11,AT1_out2,Warehouse Out,R,Warehouse Out,1
+12,AT1_out3,Warehouse Out,O,Motor +,27
+12,AT1_out3,Warehouse Out,O,Motor -,28
+12,AT1_out3,Warehouse Out,I,Sensor 0,11
+12,AT1_out3,Warehouse Out,R,Warehouse Out,2
+13,AT1_out4,Warehouse Out,O,Motor +,29
+13,AT1_out4,Warehouse Out,O,Motor -,30
+13,AT1_out4,Warehouse Out,I,Sensor 0,12
+13,AT1_out4,Warehouse Out,R,Warehouse Out,3
+14,AT1_out5,Warehouse Out,O,Motor +,31
+14,AT1_out5,Warehouse Out,O,Motor -,32
+14,AT1_out5,Warehouse Out,I,Sensor 0,13
+14,AT1_out5,Warehouse Out,R,Warehouse Out,4
+15,AT1_out6,Warehouse Out,O,Motor +,33
+15,AT1_out6,Warehouse Out,O,Motor -,34
+15,AT1_out6,Warehouse Out,I,Sensor 0,14
+15,AT1_out6,Warehouse Out,R,Warehouse Out,5
+16,AT2_out0,Warehouse Out,O,Motor +,35
+16,AT2_out0,Warehouse Out,O,Motor -,36
+16,AT2_out0,Warehouse Out,I,Sensor 0,15
+16,AT2_out0,Warehouse Out,R,Warehouse Out,6
+17,AT2_out1,Warehouse Out,O,Motor +,37
+17,AT2_out1,Warehouse Out,O,Motor -,38
+17,AT2_out1,Warehouse Out,I,Sensor 0,16
+17,AT2_out1,Warehouse Out,R,Warehouse Out,7
+18,AT2_out2,Warehouse Out,O,Motor +,39
+18,AT2_out2,Warehouse Out,O,Motor -,40
+18,AT2_out2,Warehouse Out,I,Sensor 0,17
+18,AT2_out2,Warehouse Out,R,Warehouse Out,8
+19,AT2_out3,Warehouse Out,O,Motor +,41
+19,AT2_out3,Warehouse Out,O,Motor -,42
+19,AT2_out3,Warehouse Out,I,Sensor 0,18
+19,AT2_out3,Warehouse Out,R,Warehouse Out,9
+20,AT2_out4,Warehouse Out,O,Motor +,43
+20,AT2_out4,Warehouse Out,O,Motor -,44
+20,AT2_out4,Warehouse Out,I,Sensor 0,19
+20,AT2_out4,Warehouse Out,R,Warehouse Out,10
+21,AT2_in1,Warehouse In,O,Motor +,45
+21,AT2_in1,Warehouse In,O,Motor -,46
+21,AT2_in1,Warehouse In,O,Warehouse In,47
+21,AT2_in1,Warehouse In,I,Sensor 0,20
+22,AT2_in2,Warehouse In,O,Motor +,48
+22,AT2_in2,Warehouse In,O,Motor -,49
+22,AT2_in2,Warehouse In,O,Warehouse In,50
+22,AT2_in2,Warehouse In,I,Sensor 0,21
+23,AT2_in3,Warehouse In,O,Motor +,51
+23,AT2_in3,Warehouse In,O,Motor -,52
+23,AT2_in3,Warehouse In,O,Warehouse In,53
+23,AT2_in3,Warehouse In,I,Sensor 0,22
+24,AT2_in4,Warehouse In,O,Motor +,54
+24,AT2_in4,Warehouse In,O,Motor -,55
+24,AT2_in4,Warehouse In,O,Warehouse In,56
+24,AT2_in4,Warehouse In,I,Sensor 0,23
+25,AT2_in5,Warehouse In,O,Motor +,57
+25,AT2_in5,Warehouse In,O,Motor -,58
+25,AT2_in5,Warehouse In,O,Warehouse In,59
+25,AT2_in5,Warehouse In,I,Sensor 0,24
+26,AT2_in6,Warehouse In,O,Motor +,60
+26,AT2_in6,Warehouse In,O,Motor -,61
+26,AT2_in6,Warehouse In,O,Warehouse In,62
+26,AT2_in6,Warehouse In,I,Sensor 0,25
+27,Cell0_Ctop,Conveyor,O,Motor +,63
+27,Cell0_Ctop,Conveyor,O,Motor -,64
+27,Cell0_Ctop,Conveyor,I,Sensor 0,26
+28,Cell0_Cmid,Conveyor,O,Motor +,65
+28,Cell0_Cmid,Conveyor,O,Motor -,66
+28,Cell0_Cmid,Conveyor,I,Sensor 0,27
+29,Cell0_Cbot,Conveyor,O,Motor +,67
+29,Cell0_Cbot,Conveyor,O,Motor -,68
+29,Cell0_Cbot,Conveyor,I,Sensor 0,28
+30,Cell1_Mtop,Machine,O,Motor +,69
+30,Cell1_Mtop,Machine,O,Motor -,70
+30,Cell1_Mtop,Machine,O,Rotate -,71
+30,Cell1_Mtop,Machine,O,Rotate +,72
+30,Cell1_Mtop,Machine,O,Tool,73
+30,Cell1_Mtop,Machine,O,Y -,74
+30,Cell1_Mtop,Machine,O,Y +,75
+30,Cell1_Mtop,Machine,O,Z -,76
+30,Cell1_Mtop,Machine,O,Z +,77
+30,Cell1_Mtop,Machine,I,Sensor 0,29
+30,Cell1_Mtop,Machine,I,Tool Sensor,30
+30,Cell1_Mtop,Machine,I,Y - Sensor,31
+30,Cell1_Mtop,Machine,I,Y + Sensor,32
+30,Cell1_Mtop,Machine,I,Z - Sensor,33
+30,Cell1_Mtop,Machine,I,Z + Sensor,34
+31,Cell1_Cmid,Conveyor,O,Motor +,78
+31,Cell1_Cmid,Conveyor,O,Motor -,79
+31,Cell1_Cmid,Conveyor,I,Sensor 0,35
+32,Cell1_Mbot,Machine,O,Motor +,80
+32,Cell1_Mbot,Machine,O,Motor -,81
+32,Cell1_Mbot,Machine,O,Rotate -,82
+32,Cell1_Mbot,Machine,O,Rotate +,83
+32,Cell1_Mbot,Machine,O,Tool,84
+32,Cell1_Mbot,Machine,O,Y -,85
+32,Cell1_Mbot,Machine,O,Y +,86
+32,Cell1_Mbot,Machine,O,Z -,87
+32,Cell1_Mbot,Machine,O,Z +,88
+32,Cell1_Mbot,Machine,I,Sensor 0,36
+32,Cell1_Mbot,Machine,I,Tool Sensor,37
+32,Cell1_Mbot,Machine,I,Y - Sensor,38
+32,Cell1_Mbot,Machine,I,Y + Sensor,39
+32,Cell1_Mbot,Machine,I,Z - Sensor,40
+32,Cell1_Mbot,Machine,I,Z + Sensor,41
+33,Cell2_Mtop,Machine,O,Motor +,89
+33,Cell2_Mtop,Machine,O,Motor -,90
+33,Cell2_Mtop,Machine,O,Rotate -,91
+33,Cell2_Mtop,Machine,O,Rotate +,92
+33,Cell2_Mtop,Machine,O,Tool,93
+33,Cell2_Mtop,Machine,O,Y -,94
+33,Cell2_Mtop,Machine,O,Y +,95
+33,Cell2_Mtop,Machine,O,Z -,96
+33,Cell2_Mtop,Machine,O,Z +,97
+33,Cell2_Mtop,Machine,I,Sensor 0,42
+33,Cell2_Mtop,Machine,I,Tool Sensor,43
+33,Cell2_Mtop,Machine,I,Y - Sensor,44
+33,Cell2_Mtop,Machine,I,Y + Sensor,45
+33,Cell2_Mtop,Machine,I,Z - Sensor,46
+33,Cell2_Mtop,Machine,I,Z + Sensor,47
+34,Cell2_Cmid,Conveyor,O,Motor +,98
+34,Cell2_Cmid,Conveyor,O,Motor -,99
+34,Cell2_Cmid,Conveyor,I,Sensor 0,48
+35,Cell2_Mbot,Machine,O,Motor +,100
+35,Cell2_Mbot,Machine,O,Motor -,101
+35,Cell2_Mbot,Machine,O,Rotate -,102
+35,Cell2_Mbot,Machine,O,Rotate +,103
+35,Cell2_Mbot,Machine,O,Tool,104
+35,Cell2_Mbot,Machine,O,Y -,105
+35,Cell2_Mbot,Machine,O,Y +,106
+35,Cell2_Mbot,Machine,O,Z -,107
+35,Cell2_Mbot,Machine,O,Z +,108
+35,Cell2_Mbot,Machine,I,Sensor 0,49
+35,Cell2_Mbot,Machine,I,Tool Sensor,50
+35,Cell2_Mbot,Machine,I,Y - Sensor,51
+35,Cell2_Mbot,Machine,I,Y + Sensor,52
+35,Cell2_Mbot,Machine,I,Z - Sensor,53
+35,Cell2_Mbot,Machine,I,Z + Sensor,54
+36,Cell3_Mtop,Machine,O,Motor +,109
+36,Cell3_Mtop,Machine,O,Motor -,110
+36,Cell3_Mtop,Machine,O,Rotate -,111
+36,Cell3_Mtop,Machine,O,Rotate +,112
+36,Cell3_Mtop,Machine,O,Tool,113
+36,Cell3_Mtop,Machine,O,Y -,114
+36,Cell3_Mtop,Machine,O,Y +,115
+36,Cell3_Mtop,Machine,O,Z -,116
+36,Cell3_Mtop,Machine,O,Z +,117
+36,Cell3_Mtop,Machine,I,Sensor 0,55
+36,Cell3_Mtop,Machine,I,Tool Sensor,56
+36,Cell3_Mtop,Machine,I,Y - Sensor,57
+36,Cell3_Mtop,Machine,I,Y + Sensor,58
+36,Cell3_Mtop,Machine,I,Z - Sensor,59
+36,Cell3_Mtop,Machine,I,Z + Sensor,60
+37,Cell3_Cmid,Conveyor,O,Motor +,118
+37,Cell3_Cmid,Conveyor,O,Motor -,119
+37,Cell3_Cmid,Conveyor,I,Sensor 0,61
+38,Cell3_Mbot,Machine,O,Motor +,120
+38,Cell3_Mbot,Machine,O,Motor -,121
+38,Cell3_Mbot,Machine,O,Rotate -,122
+38,Cell3_Mbot,Machine,O,Rotate +,123
+38,Cell3_Mbot,Machine,O,Tool,124
+38,Cell3_Mbot,Machine,O,Y -,125
+38,Cell3_Mbot,Machine,O,Y +,126
+38,Cell3_Mbot,Machine,O,Z -,127
+38,Cell3_Mbot,Machine,O,Z +,128
+38,Cell3_Mbot,Machine,I,Sensor 0,62
+38,Cell3_Mbot,Machine,I,Tool Sensor,63
+38,Cell3_Mbot,Machine,I,Y - Sensor,64
+38,Cell3_Mbot,Machine,I,Y + Sensor,65
+38,Cell3_Mbot,Machine,I,Z - Sensor,66
+38,Cell3_Mbot,Machine,I,Z + Sensor,67
+39,Cell4_Mtop,Machine,O,Motor +,129
+39,Cell4_Mtop,Machine,O,Motor -,130
+39,Cell4_Mtop,Machine,O,Rotate -,131
+39,Cell4_Mtop,Machine,O,Rotate +,132
+39,Cell4_Mtop,Machine,O,Tool,133
+39,Cell4_Mtop,Machine,O,Y -,134
+39,Cell4_Mtop,Machine,O,Y +,135
+39,Cell4_Mtop,Machine,O,Z -,136
+39,Cell4_Mtop,Machine,O,Z +,137
+39,Cell4_Mtop,Machine,I,Sensor 0,68
+39,Cell4_Mtop,Machine,I,Tool Sensor,69
+39,Cell4_Mtop,Machine,I,Y - Sensor,70
+39,Cell4_Mtop,Machine,I,Y + Sensor,71
+39,Cell4_Mtop,Machine,I,Z - Sensor,72
+39,Cell4_Mtop,Machine,I,Z + Sensor,73
+40,Cell4_Cmid,Conveyor,O,Motor +,138
+40,Cell4_Cmid,Conveyor,O,Motor -,139
+40,Cell4_Cmid,Conveyor,I,Sensor 0,74
+41,Cell4_Mbot,Machine,O,Motor +,140
+41,Cell4_Mbot,Machine,O,Motor -,141
+41,Cell4_Mbot,Machine,O,Rotate -,142
+41,Cell4_Mbot,Machine,O,Rotate +,143
+41,Cell4_Mbot,Machine,O,Tool,144
+41,Cell4_Mbot,Machine,O,Y -,145
+41,Cell4_Mbot,Machine,O,Y +,146
+41,Cell4_Mbot,Machine,O,Z -,147
+41,Cell4_Mbot,Machine,O,Z +,148
+41,Cell4_Mbot,Machine,I,Sensor 0,75
+41,Cell4_Mbot,Machine,I,Tool Sensor,76
+41,Cell4_Mbot,Machine,I,Y - Sensor,77
+41,Cell4_Mbot,Machine,I,Y + Sensor,78
+41,Cell4_Mbot,Machine,I,Z - Sensor,79
+41,Cell4_Mbot,Machine,I,Z + Sensor,80
+42,Cell5_Mtop,Machine,O,Motor +,149
+42,Cell5_Mtop,Machine,O,Motor -,150
+42,Cell5_Mtop,Machine,O,Rotate -,151
+42,Cell5_Mtop,Machine,O,Rotate +,152
+42,Cell5_Mtop,Machine,O,Tool,153
+42,Cell5_Mtop,Machine,O,Y -,154
+42,Cell5_Mtop,Machine,O,Y +,155
+42,Cell5_Mtop,Machine,O,Z -,156
+42,Cell5_Mtop,Machine,O,Z +,157
+42,Cell5_Mtop,Machine,I,Sensor 0,81
+42,Cell5_Mtop,Machine,I,Tool Sensor,82
+42,Cell5_Mtop,Machine,I,Y - Sensor,83
+42,Cell5_Mtop,Machine,I,Y + Sensor,84
+42,Cell5_Mtop,Machine,I,Z - Sensor,85
+42,Cell5_Mtop,Machine,I,Z + Sensor,86
+43,Cell5_Cmid,Conveyor,O,Motor +,158
+43,Cell5_Cmid,Conveyor,O,Motor -,159
+43,Cell5_Cmid,Conveyor,I,Sensor 0,87
+44,Cell5_Mbot,Machine,O,Motor +,160
+44,Cell5_Mbot,Machine,O,Motor -,161
+44,Cell5_Mbot,Machine,O,Rotate -,162
+44,Cell5_Mbot,Machine,O,Rotate +,163
+44,Cell5_Mbot,Machine,O,Tool,164
+44,Cell5_Mbot,Machine,O,Y -,165
+44,Cell5_Mbot,Machine,O,Y +,166
+44,Cell5_Mbot,Machine,O,Z -,167
+44,Cell5_Mbot,Machine,O,Z +,168
+44,Cell5_Mbot,Machine,I,Sensor 0,88
+44,Cell5_Mbot,Machine,I,Tool Sensor,89
+44,Cell5_Mbot,Machine,I,Y - Sensor,90
+44,Cell5_Mbot,Machine,I,Y + Sensor,91
+44,Cell5_Mbot,Machine,I,Z - Sensor,92
+44,Cell5_Mbot,Machine,I,Z + Sensor,93
+45,Cell6_Mtop,Machine,O,Motor +,169
+45,Cell6_Mtop,Machine,O,Motor -,170
+45,Cell6_Mtop,Machine,O,Rotate -,171
+45,Cell6_Mtop,Machine,O,Rotate +,172
+45,Cell6_Mtop,Machine,O,Tool,173
+45,Cell6_Mtop,Machine,O,Y -,174
+45,Cell6_Mtop,Machine,O,Y +,175
+45,Cell6_Mtop,Machine,O,Z -,176
+45,Cell6_Mtop,Machine,O,Z +,177
+45,Cell6_Mtop,Machine,I,Sensor 0,94
+45,Cell6_Mtop,Machine,I,Tool Sensor,95
+45,Cell6_Mtop,Machine,I,Y - Sensor,96
+45,Cell6_Mtop,Machine,I,Y + Sensor,97
+45,Cell6_Mtop,Machine,I,Z - Sensor,98
+45,Cell6_Mtop,Machine,I,Z + Sensor,99
+46,Cell6_Cmid,Conveyor,O,Motor +,178
+46,Cell6_Cmid,Conveyor,O,Motor -,179
+46,Cell6_Cmid,Conveyor,I,Sensor 0,100
+47,Cell6_Mbot,Machine,O,Motor +,180
+47,Cell6_Mbot,Machine,O,Motor -,181
+47,Cell6_Mbot,Machine,O,Rotate -,182
+47,Cell6_Mbot,Machine,O,Rotate +,183
+47,Cell6_Mbot,Machine,O,Tool,184
+47,Cell6_Mbot,Machine,O,Y -,185
+47,Cell6_Mbot,Machine,O,Y +,186
+47,Cell6_Mbot,Machine,O,Z -,187
+47,Cell6_Mbot,Machine,O,Z +,188
+47,Cell6_Mbot,Machine,I,Sensor 0,101
+47,Cell6_Mbot,Machine,I,Tool Sensor,102
+47,Cell6_Mbot,Machine,I,Y - Sensor,103
+47,Cell6_Mbot,Machine,I,Y + Sensor,104
+47,Cell6_Mbot,Machine,I,Z - Sensor,105
+47,Cell6_Mbot,Machine,I,Z + Sensor,106
+48,Roll1a,Roller,I,Sensor 0,107
+49,Roll1b,Roller,I,Sensor 0,108
+50,Roll1c,Roller,I,Sensor 0,109
+51,Roll1d,Roller,I,Sensor 0,110
+52,Roll1e,Roller,I,Sensor 0,111
+53,Roll1f,Conveyor,O,Motor +,189
+53,Roll1f,Conveyor,O,Motor -,190
+53,Roll1f,Conveyor,I,Sensor 0,112
+54,Roll2a,Roller,I,Sensor 0,113
+55,Roll2b,Roller,I,Sensor 0,114
+56,Roll2c,Roller,I,Sensor 0,115
+57,Roll2d,Roller,I,Sensor 0,116
+58,Roll2e,Roller,I,Sensor 0,117
+59,Roll2f,Conveyor,O,Motor +,191
+59,Roll2f,Conveyor,O,Motor -,192
+59,Roll2f,Conveyor,I,Sensor 0,118
+60,Roll3a,Roller,I,Sensor 0,119
+61,Roll3b,Roller,I,Sensor 0,120
+62,Roll3c,Roller,I,Sensor 0,121
+63,Roll3d,Roller,I,Sensor 0,122
+64,Roll3e,Roller,I,Sensor 0,123
+65,Roll3f,Conveyor,O,Motor +,193
+65,Roll3f,Conveyor,O,Motor -,194
+65,Roll3f,Conveyor,I,Sensor 0,124
+66,Roll4a,Roller,I,Sensor 0,125
+67,Roll4b,Roller,I,Sensor 0,126
+68,Roll4c,Roller,I,Sensor 0,127
+69,Roll4d,Roller,I,Sensor 0,128
+70,Roll4e,Roller,I,Sensor 0,129
+71,Roll4f,Conveyor,O,Motor +,195
+71,Roll4f,Conveyor,O,Motor -,196
+71,Roll4f,Conveyor,I,Sensor 0,130
