@@ -1,9 +1,0 @@
-1,T1,Conveyor,O,Motor +,0
-1,T1,Conveyor,O,Motor -,1
-1,T1,Conveyor,I,Sensor 0,0
-2,T2,Conveyor,O,Motor +,2
-2,T2,Conveyor,O,Motor -,3
-2,T2,Conveyor,I,Sensor 0,1
-3,T3,Conveyor,O,Motor +,4
-3,T3,Conveyor,O,Motor -,5
-3,T3,Conveyor,I,Sensor 0,2
