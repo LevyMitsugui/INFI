@@ -1,0 +1,923 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Symbolconfiguration xmlns="http://www.3s-software.com/schemas/Symbolconfiguration.xsd">
+  <Header>
+    <Version>3.5.14.0</Version>
+    <SymbolConfigObject version="4.4.0.0" runtimeid="3.5.19.60" libversion="4.4.0.0" compiler="3.5.19.60" lmm="3.5.19.60" profile="CODESYS V3.5 SP19 Patch 6+" settings="SupportOPCUA, EnableDirectIoAccess, LayoutCalculator=OptimizedClientSideLayoutCalculator" />
+    <ProjectInfo name="Untitled1" devicename="Device" appname="Application" />
+  </Header>
+  <TypeList>
+    <TypeArray name="T_ARRAY__0__1023__OF_DWORD" size="0" nativesize="4096" typeclass="Array" iecname="ARRAY [0..1023] OF DWORD" basetype="T_DWORD">
+      <ArrayDim minrange="0" maxrange="1023" />
+    </TypeArray>
+    <TypeArray name="T_ARRAY__0__2047__OF_WORD" size="0" nativesize="4096" typeclass="Array" iecname="ARRAY [0..2047] OF WORD" basetype="T_WORD">
+      <ArrayDim minrange="0" maxrange="2047" />
+    </TypeArray>
+    <TypeArray name="T_ARRAY__0__4095__OF_BYTE" size="0" nativesize="4096" typeclass="Array" iecname="ARRAY [0..4095] OF BYTE" basetype="T_BYTE">
+      <ArrayDim minrange="0" maxrange="4095" />
+    </TypeArray>
+    <TypeArray name="T_ARRAY__0__4095__OF_IecVarAccessLibrary_SymbolicVarsBase_DirectIOBits8" size="0" nativesize="4096" typeclass="Array" iecname="ARRAY [0..4095] OF IecVarAccessLibrary.SymbolicVarsBase.DirectIOBits8" basetype="T_DirectIOBits8">
+      <ArrayDim minrange="0" maxrange="4095" />
+    </TypeArray>
+    <TypeArray name="T_ARRAY__0__511__OF_LWORD" size="0" nativesize="4096" typeclass="Array" iecname="ARRAY [0..511] OF LWORD" basetype="T_LWORD">
+      <ArrayDim minrange="0" maxrange="511" />
+    </TypeArray>
+    <TypeUserDef name="T_CAADiagTreeBase" size="0" nativesize="56" typeclass="Userdef" pouclass="FUNCTION_BLOCK" iecname="CAADiagTreeBase" />
+    <TypeUserDef name="T_DirectIOBits8" size="0" nativesize="1" typeclass="Userdef" pouclass="STRUCTURE" iecname="DirectIOBits8">
+      <UserDefElement iecname="x0" type="T_BIT_X_0" byteoffset="0" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="x1" type="T_BIT_X_1" byteoffset="0" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="x2" type="T_BIT_X_2" byteoffset="0" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="x3" type="T_BIT_X_3" byteoffset="0" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="x4" type="T_BIT_X_4" byteoffset="0" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="x5" type="T_BIT_X_5" byteoffset="0" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="x6" type="T_BIT_X_6" byteoffset="0" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="x7" type="T_BIT_X_7" byteoffset="0" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_IoDrvBase" size="0" nativesize="320" typeclass="Userdef" pouclass="FUNCTION_BLOCK" iecname="IoDrvBase" />
+    <TypeUserDef name="T_ModbusSlaveBase" size="0" nativesize="304" typeclass="Userdef" pouclass="FUNCTION_BLOCK" iecname="ModbusSlaveBase" />
+    <TypeSimple name="T_BIT_X_0" size="1" swapsize="0" typeclass="Bool" iecname="BIT" bitoffset="0" />
+    <TypeSimple name="T_BIT_X_1" size="1" swapsize="0" typeclass="Bool" iecname="BIT" bitoffset="1" />
+    <TypeSimple name="T_BIT_X_2" size="1" swapsize="0" typeclass="Bool" iecname="BIT" bitoffset="2" />
+    <TypeSimple name="T_BIT_X_3" size="1" swapsize="0" typeclass="Bool" iecname="BIT" bitoffset="3" />
+    <TypeSimple name="T_BIT_X_4" size="1" swapsize="0" typeclass="Bool" iecname="BIT" bitoffset="4" />
+    <TypeSimple name="T_BIT_X_5" size="1" swapsize="0" typeclass="Bool" iecname="BIT" bitoffset="5" />
+    <TypeSimple name="T_BIT_X_6" size="1" swapsize="0" typeclass="Bool" iecname="BIT" bitoffset="6" />
+    <TypeSimple name="T_BIT_X_7" size="1" swapsize="0" typeclass="Bool" iecname="BIT" bitoffset="7" />
+    <TypeSimple name="T_BOOL" size="1" swapsize="0" typeclass="Bool" iecname="BOOL" />
+    <TypeSimple name="T_BYTE" size="1" swapsize="1" typeclass="Byte" iecname="BYTE" />
+    <TypeUserDef name="T_CAADiagDeviceDefault" size="0" nativesize="120" typeclass="Userdef" pouclass="FUNCTION_BLOCK" iecname="CAADiagDeviceDefault" basetype="T_CAADiagTreeBase" />
+    <TypeSimple name="T_DINT" size="4" swapsize="4" typeclass="DInt" iecname="DINT" />
+    <TypeSimple name="T_DWORD" size="4" swapsize="4" typeclass="DWord" iecname="DWORD" />
+    <TypeSimple name="T_INT" size="2" swapsize="2" typeclass="Int" iecname="INT" />
+    <TypeUserDef name="T_IoDrvModbusBase" size="0" nativesize="360" typeclass="Userdef" pouclass="FUNCTION_BLOCK" iecname="IoDrvModbusBase" basetype="T_IoDrvBase" />
+    <TypeSimple name="T_LWORD" size="8" swapsize="8" typeclass="LWord" iecname="LWORD" />
+    <TypeUserDef name="T_ModbusTCPSlaveBase" size="0" nativesize="304" typeclass="Userdef" pouclass="FUNCTION_BLOCK" iecname="ModbusTCPSlaveBase" basetype="T_ModbusSlaveBase" />
+    <TypeSimple name="T_TIME" size="4" swapsize="4" typeclass="Time" iecname="TIME" />
+    <TypeSimple name="T_UINT" size="2" swapsize="2" typeclass="UInt" iecname="UINT" />
+    <TypeSimple name="T_WORD" size="2" swapsize="2" typeclass="Word" iecname="WORD" />
+    <TypeArray name="T_ARRAY__0__3__OF_BYTE" size="4" nativesize="4" typeclass="Array" iecname="ARRAY [0..3] OF BYTE" basetype="T_BYTE">
+      <ArrayDim minrange="0" maxrange="3" />
+    </TypeArray>
+    <TypeArray name="T_ARRAY__0__3__OF_DED_INode" size="32" nativesize="32" typeclass="Array" iecname="ARRAY [0..3] OF DED.INode" basetype="T_TYPE_REFERENCE">
+      <ArrayDim minrange="0" maxrange="3" />
+    </TypeArray>
+    <TypeArray name="T_ARRAY__1__9__OF_WORD" size="18" nativesize="18" typeclass="Array" iecname="ARRAY [1..9] OF WORD" basetype="T_WORD">
+      <ArrayDim minrange="1" maxrange="9" />
+    </TypeArray>
+    <TypeUserDef name="T_EthernetState" size="2" nativesize="2" swapsize="2" typeclass="Enum" iecname="EthernetState" basetype="T_INT">
+      <UserDefElement type="T_EthernetState" iecname="NOT_CONFIGURED" enumvalue="0" />
+      <UserDefElement type="T_EthernetState" iecname="CONFIGURED" enumvalue="1" />
+      <UserDefElement type="T_EthernetState" iecname="DISCONNECTED" enumvalue="2" />
+      <UserDefElement type="T_EthernetState" iecname="RUNNING" enumvalue="3" />
+      <UserDefElement type="T_EthernetState" iecname="ERROR" enumvalue="4" />
+      <UserDefElement type="T_EthernetState" iecname="SET_IP_ERROR" enumvalue="5" />
+    </TypeUserDef>
+    <TypeUserDef name="T_IoDrvModbusTCP" size="4" nativesize="6680" typeclass="Userdef" pouclass="FUNCTION_BLOCK" iecname="IoDrvModbusTCP" basetype="T_IoDrvModbusBase">
+      <UserDefElement iecname="xStop" type="T_BOOL" byteoffset="0" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="xSlaveError" type="T_BOOL" byteoffset="1" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="uiConnectedSlaves" type="T_UINT" byteoffset="2" vartype="VAR_OUTPUT" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_MB_ErrorCodes" size="1" nativesize="1" typeclass="Enum" iecname="MB_ErrorCodes" basetype="T_BYTE">
+      <UserDefElement type="T_MB_ErrorCodes" iecname="RESPONSE_SUCCESS" enumvalue="0" />
+      <UserDefElement type="T_MB_ErrorCodes" iecname="ILLEGAL_FUNCTION" enumvalue="1" />
+      <UserDefElement type="T_MB_ErrorCodes" iecname="ILLEGAL_DATA_ADDRESS" enumvalue="2" />
+      <UserDefElement type="T_MB_ErrorCodes" iecname="ILLEGAL_DATA_VALUE" enumvalue="3" />
+      <UserDefElement type="T_MB_ErrorCodes" iecname="SLAVE_DEVICE_FAILURE" enumvalue="4" />
+      <UserDefElement type="T_MB_ErrorCodes" iecname="ACKNOWLEDGE" enumvalue="5" />
+      <UserDefElement type="T_MB_ErrorCodes" iecname="SLAVE_DEVICE_BUSY" enumvalue="6" />
+      <UserDefElement type="T_MB_ErrorCodes" iecname="MEMORY_PARITY_ERROR" enumvalue="8" />
+      <UserDefElement type="T_MB_ErrorCodes" iecname="GATEWAY_PATH_UNAVAILABLE" enumvalue="10" />
+      <UserDefElement type="T_MB_ErrorCodes" iecname="GATEWAY_DEVICE_FAILED_TO_RESPOND" enumvalue="11" />
+      <UserDefElement type="T_MB_ErrorCodes" iecname="RESPONSE_TIMEOUT" enumvalue="161" />
+      <UserDefElement type="T_MB_ErrorCodes" iecname="RESPONSE_CRC_FAIL" enumvalue="162" />
+      <UserDefElement type="T_MB_ErrorCodes" iecname="RESPONSE_WRONG_SLAVE" enumvalue="163" />
+      <UserDefElement type="T_MB_ErrorCodes" iecname="RESPONSE_WRONG_FUNCTIONCODE" enumvalue="164" />
+      <UserDefElement type="T_MB_ErrorCodes" iecname="TCP_COMMUNICATION_ERROR" enumvalue="165" />
+      <UserDefElement type="T_MB_ErrorCodes" iecname="RESPONSE_INVALID_DATA" enumvalue="166" />
+      <UserDefElement type="T_MB_ErrorCodes" iecname="RESPONSE_INVALID_PROTOCOL" enumvalue="167" />
+      <UserDefElement type="T_MB_ErrorCodes" iecname="RESPONSE_INVALID_HEADER" enumvalue="168" />
+      <UserDefElement type="T_MB_ErrorCodes" iecname="INVALID_PARAMETER" enumvalue="169" />
+      <UserDefElement type="T_MB_ErrorCodes" iecname="UNDEFINED" enumvalue="255" />
+    </TypeUserDef>
+    <TypeUserDef name="T_ModbusTCPComState" size="2" nativesize="2" swapsize="2" typeclass="Enum" iecname="ModbusTCPComState" basetype="T_UINT">
+      <UserDefElement type="T_ModbusTCPComState" iecname="OFF" enumvalue="0" />
+      <UserDefElement type="T_ModbusTCPComState" iecname="CONNECTING" enumvalue="1" />
+      <UserDefElement type="T_ModbusTCPComState" iecname="CONNECTED" enumvalue="2" />
+      <UserDefElement type="T_ModbusTCPComState" iecname="DISCONNECTING" enumvalue="3" />
+      <UserDefElement type="T_ModbusTCPComState" iecname="SOCKET_ERROR" enumvalue="4" />
+    </TypeUserDef>
+    <TypeSimple name="T_POINTER_TO_BYTE" size="8" swapsize="8" typeclass="Pointer" iecname="POINTER TO BYTE" />
+    <TypeSimple name="T_POINTER_TO_IoConfigChannelMap" size="8" swapsize="8" typeclass="Pointer" iecname="POINTER TO IoConfigChannelMap" />
+    <TypeSimple name="T_POINTER_TO_IoConfigConnector" size="8" swapsize="8" typeclass="Pointer" iecname="POINTER TO IoConfigConnector" />
+    <TypeSimple name="T_POINTER_TO_IoConfigConnectorMap" size="8" swapsize="8" typeclass="Pointer" iecname="POINTER TO IoConfigConnectorMap" />
+    <TypeSimple name="T_POINTER_TO_IoConfigParameter" size="8" swapsize="8" typeclass="Pointer" iecname="POINTER TO IoConfigParameter" />
+    <TypeSimple name="T_POINTER_TO_IoConfigTaskMap" size="8" swapsize="8" typeclass="Pointer" iecname="POINTER TO IoConfigTaskMap" />
+    <TypeUserDef name="T_RS" size="3" nativesize="16" typeclass="Userdef" pouclass="FUNCTION_BLOCK" iecname="RS">
+      <UserDefElement iecname="SET" type="T_BOOL" byteoffset="0" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="RESET1" type="T_BOOL" byteoffset="1" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="Q1" type="T_BOOL" byteoffset="2" vartype="VAR_OUTPUT" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_R_TRIG" size="2" nativesize="16" typeclass="Userdef" pouclass="FUNCTION_BLOCK" iecname="R_TRIG">
+      <UserDefElement iecname="CLK" type="T_BOOL" byteoffset="0" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="Q" type="T_BOOL" byteoffset="1" vartype="VAR_OUTPUT" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_SFCStepType" size="16" nativesize="16" typeclass="Userdef" pouclass="STRUCTURE" iecname="SFCStepType">
+      <UserDefElement iecname="x" type="T_BOOL" byteoffset="0" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="t" type="T_TIME" byteoffset="4" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_x" type="T_BOOL" byteoffset="8" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_t" type="T_TIME" byteoffset="12" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_TON" size="16" nativesize="32" typeclass="Userdef" pouclass="FUNCTION_BLOCK" iecname="TON">
+      <UserDefElement iecname="IN" type="T_BOOL" byteoffset="0" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="PT" type="T_TIME" byteoffset="4" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="Q" type="T_BOOL" byteoffset="8" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="ET" type="T_TIME" byteoffset="12" vartype="VAR_OUTPUT" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeSimple name="T_XWORD" size="8" swapsize="8" typeclass="LWord" iecname="XWORD" aliasedtype="T_LWORD" aliasediecname="LWORD" />
+    <TypeUserDef name="T_IoConfigChannelMap" size="32" nativesize="32" typeclass="Userdef" pouclass="STRUCTURE" iecname="IoConfigChannelMap">
+      <UserDefElement iecname="pParameter" type="T_POINTER_TO_IoConfigParameter" byteoffset="0" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="pbyIecAddress" type="T_POINTER_TO_BYTE" byteoffset="8" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="wParameterBitOffset" type="T_WORD" byteoffset="16" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="wIecAddressBitOffset" type="T_WORD" byteoffset="18" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="wSize" type="T_WORD" byteoffset="20" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="wDummy" type="T_WORD" byteoffset="22" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="dwDriverSpecific" type="T_XWORD" byteoffset="24" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_IoConfigConnectorMap" size="32" nativesize="32" typeclass="Userdef" pouclass="STRUCTURE" iecname="IoConfigConnectorMap">
+      <UserDefElement iecname="pConnector" type="T_POINTER_TO_IoConfigConnector" byteoffset="0" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="dwIoMgrSpecific" type="T_XWORD" byteoffset="8" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="dwNumOfChannels" type="T_DWORD" byteoffset="16" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="pChannelMapList" type="T_POINTER_TO_IoConfigChannelMap" byteoffset="24" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_IoConfigParameter" size="32" nativesize="32" typeclass="Userdef" pouclass="STRUCTURE" iecname="IoConfigParameter">
+      <UserDefElement iecname="dwParameterId" type="T_DWORD" byteoffset="0" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="dwValue" type="T_XWORD" byteoffset="8" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="wType" type="T_WORD" byteoffset="16" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="wLen" type="T_WORD" byteoffset="18" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="dwFlags" type="T_DWORD" byteoffset="20" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="dwDriverSpecific" type="T_XWORD" byteoffset="24" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_IoConfigTaskMap" size="16" nativesize="16" typeclass="Userdef" pouclass="STRUCTURE" iecname="IoConfigTaskMap">
+      <UserDefElement iecname="dwTaskId" type="T_DWORD" byteoffset="0" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="wType" type="T_WORD" byteoffset="4" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="wNumOfConnectorMap" type="T_WORD" byteoffset="6" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="pConnectorMapList" type="T_POINTER_TO_IoConfigConnectorMap" byteoffset="8" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_IoDrvEthernet" size="2" nativesize="904" typeclass="Userdef" pouclass="FUNCTION_BLOCK" iecname="IoDrvEthernet" basetype="T_IoDrvBase">
+      <UserDefElement iecname="eState" type="T_EthernetState" byteoffset="0" vartype="VAR_OUTPUT" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_IoDrvModbusTCP_Diag" size="4" nativesize="6784" typeclass="Userdef" pouclass="FUNCTION_BLOCK" iecname="IoDrvModbusTCP_Diag" basetype="T_IoDrvModbusTCP">
+      <UserDefElement iecname="xStop" type="T_BOOL" byteoffset="0" vartype="VAR_INPUT" inherited_from="T_IoDrvModbusTCP" access="ReadWrite" />
+      <UserDefElement iecname="xSlaveError" type="T_BOOL" byteoffset="1" vartype="VAR_OUTPUT" inherited_from="T_IoDrvModbusTCP" access="ReadWrite" />
+      <UserDefElement iecname="uiConnectedSlaves" type="T_UINT" byteoffset="2" vartype="VAR_OUTPUT" inherited_from="T_IoDrvModbusTCP" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_ModbusTCPComSettings" size="6" nativesize="6" typeclass="Userdef" pouclass="STRUCTURE" iecname="ModbusTCPComSettings">
+      <UserDefElement iecname="ipAddress" type="T_ARRAY__0__3__OF_BYTE" byteoffset="0" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="uiPort" type="T_UINT" byteoffset="4" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeSimple name="T_RTS_IEC_HANDLE" size="8" swapsize="8" typeclass="Pointer" iecname="RTS_IEC_HANDLE" aliasedtype="T_POINTER_TO_BYTE" aliasediecname="POINTER TO BYTE" />
+    <TypeUserDef name="T_SFCActionControl" size="116" nativesize="272" typeclass="Userdef" pouclass="FUNCTION_BLOCK" iecname="SFCActionControl">
+      <UserDefElement iecname="N" type="T_BOOL" byteoffset="0" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="R0" type="T_BOOL" byteoffset="1" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="S0" type="T_BOOL" byteoffset="2" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="L" type="T_BOOL" byteoffset="3" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="D" type="T_BOOL" byteoffset="4" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="P" type="T_BOOL" byteoffset="5" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="SD" type="T_BOOL" byteoffset="6" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="DS" type="T_BOOL" byteoffset="7" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="SL" type="T_BOOL" byteoffset="8" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="T" type="T_TIME" byteoffset="12" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="Q" type="T_BOOL" byteoffset="16" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="S_FF" type="T_RS" byteoffset="17" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="L_TMR" type="T_TON" byteoffset="20" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="D_TMR" type="T_TON" byteoffset="36" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="P_TRIG" type="T_R_TRIG" byteoffset="52" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="SD_TMR" type="T_TON" byteoffset="56" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="SD_FF" type="T_RS" byteoffset="72" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="DS_FF" type="T_RS" byteoffset="75" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="DS_TMR" type="T_TON" byteoffset="80" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="SL_FF" type="T_RS" byteoffset="96" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="SL_TMR" type="T_TON" byteoffset="100" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_IoConfigConnector" size="40" nativesize="40" typeclass="Userdef" pouclass="STRUCTURE" iecname="IoConfigConnector">
+      <UserDefElement iecname="wType" type="T_WORD" byteoffset="0" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="wOptions" type="T_WORD" byteoffset="2" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="dwFlags" type="T_DWORD" byteoffset="4" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="hIoDrv" type="T_RTS_IEC_HANDLE" byteoffset="8" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="dwNumOfParameters" type="T_DWORD" byteoffset="16" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="pParameterList" type="T_POINTER_TO_IoConfigParameter" byteoffset="24" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="pFather" type="T_POINTER_TO_IoConfigConnector" byteoffset="32" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_IoDrvEthernetDiag" size="2" nativesize="1072" typeclass="Userdef" pouclass="FUNCTION_BLOCK" iecname="IoDrvEthernetDiag" basetype="T_IoDrvEthernet">
+      <UserDefElement iecname="eState" type="T_EthernetState" byteoffset="0" vartype="VAR_OUTPUT" inherited_from="T_IoDrvEthernet" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_ModbusTCPSlave" size="18" nativesize="1048" typeclass="Userdef" pouclass="FUNCTION_BLOCK" iecname="ModbusTCPSlave" basetype="T_ModbusTCPSlaveBase">
+      <UserDefElement iecname="xInitDone" type="T_BOOL" byteoffset="0" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="xBusy" type="T_BOOL" byteoffset="1" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="xDone" type="T_BOOL" byteoffset="2" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="xError" type="T_BOOL" byteoffset="3" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="byModbusError" type="T_MB_ErrorCodes" byteoffset="4" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="ComSettings" type="T_ModbusTCPComSettings" byteoffset="6" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="ComState" type="T_ModbusTCPComState" byteoffset="12" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="iChannelIndex" type="T_INT" byteoffset="14" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="xConfirmError" type="T_BOOL" byteoffset="16" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="xDoInit" type="T_BOOL" byteoffset="17" vartype="VAR_INPUT" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_SFCActionType" size="128" nativesize="288" typeclass="Userdef" pouclass="STRUCTURE" iecname="SFCActionType">
+      <UserDefElement iecname="x" type="T_BOOL" byteoffset="0" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_x" type="T_BOOL" byteoffset="1" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="t" type="T_TIME" byteoffset="4" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_t" type="T_TIME" byteoffset="8" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="AC" type="T_SFCActionControl" byteoffset="12" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_Linear_Conveyor" size="443" nativesize="936" typeclass="Userdef" pouclass="FUNCTION_BLOCK" iecname="Linear_Conveyor">
+      <UserDefElement iecname="sensor" type="T_BOOL" byteoffset="0" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="free_ahead" type="T_BOOL" byteoffset="1" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="transfer_done" type="T_BOOL" byteoffset="2" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="ready" type="T_BOOL" byteoffset="3" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="move_belt" type="T_BOOL" byteoffset="4" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="empty" type="T_BOOL" byteoffset="5" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="transfer" type="T_BOOL" byteoffset="6" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="_empty" type="T_SFCActionType" byteoffset="8" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_ready" type="T_SFCActionType" byteoffset="136" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_move_belt" type="T_SFCActionType" byteoffset="264" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Free" type="T_SFCStepType" byteoffset="392" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Waiting" type="T_SFCStepType" byteoffset="408" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Rolling" type="T_SFCStepType" byteoffset="424" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Free__to__Waiting" type="T_BOOL" byteoffset="440" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Waiting__to__Rolling" type="T_BOOL" byteoffset="441" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Rolling__to__Free" type="T_BOOL" byteoffset="442" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_Linear_Conveyor_proccess" size="605" nativesize="1256" typeclass="Userdef" pouclass="FUNCTION_BLOCK" iecname="Linear_Conveyor_proccess">
+      <UserDefElement iecname="sensor" type="T_BOOL" byteoffset="0" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="free_ahead" type="T_BOOL" byteoffset="1" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="previous_waiting" type="T_BOOL" byteoffset="2" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="transfer_done" type="T_BOOL" byteoffset="3" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="move_belt" type="T_BOOL" byteoffset="4" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="empty" type="T_BOOL" byteoffset="5" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="received" type="T_BOOL" byteoffset="6" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="ready" type="T_BOOL" byteoffset="7" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="_empty" type="T_SFCActionType" byteoffset="8" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_move_belt" type="T_SFCActionType" byteoffset="136" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_received" type="T_SFCActionType" byteoffset="264" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_ready" type="T_SFCActionType" byteoffset="392" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Free" type="T_SFCStepType" byteoffset="520" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Rolling" type="T_SFCStepType" byteoffset="536" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Waiting" type="T_SFCStepType" byteoffset="552" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Transfer" type="T_SFCStepType" byteoffset="568" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Moving_out" type="T_SFCStepType" byteoffset="584" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Free__to__Rolling" type="T_BOOL" byteoffset="600" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Rolling__to__Waiting" type="T_BOOL" byteoffset="601" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Waiting__to__Transfer" type="T_BOOL" byteoffset="602" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Transfer__to__Moving_out" type="T_BOOL" byteoffset="603" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Moving_out__to__Free" type="T_BOOL" byteoffset="604" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_Machine_1" size="1415" nativesize="2392" typeclass="Userdef" pouclass="FUNCTION_BLOCK" iecname="Machine_1">
+      <UserDefElement iecname="MES_tool_selection" type="T_INT" byteoffset="0" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="tool_sensor" type="T_BOOL" byteoffset="2" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="piece_sensor" type="T_BOOL" byteoffset="3" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="conv_free" type="T_BOOL" byteoffset="4" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="input_piece" type="T_INT" byteoffset="6" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="ready" type="T_BOOL" byteoffset="8" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="transfer_done" type="T_BOOL" byteoffset="9" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="work" type="T_BOOL" byteoffset="10" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="move_belt" type="T_BOOL" byteoffset="11" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="available" type="T_BOOL" byteoffset="12" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="tool_plus" type="T_BOOL" byteoffset="13" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="tool_neg" type="T_BOOL" byteoffset="14" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="piece_made" type="T_INT" byteoffset="16" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="waiting" type="T_BOOL" byteoffset="18" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="previous_tool" type="T_WORD" byteoffset="20" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_available" type="T_SFCActionType" byteoffset="24" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_move_belt" type="T_SFCActionType" byteoffset="152" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_tool_plus" type="T_SFCActionType" byteoffset="280" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_work" type="T_SFCActionType" byteoffset="408" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_waiting" type="T_SFCActionType" byteoffset="536" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_tool_neg" type="T_SFCActionType" byteoffset="664" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Free" type="T_SFCStepType" byteoffset="792" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Moving" type="T_SFCStepType" byteoffset="808" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Stall" type="T_SFCStepType" byteoffset="824" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Selection" type="T_SFCStepType" byteoffset="840" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Select_tool_2" type="T_SFCStepType" byteoffset="856" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Step0" type="T_SFCStepType" byteoffset="872" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Select_piece_1" type="T_SFCStepType" byteoffset="888" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Transform_P3_to_P4" type="T_SFCStepType" byteoffset="904" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Move_out_2" type="T_SFCStepType" byteoffset="920" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Wait_2" type="T_SFCStepType" byteoffset="936" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Finish_2" type="T_SFCStepType" byteoffset="952" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Reset_tool_2" type="T_SFCStepType" byteoffset="968" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Transform_P4_to_P6" type="T_SFCStepType" byteoffset="984" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Move_out_3" type="T_SFCStepType" byteoffset="1000" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Wait_3" type="T_SFCStepType" byteoffset="1016" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Finish_3" type="T_SFCStepType" byteoffset="1032" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Reset_tool_3" type="T_SFCStepType" byteoffset="1048" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Select_tool_3" type="T_SFCStepType" byteoffset="1064" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Step1" type="T_SFCStepType" byteoffset="1080" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Select_piece_2" type="T_SFCStepType" byteoffset="1096" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Transform_P3_to_P4_other" type="T_SFCStepType" byteoffset="1112" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Move_out_4" type="T_SFCStepType" byteoffset="1128" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Wait_4" type="T_SFCStepType" byteoffset="1144" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Finish_4" type="T_SFCStepType" byteoffset="1160" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Reset_tool_4" type="T_SFCStepType" byteoffset="1176" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Transform_P4_to_P7" type="T_SFCStepType" byteoffset="1192" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Move_out_5" type="T_SFCStepType" byteoffset="1208" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Wait_5" type="T_SFCStepType" byteoffset="1224" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Finish_5" type="T_SFCStepType" byteoffset="1240" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Reset_tool_5" type="T_SFCStepType" byteoffset="1256" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Final_piece" type="T_SFCStepType" byteoffset="1272" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Transform_P1_to_P3" type="T_SFCStepType" byteoffset="1288" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Transform_P2_to_P8" type="T_SFCStepType" byteoffset="1304" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Move_out_1" type="T_SFCStepType" byteoffset="1320" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Wait_1" type="T_SFCStepType" byteoffset="1336" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Finish_1" type="T_SFCStepType" byteoffset="1352" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Free__to__Moving" type="T_BOOL" byteoffset="1368" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Moving__to__Stall" type="T_BOOL" byteoffset="1369" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Stall__to__Selection" type="T_BOOL" byteoffset="1370" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch0__Selection__to__Final_piece" type="T_BOOL" byteoffset="1371" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_0__Selection__to__Select_tool_2" type="T_BOOL" byteoffset="1372" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Select_tool_2__to__Step0" type="T_BOOL" byteoffset="1373" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_1__Selection__to__Select_piece_1" type="T_BOOL" byteoffset="1374" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Step0__to__Select_piece_1" type="T_BOOL" byteoffset="1375" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_0__Select_piece_1__to__Transform_P3_to_P4" type="T_BOOL" byteoffset="1376" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Transform_P3_to_P4__to__Move_out_2" type="T_BOOL" byteoffset="1377" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Move_out_2__to__Wait_2" type="T_BOOL" byteoffset="1378" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Wait_2__to__Finish_2" type="T_BOOL" byteoffset="1379" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_0_0__Finish_2__to__Reset_tool_2" type="T_BOOL" byteoffset="1380" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Reset_tool_2__to__Free" type="T_BOOL" byteoffset="1381" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_0_1__Finish_2__to__Free" type="T_BOOL" byteoffset="1382" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_1__Select_piece_1__to__Transform_P4_to_P6" type="T_BOOL" byteoffset="1383" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Transform_P4_to_P6__to__Move_out_3" type="T_BOOL" byteoffset="1384" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Move_out_3__to__Wait_3" type="T_BOOL" byteoffset="1385" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Wait_3__to__Finish_3" type="T_BOOL" byteoffset="1386" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_1_0__Finish_3__to__Reset_tool_3" type="T_BOOL" byteoffset="1387" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Reset_tool_3__to__Free" type="T_BOOL" byteoffset="1388" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_1_1__Finish_3__to__Free" type="T_BOOL" byteoffset="1389" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch2_0__Selection__to__Select_tool_3" type="T_BOOL" byteoffset="1390" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Select_tool_3__to__Step1" type="T_BOOL" byteoffset="1391" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch2_1__Selection__to__Select_piece_2" type="T_BOOL" byteoffset="1392" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Step1__to__Select_piece_2" type="T_BOOL" byteoffset="1393" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch2_0__Select_piece_2__to__Transform_P3_to_P4_other" type="T_BOOL" byteoffset="1394" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Transform_P3_to_P4_other__to__Move_out_4" type="T_BOOL" byteoffset="1395" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Move_out_4__to__Wait_4" type="T_BOOL" byteoffset="1396" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Wait_4__to__Finish_4" type="T_BOOL" byteoffset="1397" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch2_0_0__Finish_4__to__Reset_tool_4" type="T_BOOL" byteoffset="1398" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Reset_tool_4__to__Free" type="T_BOOL" byteoffset="1399" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch2_0_1__Finish_4__to__Free" type="T_BOOL" byteoffset="1400" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch2_1__Select_piece_2__to__Transform_P4_to_P7" type="T_BOOL" byteoffset="1401" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Transform_P4_to_P7__to__Move_out_5" type="T_BOOL" byteoffset="1402" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Move_out_5__to__Wait_5" type="T_BOOL" byteoffset="1403" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Wait_5__to__Finish_5" type="T_BOOL" byteoffset="1404" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch2_1_0__Finish_5__to__Reset_tool_5" type="T_BOOL" byteoffset="1405" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Reset_tool_5__to__Free" type="T_BOOL" byteoffset="1406" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch2_1_1__Finish_5__to__Free" type="T_BOOL" byteoffset="1407" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch0__Final_piece__to__Transform_P1_to_P3" type="T_BOOL" byteoffset="1408" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Transform_P1_to_P3__to__Move_out_1" type="T_BOOL" byteoffset="1409" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1__Final_piece__to__Transform_P2_to_P8" type="T_BOOL" byteoffset="1410" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Transform_P2_to_P8__to__Move_out_1" type="T_BOOL" byteoffset="1411" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Move_out_1__to__Wait_1" type="T_BOOL" byteoffset="1412" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Wait_1__to__Finish_1" type="T_BOOL" byteoffset="1413" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Finish_1__to__Free" type="T_BOOL" byteoffset="1414" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_Machine_2" size="1542" nativesize="2672" typeclass="Userdef" pouclass="FUNCTION_BLOCK" iecname="Machine_2">
+      <UserDefElement iecname="MES_tool_selection" type="T_INT" byteoffset="0" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="tool_sensor" type="T_BOOL" byteoffset="2" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="piece_sensor" type="T_BOOL" byteoffset="3" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="conv_free" type="T_BOOL" byteoffset="4" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="input_piece" type="T_INT" byteoffset="6" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="ready" type="T_BOOL" byteoffset="8" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="transfer_done" type="T_BOOL" byteoffset="9" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="work" type="T_BOOL" byteoffset="10" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="move_belt" type="T_BOOL" byteoffset="11" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="available" type="T_BOOL" byteoffset="12" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="tool_plus" type="T_BOOL" byteoffset="13" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="tool_neg" type="T_BOOL" byteoffset="14" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="piece_made" type="T_INT" byteoffset="16" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="waiting" type="T_BOOL" byteoffset="18" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="received" type="T_BOOL" byteoffset="19" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="previous_tool" type="T_WORD" byteoffset="20" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_available" type="T_SFCActionType" byteoffset="24" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_move_belt" type="T_SFCActionType" byteoffset="152" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_received" type="T_SFCActionType" byteoffset="280" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_tool_plus" type="T_SFCActionType" byteoffset="408" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_work" type="T_SFCActionType" byteoffset="536" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_waiting" type="T_SFCActionType" byteoffset="664" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_tool_neg" type="T_SFCActionType" byteoffset="792" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Free" type="T_SFCStepType" byteoffset="920" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Moving" type="T_SFCStepType" byteoffset="936" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Keep_moving" type="T_SFCStepType" byteoffset="952" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Piece_selection" type="T_SFCStepType" byteoffset="968" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Move_tool" type="T_SFCStepType" byteoffset="984" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Step0" type="T_SFCStepType" byteoffset="1000" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Input_piece_1" type="T_SFCStepType" byteoffset="1016" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="P3_to_P4_1" type="T_SFCStepType" byteoffset="1032" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Move_out_1" type="T_SFCStepType" byteoffset="1048" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Wait_2" type="T_SFCStepType" byteoffset="1064" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Finish_2" type="T_SFCStepType" byteoffset="1080" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Reset_tool_1" type="T_SFCStepType" byteoffset="1096" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Step2" type="T_SFCStepType" byteoffset="1112" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="P4_to_P6" type="T_SFCStepType" byteoffset="1128" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Move_out_2" type="T_SFCStepType" byteoffset="1144" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Wait_3" type="T_SFCStepType" byteoffset="1160" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Finish_3" type="T_SFCStepType" byteoffset="1176" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Reset_tool_2" type="T_SFCStepType" byteoffset="1192" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Step3" type="T_SFCStepType" byteoffset="1208" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Move_tool_reverse" type="T_SFCStepType" byteoffset="1224" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Step1" type="T_SFCStepType" byteoffset="1240" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Input_piece_2" type="T_SFCStepType" byteoffset="1256" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="P3_to_P4_2" type="T_SFCStepType" byteoffset="1272" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Move_out_3" type="T_SFCStepType" byteoffset="1288" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Wait_4" type="T_SFCStepType" byteoffset="1304" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Finish_4" type="T_SFCStepType" byteoffset="1320" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Reset_tool_3" type="T_SFCStepType" byteoffset="1336" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Step4" type="T_SFCStepType" byteoffset="1352" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="P4_to_P7" type="T_SFCStepType" byteoffset="1368" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Move_out_4" type="T_SFCStepType" byteoffset="1384" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Wait_5" type="T_SFCStepType" byteoffset="1400" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Finish_5" type="T_SFCStepType" byteoffset="1416" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Reset_tool_4" type="T_SFCStepType" byteoffset="1432" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Step5" type="T_SFCStepType" byteoffset="1448" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Wait_1" type="T_SFCStepType" byteoffset="1464" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Finish_1" type="T_SFCStepType" byteoffset="1480" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Free__to__Moving" type="T_BOOL" byteoffset="1496" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch0__Moving__to__Keep_moving" type="T_BOOL" byteoffset="1497" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Keep_moving__to__Wait_1" type="T_BOOL" byteoffset="1498" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1__Moving__to__Piece_selection" type="T_BOOL" byteoffset="1499" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_0_0__Piece_selection__to__Move_tool" type="T_BOOL" byteoffset="1500" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Move_tool__to__Step0" type="T_BOOL" byteoffset="1501" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_0_1__Piece_selection__to__Input_piece_1" type="T_BOOL" byteoffset="1502" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Step0__to__Input_piece_1" type="T_BOOL" byteoffset="1503" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_0_0__Input_piece_1__to__P3_to_P4_1" type="T_BOOL" byteoffset="1504" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="P3_to_P4_1__to__Move_out_1" type="T_BOOL" byteoffset="1505" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Move_out_1__to__Wait_2" type="T_BOOL" byteoffset="1506" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Wait_2__to__Finish_2" type="T_BOOL" byteoffset="1507" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_0_0_0__Finish_2__to__Reset_tool_1" type="T_BOOL" byteoffset="1508" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_0_0_1__Finish_2__to__Free" type="T_BOOL" byteoffset="1509" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Reset_tool_1__to__Step2" type="T_BOOL" byteoffset="1510" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Step2__to__Free" type="T_BOOL" byteoffset="1511" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_0_1__Input_piece_1__to__P4_to_P6" type="T_BOOL" byteoffset="1512" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="P4_to_P6__to__Move_out_2" type="T_BOOL" byteoffset="1513" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Move_out_2__to__Wait_3" type="T_BOOL" byteoffset="1514" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Wait_3__to__Finish_3" type="T_BOOL" byteoffset="1515" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_0_1_0__Finish_3__to__Reset_tool_2" type="T_BOOL" byteoffset="1516" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_0_1_1__Finish_3__to__Free" type="T_BOOL" byteoffset="1517" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Reset_tool_2__to__Step3" type="T_BOOL" byteoffset="1518" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Step3__to__Free" type="T_BOOL" byteoffset="1519" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_1_0__Piece_selection__to__Move_tool_reverse" type="T_BOOL" byteoffset="1520" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Move_tool_reverse__to__Step1" type="T_BOOL" byteoffset="1521" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_1_1__Piece_selection__to__Input_piece_2" type="T_BOOL" byteoffset="1522" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Step1__to__Input_piece_2" type="T_BOOL" byteoffset="1523" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_1_0__Input_piece_2__to__P3_to_P4_2" type="T_BOOL" byteoffset="1524" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="P3_to_P4_2__to__Move_out_3" type="T_BOOL" byteoffset="1525" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Move_out_3__to__Wait_4" type="T_BOOL" byteoffset="1526" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Wait_4__to__Finish_4" type="T_BOOL" byteoffset="1527" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_1_0_0__Finish_4__to__Reset_tool_3" type="T_BOOL" byteoffset="1528" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_1_0_1__Finish_4__to__Free" type="T_BOOL" byteoffset="1529" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Reset_tool_3__to__Step4" type="T_BOOL" byteoffset="1530" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Step4__to__Free" type="T_BOOL" byteoffset="1531" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_1_1__Input_piece_2__to__P4_to_P7" type="T_BOOL" byteoffset="1532" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="P4_to_P7__to__Move_out_4" type="T_BOOL" byteoffset="1533" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Move_out_4__to__Wait_5" type="T_BOOL" byteoffset="1534" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Wait_5__to__Finish_5" type="T_BOOL" byteoffset="1535" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_1_1_0__Finish_5__to__Reset_tool_4" type="T_BOOL" byteoffset="1536" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1_1_1_1__Finish_5__to__Free" type="T_BOOL" byteoffset="1537" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Reset_tool_4__to__Step5" type="T_BOOL" byteoffset="1538" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Step5__to__Free" type="T_BOOL" byteoffset="1539" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Wait_1__to__Finish_1" type="T_BOOL" byteoffset="1540" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Finish_1__to__Free" type="T_BOOL" byteoffset="1541" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_ModbusTCPSlave_Diag" size="18" nativesize="1152" typeclass="Userdef" pouclass="FUNCTION_BLOCK" iecname="ModbusTCPSlave_Diag" basetype="T_ModbusTCPSlave">
+      <UserDefElement iecname="xInitDone" type="T_BOOL" byteoffset="0" vartype="VAR_OUTPUT" inherited_from="T_ModbusTCPSlave" access="ReadWrite" />
+      <UserDefElement iecname="xBusy" type="T_BOOL" byteoffset="1" vartype="VAR_OUTPUT" inherited_from="T_ModbusTCPSlave" access="ReadWrite" />
+      <UserDefElement iecname="xDone" type="T_BOOL" byteoffset="2" vartype="VAR_OUTPUT" inherited_from="T_ModbusTCPSlave" access="ReadWrite" />
+      <UserDefElement iecname="xError" type="T_BOOL" byteoffset="3" vartype="VAR_OUTPUT" inherited_from="T_ModbusTCPSlave" access="ReadWrite" />
+      <UserDefElement iecname="byModbusError" type="T_MB_ErrorCodes" byteoffset="4" vartype="VAR_OUTPUT" inherited_from="T_ModbusTCPSlave" access="ReadWrite" />
+      <UserDefElement iecname="ComSettings" type="T_ModbusTCPComSettings" byteoffset="6" vartype="VAR_OUTPUT" inherited_from="T_ModbusTCPSlave" access="ReadWrite" />
+      <UserDefElement iecname="ComState" type="T_ModbusTCPComState" byteoffset="12" vartype="VAR_OUTPUT" inherited_from="T_ModbusTCPSlave" access="ReadWrite" />
+      <UserDefElement iecname="iChannelIndex" type="T_INT" byteoffset="14" vartype="VAR_OUTPUT" inherited_from="T_ModbusTCPSlave" access="ReadWrite" />
+      <UserDefElement iecname="xConfirmError" type="T_BOOL" byteoffset="16" vartype="VAR_INPUT" inherited_from="T_ModbusTCPSlave" access="ReadWrite" />
+      <UserDefElement iecname="xDoInit" type="T_BOOL" byteoffset="17" vartype="VAR_INPUT" inherited_from="T_ModbusTCPSlave" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_Warehouse_In" size="593" nativesize="1248" typeclass="Userdef" pouclass="FUNCTION_BLOCK" iecname="Warehouse_In">
+      <UserDefElement iecname="MES_piece_selection" type="T_WORD" byteoffset="0" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="piece_sensor" type="T_BOOL" byteoffset="2" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="waiting_previous" type="T_BOOL" byteoffset="3" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="which_warehouse" type="T_WORD" byteoffset="4" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="import_piece" type="T_BOOL" byteoffset="6" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="move_belt" type="T_BOOL" byteoffset="7" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="belt_free" type="T_BOOL" byteoffset="8" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="transfer_done" type="T_BOOL" byteoffset="9" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="_belt_free" type="T_SFCActionType" byteoffset="12" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_move_belt" type="T_SFCActionType" byteoffset="140" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_import_piece" type="T_SFCActionType" byteoffset="268" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_transfer_done" type="T_SFCActionType" byteoffset="396" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Free" type="T_SFCStepType" byteoffset="524" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Moving" type="T_SFCStepType" byteoffset="540" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Importing_1" type="T_SFCStepType" byteoffset="556" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Importing_2" type="T_SFCStepType" byteoffset="572" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Free__to__Moving" type="T_BOOL" byteoffset="588" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch0__Moving__to__Importing_1" type="T_BOOL" byteoffset="589" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Importing_1__to__Free" type="T_BOOL" byteoffset="590" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1__Moving__to__Importing_2" type="T_BOOL" byteoffset="591" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Importing_2__to__Free" type="T_BOOL" byteoffset="592" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeUserDef name="T_Warehouse_Out" size="388" nativesize="728" typeclass="Userdef" pouclass="FUNCTION_BLOCK" iecname="Warehouse_Out">
+      <UserDefElement iecname="machine_free" type="T_BOOL" byteoffset="0" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="piece_sensor" type="T_BOOL" byteoffset="1" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="MES_piece_selection" type="T_WORD" byteoffset="2" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="which_warehouse" type="T_WORD" byteoffset="4" vartype="VAR_INPUT" access="ReadWrite" />
+      <UserDefElement iecname="move_belt" type="T_BOOL" byteoffset="6" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="export_piece" type="T_WORD" byteoffset="8" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="ready" type="T_BOOL" byteoffset="10" vartype="VAR_OUTPUT" access="ReadWrite" />
+      <UserDefElement iecname="_move_belt" type="T_SFCActionType" byteoffset="12" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="_ready" type="T_SFCActionType" byteoffset="140" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Free" type="T_SFCStepType" byteoffset="268" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Remove_piece" type="T_SFCStepType" byteoffset="284" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Waiting" type="T_SFCStepType" byteoffset="300" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Rolling" type="T_SFCStepType" byteoffset="316" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Step0" type="T_SFCStepType" byteoffset="332" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Step1" type="T_SFCStepType" byteoffset="348" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Step2" type="T_SFCStepType" byteoffset="364" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch0__Free__to__Remove_piece" type="T_BOOL" byteoffset="380" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Remove_piece__to__Waiting" type="T_BOOL" byteoffset="381" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Waiting__to__Rolling" type="T_BOOL" byteoffset="382" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Rolling__to__Free" type="T_BOOL" byteoffset="383" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Branch1__Free__to__Step0" type="T_BOOL" byteoffset="384" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Step0__to__Step1" type="T_BOOL" byteoffset="385" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Step1__to__Step2" type="T_BOOL" byteoffset="386" vartype="VAR" access="ReadWrite" />
+      <UserDefElement iecname="Step2__to__Free" type="T_BOOL" byteoffset="387" vartype="VAR" access="ReadWrite" />
+    </TypeUserDef>
+    <TypeSimple name="T_TYPE_REFERENCE" size="8" swapsize="8" typeclass="Userdef" iecname="TYPE_REFERENCE" />
+  </TypeList>
+  <NodeList>
+    <Node name="__MIO" />
+    <Node name="Application">
+      <Node name="GVL">
+        <Node name="go_through" type="T_BOOL" access="ReadWrite" />
+        <Node name="WH1_piece_count" type="T_ARRAY__1__9__OF_WORD" access="ReadWrite" />
+        <Node name="WH2_piece_count" type="T_ARRAY__1__9__OF_WORD" access="ReadWrite" />
+      </Node>
+      <Node name="Input_line">
+        <Node name="LC1" type="T_Linear_Conveyor" access="ReadWrite" />
+        <Node name="W1" type="T_Warehouse_In" access="ReadWrite" />
+        <Node name="Win1" type="T_Warehouse_In" access="ReadWrite" />
+      </Node>
+      <Node name="IoConfig_Globals">
+        <Node name="CAADEDTemp" type="T_POINTER_TO_BYTE" access="ReadWrite" />
+        <Node name="Device" type="T_CAADiagDeviceDefault" access="ReadWrite" />
+        <Node name="DeviceNodes" type="T_ARRAY__0__3__OF_DED_INode" access="ReadWrite" />
+        <Node name="Ethernet" type="T_IoDrvEthernetDiag" access="ReadWrite" />
+        <Node name="Modbus_TCP_Master" type="T_IoDrvModbusTCP_Diag" access="ReadWrite" />
+        <Node name="Modbus_TCP_Slave" type="T_ModbusTCPSlave_Diag" access="ReadWrite" />
+        <Node name="nIoConfigTaskMapCount" type="T_DINT" access="ReadWrite" />
+        <Node name="pIoConfigTaskMap" type="T_POINTER_TO_IoConfigTaskMap" access="ReadWrite" />
+      </Node>
+      <Node name="IoConfig_Globals_Mapping">
+        <Node name="Cell0_Cbot_neg_m" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX8.4" />
+        <Node name="Cell0_Cbot_pos_m" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX8.3" />
+        <Node name="Cell0_Cbot_s" type="T_BIT_X_4" access="Read" directaddress="%IX3.4" />
+        <Node name="Cell0_Cmid_neg_m" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX8.2" />
+        <Node name="Cell0_Cmid_pos_m" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX8.1" />
+        <Node name="Cell0_Cmid_s" type="T_BIT_X_3" access="Read" directaddress="%IX3.3" />
+        <Node name="Cell0_Ctop_neg_m" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX8.0" />
+        <Node name="Cell0_Ctop_pos_m" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX7.7" />
+        <Node name="Cell0_Ctop_s" type="T_BIT_X_2" access="Read" directaddress="%IX3.2" />
+        <Node name="Cell1_Cmid_neg_m" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX9.7" />
+        <Node name="Cell1_Cmid_pos_m" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX9.6" />
+        <Node name="Cell1_Cmid_s" type="T_BIT_X_3" access="Read" directaddress="%IX4.3" />
+        <Node name="Cell1_Mbot_neg_m" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX10.1" />
+        <Node name="Cell1_Mbot_neg_rot" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX10.2" />
+        <Node name="Cell1_Mbot_pos_m" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX10.0" />
+        <Node name="Cell1_Mbot_pos_rot" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX10.3" />
+        <Node name="Cell1_Mbot_s" type="T_BIT_X_4" access="Read" directaddress="%IX4.4" />
+        <Node name="Cell1_Mbot_tool" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX10.4" />
+        <Node name="Cell1_Mbot_tool_s" type="T_BIT_X_5" access="Read" directaddress="%IX4.5" />
+        <Node name="Cell1_Mbot_y_neg_m" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX10.5" />
+        <Node name="Cell1_Mbot_y_neg_s" type="T_BIT_X_6" access="Read" directaddress="%IX4.6" />
+        <Node name="Cell1_Mbot_y_pos_m" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX10.6" />
+        <Node name="Cell1_Mbot_y_pos_s" type="T_BIT_X_7" access="Read" directaddress="%IX4.7" />
+        <Node name="Cell1_Mbot_z_neg_m" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX10.7" />
+        <Node name="Cell1_Mbot_z_neg_s" type="T_BIT_X_0" access="Read" directaddress="%IX5.0" />
+        <Node name="Cell1_Mbot_z_pos_m" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX11.0" />
+        <Node name="Cell1_Mbot_z_pos_s" type="T_BIT_X_1" access="Read" directaddress="%IX5.1" />
+        <Node name="Cell1_Mtop_neg_m" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX8.6" />
+        <Node name="Cell1_Mtop_neg_rot" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX8.7" />
+        <Node name="Cell1_Mtop_pos_m" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX8.5" />
+        <Node name="Cell1_Mtop_pos_rot" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX9.0" />
+        <Node name="Cell1_Mtop_s" type="T_BIT_X_5" access="Read" directaddress="%IX3.5" />
+        <Node name="Cell1_Mtop_tool" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX9.1" />
+        <Node name="Cell1_Mtop_tool_s" type="T_BIT_X_6" access="Read" directaddress="%IX3.6" />
+        <Node name="Cell1_Mtop_y_neg_m" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX9.2" />
+        <Node name="Cell1_Mtop_y_neg_s" type="T_BIT_X_7" access="Read" directaddress="%IX3.7" />
+        <Node name="Cell1_Mtop_y_pos_m" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX9.3" />
+        <Node name="Cell1_Mtop_y_pos_s" type="T_BIT_X_0" access="Read" directaddress="%IX4.0" />
+        <Node name="Cell1_Mtop_z_neg_m" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX9.4" />
+        <Node name="Cell1_Mtop_z_neg_s" type="T_BIT_X_1" access="Read" directaddress="%IX4.1" />
+        <Node name="Cell1_Mtop_z_pos_m" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX9.5" />
+        <Node name="Cell1_Mtop_z_pos_s" type="T_BIT_X_2" access="Read" directaddress="%IX4.2" />
+        <Node name="Cell2_Cmid_neg_m" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX12.3" />
+        <Node name="Cell2_Cmid_pos_m" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX12.2" />
+        <Node name="Cell2_Cmid_s" type="T_BIT_X_0" access="Read" directaddress="%IX6.0" />
+        <Node name="Cell2_Mbot_neg_m" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX13.1" />
+        <Node name="Cell2_Mbot_neg_rot" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX13.2" />
+        <Node name="Cell2_Mbot_pos_m" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX13.0" />
+        <Node name="Cell2_Mbot_pos_rot" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX13.3" />
+        <Node name="Cell2_Mbot_s" type="T_BIT_X_1" access="Read" directaddress="%IX6.1" />
+        <Node name="Cell2_Mbot_tool" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX13.4" />
+        <Node name="Cell2_Mbot_tool_s" type="T_BIT_X_2" access="Read" directaddress="%IX6.2" />
+        <Node name="Cell2_Mbot_y_neg_m" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX13.5" />
+        <Node name="Cell2_Mbot_y_neg_s" type="T_BIT_X_3" access="Read" directaddress="%IX6.3" />
+        <Node name="Cell2_Mbot_y_pos_m" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX13.6" />
+        <Node name="Cell2_Mbot_y_pos_s" type="T_BIT_X_4" access="Read" directaddress="%IX6.4" />
+        <Node name="Cell2_Mbot_z_neg_m" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX13.7" />
+        <Node name="Cell2_Mbot_z_neg_s" type="T_BIT_X_5" access="Read" directaddress="%IX6.5" />
+        <Node name="Cell2_Mbot_z_pos_m" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX14.0" />
+        <Node name="Cell2_Mbot_z_pos_s" type="T_BIT_X_6" access="Read" directaddress="%IX6.6" />
+        <Node name="Cell2_Mtop_neg_m" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX11.2" />
+        <Node name="Cell2_Mtop_neg_rot" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX11.3" />
+        <Node name="Cell2_Mtop_pos_m" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX11.1" />
+        <Node name="Cell2_Mtop_pos_rot" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX11.4" />
+        <Node name="Cell2_Mtop_s" type="T_BIT_X_2" access="Read" directaddress="%IX5.2" />
+        <Node name="Cell2_Mtop_tool" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX11.5" />
+        <Node name="Cell2_Mtop_tool_s" type="T_BIT_X_3" access="Read" directaddress="%IX5.3" />
+        <Node name="Cell2_Mtop_y_neg_m" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX11.6" />
+        <Node name="Cell2_Mtop_y_neg_s" type="T_BIT_X_4" access="Read" directaddress="%IX5.4" />
+        <Node name="Cell2_Mtop_y_pos_m" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX11.7" />
+        <Node name="Cell2_Mtop_y_pos_s" type="T_BIT_X_5" access="Read" directaddress="%IX5.5" />
+        <Node name="Cell2_Mtop_z_neg_m" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX12.0" />
+        <Node name="Cell2_Mtop_z_neg_s" type="T_BIT_X_6" access="Read" directaddress="%IX5.6" />
+        <Node name="Cell2_Mtop_z_pos_m" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX12.1" />
+        <Node name="Cell2_Mtop_z_pos_s" type="T_BIT_X_7" access="Read" directaddress="%IX5.7" />
+        <Node name="Cell3_Cmid_neg_m" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX15.3" />
+        <Node name="Cell3_Cmid_pos_m" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX15.2" />
+        <Node name="Cell3_Cmid_s" type="T_BIT_X_5" access="Read" directaddress="%IX7.5" />
+        <Node name="Cell3_Mbot_neg_m" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX15.5" />
+        <Node name="Cell3_Mbot_neg_rot" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX15.6" />
+        <Node name="Cell3_Mbot_pos_m" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX15.4" />
+        <Node name="Cell3_Mbot_pos_rot" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX15.7" />
+        <Node name="Cell3_Mbot_s" type="T_BIT_X_6" access="Read" directaddress="%IX7.6" />
+        <Node name="Cell3_Mbot_tool" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX16.0" />
+        <Node name="Cell3_Mbot_tool_s" type="T_BIT_X_7" access="Read" directaddress="%IX7.7" />
+        <Node name="Cell3_Mbot_y_neg_m" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX16.1" />
+        <Node name="Cell3_Mbot_y_neg_s" type="T_BIT_X_0" access="Read" directaddress="%IX8.0" />
+        <Node name="Cell3_Mbot_y_pos_m" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX16.2" />
+        <Node name="Cell3_Mbot_y_pos_s" type="T_BIT_X_1" access="Read" directaddress="%IX8.1" />
+        <Node name="Cell3_Mbot_z_neg_m" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX16.3" />
+        <Node name="Cell3_Mbot_z_neg_s" type="T_BIT_X_2" access="Read" directaddress="%IX8.2" />
+        <Node name="Cell3_Mbot_z_pos_m" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX16.4" />
+        <Node name="Cell3_Mbot_z_pos_s" type="T_BIT_X_3" access="Read" directaddress="%IX8.3" />
+        <Node name="Cell3_Mtop_neg_m" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX14.2" />
+        <Node name="Cell3_Mtop_neg_rot" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX14.3" />
+        <Node name="Cell3_Mtop_pos_m" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX14.1" />
+        <Node name="Cell3_Mtop_pos_rot" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX14.4" />
+        <Node name="Cell3_Mtop_s" type="T_BIT_X_7" access="Read" directaddress="%IX6.7" />
+        <Node name="Cell3_Mtop_tool" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX14.5" />
+        <Node name="Cell3_Mtop_tool_s" type="T_BIT_X_0" access="Read" directaddress="%IX7.0" />
+        <Node name="Cell3_Mtop_y_neg_m" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX14.6" />
+        <Node name="Cell3_Mtop_y_neg_s" type="T_BIT_X_1" access="Read" directaddress="%IX7.1" />
+        <Node name="Cell3_Mtop_y_pos_m" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX14.7" />
+        <Node name="Cell3_Mtop_y_pos_s" type="T_BIT_X_2" access="Read" directaddress="%IX7.2" />
+        <Node name="Cell3_Mtop_z_neg_m" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX15.0" />
+        <Node name="Cell3_Mtop_z_neg_s" type="T_BIT_X_3" access="Read" directaddress="%IX7.3" />
+        <Node name="Cell3_Mtop_z_pos_m" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX15.1" />
+        <Node name="Cell3_Mtop_z_pos_s" type="T_BIT_X_4" access="Read" directaddress="%IX7.4" />
+        <Node name="Cell4_Cmid_neg_m" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX17.7" />
+        <Node name="Cell4_Cmid_pos_m" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX17.6" />
+        <Node name="Cell4_Cmid_s" type="T_BIT_X_2" access="Read" directaddress="%IX9.2" />
+        <Node name="Cell4_Mbot_neg_m" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX18.1" />
+        <Node name="Cell4_Mbot_neg_rot" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX18.2" />
+        <Node name="Cell4_Mbot_pos_m" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX18.0" />
+        <Node name="Cell4_Mbot_pos_rot" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX18.3" />
+        <Node name="Cell4_Mbot_s" type="T_BIT_X_3" access="Read" directaddress="%IX9.3" />
+        <Node name="Cell4_Mbot_tool" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX18.4" />
+        <Node name="Cell4_Mbot_tool_s" type="T_BIT_X_4" access="Read" directaddress="%IX9.4" />
+        <Node name="Cell4_Mbot_y_neg_m" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX18.5" />
+        <Node name="Cell4_Mbot_y_neg_s" type="T_BIT_X_5" access="Read" directaddress="%IX9.5" />
+        <Node name="Cell4_Mbot_y_pos_m" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX18.6" />
+        <Node name="Cell4_Mbot_y_pos_s" type="T_BIT_X_6" access="Read" directaddress="%IX9.6" />
+        <Node name="Cell4_Mbot_z_neg_m" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX18.7" />
+        <Node name="Cell4_Mbot_z_neg_s" type="T_BIT_X_7" access="Read" directaddress="%IX9.7" />
+        <Node name="Cell4_Mbot_z_pos_m" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX19.0" />
+        <Node name="Cell4_Mbot_z_pos_s" type="T_BIT_X_0" access="Read" directaddress="%IX10.0" />
+        <Node name="Cell4_Mtop_neg_m" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX16.6" />
+        <Node name="Cell4_Mtop_neg_rot" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX16.7" />
+        <Node name="Cell4_Mtop_pos_m" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX16.5" />
+        <Node name="Cell4_Mtop_pos_rot" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX17.0" />
+        <Node name="Cell4_Mtop_s" type="T_BIT_X_4" access="Read" directaddress="%IX8.4" />
+        <Node name="Cell4_Mtop_tool" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX17.1" />
+        <Node name="Cell4_Mtop_tool_s" type="T_BIT_X_5" access="Read" directaddress="%IX8.5" />
+        <Node name="Cell4_Mtop_y_neg_m" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX17.2" />
+        <Node name="Cell4_Mtop_y_neg_s" type="T_BIT_X_6" access="Read" directaddress="%IX8.6" />
+        <Node name="Cell4_Mtop_y_pos_m" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX17.3" />
+        <Node name="Cell4_Mtop_y_pos_s" type="T_BIT_X_7" access="Read" directaddress="%IX8.7" />
+        <Node name="Cell4_Mtop_z_neg_m" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX17.4" />
+        <Node name="Cell4_Mtop_z_neg_s" type="T_BIT_X_0" access="Read" directaddress="%IX9.0" />
+        <Node name="Cell4_Mtop_z_pos_m" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX17.5" />
+        <Node name="Cell4_Mtop_z_pos_s" type="T_BIT_X_1" access="Read" directaddress="%IX9.1" />
+        <Node name="Cell5_Cmid_neg_m" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX20.3" />
+        <Node name="Cell5_Cmid_pos_m" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX20.2" />
+        <Node name="Cell5_Cmid_s" type="T_BIT_X_7" access="Read" directaddress="%IX10.7" />
+        <Node name="Cell5_Mbot_neg_m" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX20.5" />
+        <Node name="Cell5_Mbot_neg_rot" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX20.6" />
+        <Node name="Cell5_Mbot_pos_m" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX20.4" />
+        <Node name="Cell5_Mbot_pos_rot" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX20.7" />
+        <Node name="Cell5_Mbot_s" type="T_BIT_X_0" access="Read" directaddress="%IX11.0" />
+        <Node name="Cell5_Mbot_tool" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX21.0" />
+        <Node name="Cell5_Mbot_tool_s" type="T_BIT_X_1" access="Read" directaddress="%IX11.1" />
+        <Node name="Cell5_Mbot_y_neg_m" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX21.1" />
+        <Node name="Cell5_Mbot_y_neg_s" type="T_BIT_X_2" access="Read" directaddress="%IX11.2" />
+        <Node name="Cell5_Mbot_y_pos_m" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX21.2" />
+        <Node name="Cell5_Mbot_y_pos_s" type="T_BIT_X_3" access="Read" directaddress="%IX11.3" />
+        <Node name="Cell5_Mbot_z_neg_m" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX21.3" />
+        <Node name="Cell5_Mbot_z_neg_s" type="T_BIT_X_4" access="Read" directaddress="%IX11.4" />
+        <Node name="Cell5_Mbot_z_pos_m" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX21.4" />
+        <Node name="Cell5_Mbot_z_pos_s" type="T_BIT_X_5" access="Read" directaddress="%IX11.5" />
+        <Node name="Cell5_Mtop_neg_m" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX19.2" />
+        <Node name="Cell5_Mtop_neg_rot" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX19.3" />
+        <Node name="Cell5_Mtop_pos_m" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX19.1" />
+        <Node name="Cell5_Mtop_pos_rot" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX19.4" />
+        <Node name="Cell5_Mtop_s" type="T_BIT_X_1" access="Read" directaddress="%IX10.1" />
+        <Node name="Cell5_Mtop_tool" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX19.5" />
+        <Node name="Cell5_Mtop_tool_s" type="T_BIT_X_2" access="Read" directaddress="%IX10.2" />
+        <Node name="Cell5_Mtop_y_neg_m" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX19.6" />
+        <Node name="Cell5_Mtop_y_neg_s" type="T_BIT_X_3" access="Read" directaddress="%IX10.3" />
+        <Node name="Cell5_Mtop_y_pos_m" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX19.7" />
+        <Node name="Cell5_Mtop_y_pos_s" type="T_BIT_X_4" access="Read" directaddress="%IX10.4" />
+        <Node name="Cell5_Mtop_z_neg_m" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX20.0" />
+        <Node name="Cell5_Mtop_z_neg_s" type="T_BIT_X_5" access="Read" directaddress="%IX10.5" />
+        <Node name="Cell5_Mtop_z_pos_m" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX20.1" />
+        <Node name="Cell5_Mtop_z_pos_s" type="T_BIT_X_6" access="Read" directaddress="%IX10.6" />
+        <Node name="Cell6_Cmid_neg_m" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX22.7" />
+        <Node name="Cell6_Cmid_pos_m" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX22.6" />
+        <Node name="Cell6_Cmid_s" type="T_BIT_X_0" access="Read" directaddress="%IX13.0" />
+        <Node name="Cell6_Mbot_neg_m" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX23.1" />
+        <Node name="Cell6_Mbot_neg_rot" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX23.2" />
+        <Node name="Cell6_Mbot_pos_m" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX23.0" />
+        <Node name="Cell6_Mbot_pos_rot" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX23.3" />
+        <Node name="Cell6_Mbot_s" type="T_BIT_X_1" access="Read" directaddress="%IX13.1" />
+        <Node name="Cell6_Mbot_tool" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX23.4" />
+        <Node name="Cell6_Mbot_tool_s" type="T_BIT_X_2" access="Read" directaddress="%IX13.2" />
+        <Node name="Cell6_Mbot_y_neg_m" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX23.5" />
+        <Node name="Cell6_Mbot_y_neg_s" type="T_BIT_X_3" access="Read" directaddress="%IX13.3" />
+        <Node name="Cell6_Mbot_y_pos_m" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX23.6" />
+        <Node name="Cell6_Mbot_y_pos_s" type="T_BIT_X_4" access="Read" directaddress="%IX13.4" />
+        <Node name="Cell6_Mbot_z_neg_m" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX23.7" />
+        <Node name="Cell6_Mbot_z_neg_s" type="T_BIT_X_5" access="Read" directaddress="%IX13.5" />
+        <Node name="Cell6_Mbot_z_pos_m" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX24.0" />
+        <Node name="Cell6_Mbot_z_pos_s" type="T_BIT_X_6" access="Read" directaddress="%IX13.6" />
+        <Node name="Cell6_Mtop_neg_m" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX21.6" />
+        <Node name="Cell6_Mtop_neg_rot" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX21.7" />
+        <Node name="Cell6_Mtop_pos_m" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX21.5" />
+        <Node name="Cell6_Mtop_pos_rot" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX22.0" />
+        <Node name="Cell6_Mtop_s" type="T_BIT_X_6" access="Read" directaddress="%IX11.6" />
+        <Node name="Cell6_Mtop_tool" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX22.1" />
+        <Node name="Cell6_Mtop_tool_s" type="T_BIT_X_7" access="Read" directaddress="%IX11.7" />
+        <Node name="Cell6_Mtop_y_neg_m" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX22.2" />
+        <Node name="Cell6_Mtop_y_neg_s" type="T_BIT_X_0" access="Read" directaddress="%IX12.0" />
+        <Node name="Cell6_Mtop_y_pos_m" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX22.3" />
+        <Node name="Cell6_Mtop_y_pos_s" type="T_BIT_X_1" access="Read" directaddress="%IX12.1" />
+        <Node name="Cell6_Mtop_z_neg_m" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX22.4" />
+        <Node name="Cell6_Mtop_z_neg_s" type="T_BIT_X_2" access="Read" directaddress="%IX12.2" />
+        <Node name="Cell6_Mtop_z_pos_m" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX22.5" />
+        <Node name="Cell6_Mtop_z_pos_s" type="T_BIT_X_3" access="Read" directaddress="%IX12.3" />
+        <Node name="Cin1_neg_m" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX0.1" />
+        <Node name="Cin1_pos_m" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX0.0" />
+        <Node name="Cin1_s" type="T_BIT_X_0" access="Read" directaddress="%IX0.0" />
+        <Node name="Cin2_neg_m" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX0.3" />
+        <Node name="Cin2_pos_m" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX0.2" />
+        <Node name="Cin2_s" type="T_BIT_X_1" access="Read" directaddress="%IX0.1" />
+        <Node name="Cin3_neg_m" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX0.5" />
+        <Node name="Cin3_pos_m" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX0.4" />
+        <Node name="Cin3_s" type="T_BIT_X_2" access="Read" directaddress="%IX0.2" />
+        <Node name="Cin4_neg_m" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX0.7" />
+        <Node name="Cin4_pos_m" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX0.6" />
+        <Node name="Cin4_s" type="T_BIT_X_3" access="Read" directaddress="%IX0.3" />
+        <Node name="Roll1a_s" type="T_BIT_X_7" access="Read" directaddress="%IX13.7" />
+        <Node name="Roll1b_s" type="T_BIT_X_0" access="Read" directaddress="%IX14.0" />
+        <Node name="Roll1c_s" type="T_BIT_X_1" access="Read" directaddress="%IX14.1" />
+        <Node name="Roll1d_s" type="T_BIT_X_2" access="Read" directaddress="%IX14.2" />
+        <Node name="Roll1e_s" type="T_BIT_X_3" access="Read" directaddress="%IX14.3" />
+        <Node name="Roll1f_neg_m" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX24.2" />
+        <Node name="Roll1f_pos_m" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX24.1" />
+        <Node name="Roll1f_s" type="T_BIT_X_4" access="Read" directaddress="%IX14.4" />
+        <Node name="Roll2a_s" type="T_BIT_X_5" access="Read" directaddress="%IX14.5" />
+        <Node name="Roll2b_s" type="T_BIT_X_6" access="Read" directaddress="%IX14.6" />
+        <Node name="Roll2c_s" type="T_BIT_X_7" access="Read" directaddress="%IX14.7" />
+        <Node name="Roll2d_s" type="T_BIT_X_0" access="Read" directaddress="%IX15.0" />
+        <Node name="Roll2e_s" type="T_BIT_X_1" access="Read" directaddress="%IX15.1" />
+        <Node name="Roll2f_neg_m" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX24.4" />
+        <Node name="Roll2f_pos_m" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX24.3" />
+        <Node name="Roll2f_s" type="T_BIT_X_2" access="Read" directaddress="%IX15.2" />
+        <Node name="Roll3a_s" type="T_BIT_X_3" access="Read" directaddress="%IX15.3" />
+        <Node name="Roll3b_s" type="T_BIT_X_4" access="Read" directaddress="%IX15.4" />
+        <Node name="Roll3c_s" type="T_BIT_X_5" access="Read" directaddress="%IX15.5" />
+        <Node name="Roll3d_s" type="T_BIT_X_6" access="Read" directaddress="%IX15.6" />
+        <Node name="Roll3e_s" type="T_BIT_X_7" access="Read" directaddress="%IX15.7" />
+        <Node name="Roll3f_neg_m" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX24.6" />
+        <Node name="Roll3f_pos_m" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX24.5" />
+        <Node name="Roll3f_s" type="T_BIT_X_0" access="Read" directaddress="%IX16.0" />
+        <Node name="Roll4a_s" type="T_BIT_X_1" access="Read" directaddress="%IX16.1" />
+        <Node name="Roll4b_s" type="T_BIT_X_2" access="Read" directaddress="%IX16.2" />
+        <Node name="Roll4c_s" type="T_BIT_X_3" access="Read" directaddress="%IX16.3" />
+        <Node name="Roll4d_s" type="T_BIT_X_4" access="Read" directaddress="%IX16.4" />
+        <Node name="Roll4e_s" type="T_BIT_X_5" access="Read" directaddress="%IX16.5" />
+        <Node name="Roll4f_neg_m" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX25.0" />
+        <Node name="Roll4f_pos_m" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX24.7" />
+        <Node name="Roll4f_s" type="T_BIT_X_6" access="Read" directaddress="%IX16.6" />
+        <Node name="WH1_in0_import" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX1.2" />
+        <Node name="WH1_in0_motor" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX1.1" />
+        <Node name="WH1_in0_pos_m" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX1.0" />
+        <Node name="WH1_in0_s" type="T_BIT_X_4" access="Read" directaddress="%IX0.4" />
+        <Node name="WH1_in1_import" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX1.5" />
+        <Node name="WH1_in1_motor" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX1.4" />
+        <Node name="WH1_in1_pos_m" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX1.3" />
+        <Node name="WH1_in1_s" type="T_BIT_X_5" access="Read" directaddress="%IX0.5" />
+        <Node name="WH1_in2_import" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX2.0" />
+        <Node name="WH1_in2_motor" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX1.7" />
+        <Node name="WH1_in2_pos_m" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX1.6" />
+        <Node name="WH1_in2_s" type="T_BIT_X_6" access="Read" directaddress="%IX0.6" />
+        <Node name="WH1_in3_import" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX2.3" />
+        <Node name="WH1_in3_motor" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX2.2" />
+        <Node name="WH1_in3_pos_m" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX2.1" />
+        <Node name="WH1_in3_s" type="T_BIT_X_7" access="Read" directaddress="%IX0.7" />
+        <Node name="WH1_in4_import" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX2.6" />
+        <Node name="WH1_in4_motor" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX2.5" />
+        <Node name="WH1_in4_pos_m" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX2.4" />
+        <Node name="WH1_in4_s" type="T_BIT_X_0" access="Read" directaddress="%IX1.0" />
+        <Node name="WH1_out1_motor" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX3.0" />
+        <Node name="WH1_out1_pos_m" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX2.7" />
+        <Node name="WH1_out1_remove" type="T_WORD" access="ReadWrite" directaddress="%QW13" />
+        <Node name="WH1_out1_s" type="T_BIT_X_1" access="Read" directaddress="%IX1.1" />
+        <Node name="WH1_out2_motor" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX3.2" />
+        <Node name="WH1_out2_pos_m" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX3.1" />
+        <Node name="WH1_out2_remove" type="T_WORD" access="ReadWrite" directaddress="%QW14" />
+        <Node name="WH1_out2_s" type="T_BIT_X_2" access="Read" directaddress="%IX1.2" />
+        <Node name="WH1_out3_motor" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX3.4" />
+        <Node name="WH1_out3_pos_m" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX3.3" />
+        <Node name="WH1_out3_remove" type="T_WORD" access="ReadWrite" directaddress="%QW15" />
+        <Node name="WH1_out3_s" type="T_BIT_X_3" access="Read" directaddress="%IX1.3" />
+        <Node name="WH1_out4_motor" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX3.6" />
+        <Node name="WH1_out4_pos_m" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX3.5" />
+        <Node name="WH1_out4_remove" type="T_WORD" access="ReadWrite" directaddress="%QW16" />
+        <Node name="WH1_out4_s" type="T_BIT_X_4" access="Read" directaddress="%IX1.4" />
+        <Node name="WH1_out5_motor" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX4.0" />
+        <Node name="WH1_out5_pos_m" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX3.7" />
+        <Node name="WH1_out5_remove" type="T_WORD" access="ReadWrite" directaddress="%QW17" />
+        <Node name="WH1_out5_s" type="T_BIT_X_5" access="Read" directaddress="%IX1.5" />
+        <Node name="WH1_out6_m_pos" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX4.1" />
+        <Node name="WH1_out6_motor" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX4.2" />
+        <Node name="WH1_out6_remove" type="T_WORD" access="ReadWrite" directaddress="%QW18" />
+        <Node name="WH1_out6_s" type="T_BIT_X_6" access="Read" directaddress="%IX1.6" />
+        <Node name="WH2_in1_import" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX5.7" />
+        <Node name="WH2_in1_motor" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX5.6" />
+        <Node name="WH2_in1_pos_m" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX5.5" />
+        <Node name="WH2_in1_s" type="T_BIT_X_4" access="Read" directaddress="%IX2.4" />
+        <Node name="WH2_in2_import" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX6.2" />
+        <Node name="WH2_in2_motor" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX6.1" />
+        <Node name="WH2_in2_pos_m" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX6.0" />
+        <Node name="WH2_in2_s" type="T_BIT_X_5" access="Read" directaddress="%IX2.5" />
+        <Node name="WH2_in3_import" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX6.5" />
+        <Node name="WH2_in3_motor" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX6.4" />
+        <Node name="WH2_in3_pos_m" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX6.3" />
+        <Node name="WH2_in3_s" type="T_BIT_X_6" access="Read" directaddress="%IX2.6" />
+        <Node name="WH2_in4_import" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX7.0" />
+        <Node name="WH2_in4_motor" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX6.7" />
+        <Node name="WH2_in4_pos_m" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX6.6" />
+        <Node name="WH2_in4_s" type="T_BIT_X_7" access="Read" directaddress="%IX2.7" />
+        <Node name="WH2_in5_import" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX7.3" />
+        <Node name="WH2_in5_motor" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX7.2" />
+        <Node name="WH2_in5_pos_m" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX7.1" />
+        <Node name="WH2_in5_s" type="T_BIT_X_0" access="Read" directaddress="%IX3.0" />
+        <Node name="WH2_in6_import" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX7.6" />
+        <Node name="WH2_in6_motor" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX7.5" />
+        <Node name="WH2_in6_pos_m" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX7.4" />
+        <Node name="WH2_in6_s" type="T_BIT_X_1" access="Read" directaddress="%IX3.1" />
+        <Node name="WH2_out0_m_pos" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX4.3" />
+        <Node name="WH2_out0_motor" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX4.4" />
+        <Node name="WH2_out0_remove" type="T_WORD" access="ReadWrite" directaddress="%QW19" />
+        <Node name="WH2_out0_s" type="T_BIT_X_7" access="Read" directaddress="%IX1.7" />
+        <Node name="WH2_out1_m_pos" type="T_BIT_X_5" access="ReadWrite" directaddress="%QX4.5" />
+        <Node name="WH2_out1_motor" type="T_BIT_X_6" access="ReadWrite" directaddress="%QX4.6" />
+        <Node name="WH2_out1_remove" type="T_WORD" access="ReadWrite" directaddress="%QW20" />
+        <Node name="WH2_out1_s" type="T_BIT_X_0" access="Read" directaddress="%IX2.0" />
+        <Node name="WH2_out2_m_pos" type="T_BIT_X_7" access="ReadWrite" directaddress="%QX4.7" />
+        <Node name="WH2_out2_motor" type="T_BIT_X_0" access="ReadWrite" directaddress="%QX5.0" />
+        <Node name="WH2_out2_remove" type="T_WORD" access="ReadWrite" directaddress="%QW21" />
+        <Node name="WH2_out2_s" type="T_BIT_X_1" access="Read" directaddress="%IX2.1" />
+        <Node name="WH2_out3_motor" type="T_BIT_X_2" access="ReadWrite" directaddress="%QX5.2" />
+        <Node name="WH2_out3_pos_m" type="T_BIT_X_1" access="ReadWrite" directaddress="%QX5.1" />
+        <Node name="WH2_out3_remove" type="T_WORD" access="ReadWrite" directaddress="%QW22" />
+        <Node name="WH2_out3_s" type="T_BIT_X_2" access="Read" directaddress="%IX2.2" />
+        <Node name="WH2_out4_motor" type="T_BIT_X_4" access="ReadWrite" directaddress="%QX5.4" />
+        <Node name="WH2_out4_pos_m" type="T_BIT_X_3" access="ReadWrite" directaddress="%QX5.3" />
+        <Node name="WH2_out4_remove" type="T_WORD" access="ReadWrite" directaddress="%QW23" />
+        <Node name="WH2_out4_s" type="T_BIT_X_3" access="Read" directaddress="%IX2.3" />
+      </Node>
+      <Node name="Processing_line">
+        <Node name="LCp1" type="T_Linear_Conveyor_proccess" access="ReadWrite" />
+        <Node name="M1_cell_1" type="T_Machine_1" access="ReadWrite" />
+        <Node name="M2_cell_1" type="T_Machine_2" access="ReadWrite" />
+        <Node name="Win2" type="T_Warehouse_In" access="ReadWrite" />
+        <Node name="Wout1" type="T_Warehouse_Out" access="ReadWrite" />
+      </Node>
+    </Node>
+  </NodeList>
+</Symbolconfiguration>
