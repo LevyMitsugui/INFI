@@ -1,1 +1,12 @@
 Folder reserved for MES code and MES Database code
+enquaanto desenvolvimento
+	1-TESTE
+
+	2-TESTE
+	 -CLASSES (opc)
+
+
+
+	3-MES-MAIN
+	 -opc classes
+	 -sql classes
