@@ -10,7 +10,6 @@ class Cell:
         """
         self.ID = ID
         self.busy = False
-        activeMachines = 2
         self.machines = []
 
     def addMachine(self, machine):
@@ -24,6 +23,7 @@ class Cell:
         self.busy = False
 
     def isBusy(self):
+        
         return self.busy
 
     def getID(self):

@@ -7,9 +7,9 @@ class testCell(unittest.TestCase):
         cell = Cell.Cell(1)
         
         cellID = cell.getID()
-        self.assert_Equal(cellID, 1)
+        self.assertEqual(cellID, 1)
 
-        machine = Machine.Machine(1, "test")
+        machine = Machine.Machine(1, "M1")
         cell.addMachine(machine)
         self.assertEqual(len(cell.machines), 1)
 
