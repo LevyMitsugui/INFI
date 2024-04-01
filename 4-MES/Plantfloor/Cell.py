@@ -1,4 +1,3 @@
-import Machine
 
 class Cell:
     def __init__(self, ID):
