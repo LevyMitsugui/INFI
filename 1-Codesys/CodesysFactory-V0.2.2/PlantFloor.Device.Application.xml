@@ -5,5 +5,16 @@
     <SymbolConfigObject version="4.4.0.0" runtimeid="3.5.19.60" libversion="4.4.0.0" compiler="3.5.19.60" lmm="3.5.19.60" profile="CODESYS V3.5 SP19 Patch 6+" settings="SupportOPCUA, LayoutCalculator=OptimizedClientSideLayoutCalculator" />
     <ProjectInfo name="PlantFloor" devicename="Device" appname="Application" />
   </Header>
-  <TypeList />
+  <TypeList>
+    <TypeSimple name="T_INT" size="2" swapsize="2" typeclass="Int" iecname="INT" />
+  </TypeList>
+  <NodeList>
+    <Node name="Application">
+      <Node name="GVL">
+        <Node name="set_Input_Piece" type="T_INT" access="ReadWrite" />
+        <Node name="set_M1_T1" type="T_INT" access="ReadWrite" />
+        <Node name="set_M1_T2" type="T_INT" access="ReadWrite" />
+      </Node>
+    </Node>
+  </NodeList>
 </Symbolconfiguration>
