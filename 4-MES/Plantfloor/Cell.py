@@ -10,6 +10,10 @@ class Cell:
         self.ID = ID
         self.busy = False
         self.machines = []
+        self.requests = []
+
+    def addRequest(self, request):
+        self.requests.append(request)
 
     def addMachine(self, machine):
         self.machines.append(machine)
