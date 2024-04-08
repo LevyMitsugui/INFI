@@ -8,9 +8,10 @@ class newQueue(queue.Queue):
     def peek(self):
         return self.queue[0]
 
-buffer = [['P5', 'P6'], "uma info", "outra info", 0]
+buffer = [['P5', 'P9'], "uma info", "outra info", 0]
 myQueue = newQueue()
 myQueue.put(buffer)
+
 
 class Manager():
     def __printRecipes(self, queue):   
