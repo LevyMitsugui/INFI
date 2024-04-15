@@ -4,6 +4,46 @@ import queue
 import time
 from xml.dom import minidom
 
+class parser(object):
+    def __init__(self, xml):
+        self.info = minidom.parseString(xml)
+
+    def __insertOrder(self, clientList):
+        #if client does not exist in list:
+        if self.info.getElementsByTagName('Client')[0].getAttribute('NameId') not in clientList:
+            client = Client()
+            clientList[self.info.getElementsByTagName('Client')[0].getAttribute('NameId')] = client
+        else:
+            client = clientList[self.info.getElementsByTagName('Client')[0].getAttribute('NameId')]
+        
+        order = Order(self.info.getElementsByTagName('Order')[0].getAttribute('Number'),
+                      self.info.getElementsByTagName('Order')[0].getAttribute('WorkPiece'),
+                      self.info.getElementsByTagName('Order')[0].getAttribute('Quantity'),
+                      self.info.getElementsByTagName('Order')[0].getAttribute('DueDate'),
+                      self.info.getElementsByTagName('Order')[0].getAttribute('LatePen'),
+                      self.info.getElementsByTagName('Order')[0].getAttribute('EarlyPen'))
+        client.addOrder(order)
+
+class Client:
+    def __init__(self):
+        orderList = []
+
+    def addOrder(self, order):
+        #insert order into list keeping number order
+        i = 0
+        while i < len(self.orderList) and self.orderList[i].number < order.number:
+            i += 1
+        self.orderList.insert(i, order)
+
+class Order:
+    def __init__(self, number, workpiece, quantity, due_date, late_pen, early_pen):
+        self.number = number
+        self.workpiece = workpiece
+        self.quantity = quantity
+        self.due_date = due_date
+        self.late_pen = late_pen
+        self.early_pen = early_pen
+
 def __UDPServer(OutputQueue):
     HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
     PORT = 65432        # Port to listen on (non-privileged ports are > 1023)
@@ -16,43 +56,27 @@ def __UDPServer(OutputQueue):
             print('\nReceived\n', repr(data), 'from', addr)
             OutputQueue.put(data)
             s.sendto(data, addr)
-    
+
+def __printQueue(outputQueue):
+    while True:
+        time.sleep(5)
+        while not outputQueue.empty():
+            print('\n\n -- -- From Queue -- -- \n', minidom.parseString(outputQueue.get()).toprettyxml())    
 
 def UDPServer(OutputQueue):
     threading.Thread(target=__UDPServer, daemon=True, args=(OutputQueue,)).start()
 
-def printQueue(outputQueue):
-    while True:
-        time.sleep(5)
-        while not outputQueue.empty():
-            print('\n\n -- -- From Queue -- -- \n', minidom.parseString(outputQueue.get()).toprettyxml())
+def printQueue(OutputQueue):
+    threading.Thread(target=__printQueue, daemon=True, args=(OutputQueue,)).start()
 
 
-class OrderXML:
-    def __init__(self, xmlData):
-        self.data = minidom.parseString(xmlData)
+queueFromUDP = queue.Queue()# create queue for UDP
 
-    def parse(self):
-        order = {}
-        order['client'] = self.data.getElementsByTagName('Client')[0].getAttribute('NameId')
-        orders = self.data.getElementsByTagName('Order')
-        for o in orders:
-            order[o.getAttribute('Number')] = {
-                'workpiece': o.getAttribute('WorkPiece'),
-                'quantity': int(o.getAttribute('Quantity')),
-                'due_date': int(o.getAttribute('DueDate')),
-                'late_pen': int(o.getAttribute('LatePen')),
-                'early_pen': int(o.getAttribute('EarlyPen'))
-            }
-        return order
+UDPServer(queueFromUDP) # start UDP server thread
+printQueue(queueFromUDP)# start print queue thread
 
-    def print(self):
-        print(self.data.toprettyxml())
+parser = parser(queueFromUDP.get())
 
-
-
-fromUDP = queue.Queue()
-UDPServer(fromUDP)
-
-threading.Thread(target=printQueue, daemon=True, args=(fromUDP,)).start()
-input()
+while input() != 'q':
+    time.sleep(1)
+    print('bruh')
