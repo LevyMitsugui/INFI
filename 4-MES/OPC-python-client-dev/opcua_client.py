@@ -14,13 +14,14 @@ except Exception as err:
     sys.exit(1)
 
 if __name__ == "__main__":
-    set_M1_T1 = client.get_node("")
-    set_M1_T2 = client.get_node("")
-    set_Input_Piece = client.get_node("")
+    setCM = client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.GVL.setCM")
+    setPieceIO = client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.GVL.setPieceIO")
     
-    num_node = client.get_node(ua.NodeId(1002, 2))
+    ##num_node = client.get_node(ua.NodeId(1002, 2))
 
 
 while True:
+    print(setCM.get_value())
+    print(setPieceIO.get_value())
     print("connected")
-    time.sleep(1)
+    time.sleep(2)
