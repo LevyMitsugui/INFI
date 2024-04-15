@@ -4,29 +4,32 @@ import queue
 import time
 from xml.dom import minidom
 
-class parser(object):
-    def __init__(self, xml):
-        self.info = minidom.parseString(xml)
+class Parser(object):
+    def __init__(self, clientList):
+        self.clientList = clientList
 
-    def __insertOrder(self, clientList):
+    def insertOrder(self, xml):
+        info = minidom.parseString(xml)
         #if client does not exist in list:
-        if self.info.getElementsByTagName('Client')[0].getAttribute('NameId') not in clientList:
+        if info.getElementsByTagName('Client')[0].getAttribute('NameId') not in self.clientList:
             client = Client()
-            clientList[self.info.getElementsByTagName('Client')[0].getAttribute('NameId')] = client
+            self.clientList[info.getElementsByTagName('Client')[0].getAttribute('NameId')] = client
         else:
-            client = clientList[self.info.getElementsByTagName('Client')[0].getAttribute('NameId')]
+            client = self.clientList[info.getElementsByTagName('Client')[0].getAttribute('NameId')]
         
-        order = Order(self.info.getElementsByTagName('Order')[0].getAttribute('Number'),
-                      self.info.getElementsByTagName('Order')[0].getAttribute('WorkPiece'),
-                      self.info.getElementsByTagName('Order')[0].getAttribute('Quantity'),
-                      self.info.getElementsByTagName('Order')[0].getAttribute('DueDate'),
-                      self.info.getElementsByTagName('Order')[0].getAttribute('LatePen'),
-                      self.info.getElementsByTagName('Order')[0].getAttribute('EarlyPen'))
-        client.addOrder(order)
-
+        #according to the number of orders, add all orders to the client
+        for i in range(len(info.getElementsByTagName('Order'))):
+            order = Order(info.getElementsByTagName('Order')[i].getAttribute('Number'),
+                          info.getElementsByTagName('Order')[i].getAttribute('WorkPiece'),
+                          info.getElementsByTagName('Order')[i].getAttribute('Quantity'),
+                          info.getElementsByTagName('Order')[i].getAttribute('DueDate'),
+                          info.getElementsByTagName('Order')[i].getAttribute('LatePen'),
+                          info.getElementsByTagName('Order')[i].getAttribute('EarlyPen'))
+            client.addOrder(order)
+            
 class Client:
     def __init__(self):
-        orderList = []
+        self.orderList = []
 
     def addOrder(self, order):
         #insert order into list keeping number order
@@ -51,9 +54,9 @@ def __UDPServer(OutputQueue):
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
         s.bind((HOST, PORT))
         while True:
-            print('Waiting for data...')
+            print('[UDP Thread] Waiting for data...')
             data, addr = s.recvfrom(1024)
-            print('\nReceived\n', repr(data), 'from', addr)
+            print('\n[UDP Thread] Received\n', repr(data), 'from', addr)
             OutputQueue.put(data)
             s.sendto(data, addr)
 
@@ -61,7 +64,7 @@ def __printQueue(outputQueue):
     while True:
         time.sleep(5)
         while not outputQueue.empty():
-            print('\n\n -- -- From Queue -- -- \n', minidom.parseString(outputQueue.get()).toprettyxml())    
+            print('[Print Thread] \n\n -- -- From Queue -- -- \n', minidom.parseString(outputQueue.get()).toprettyxml())    
 
 def UDPServer(OutputQueue):
     threading.Thread(target=__UDPServer, daemon=True, args=(OutputQueue,)).start()
@@ -71,12 +74,17 @@ def printQueue(OutputQueue):
 
 
 queueFromUDP = queue.Queue()# create queue for UDP
+clientList = {}
 
-UDPServer(queueFromUDP) # start UDP server thread
+UDPServer(queueFromUDP) # start UDP/IP server thread
 printQueue(queueFromUDP)# start print queue thread
 
-parser = parser(queueFromUDP.get())
+parser = Parser(clientList)
 
-while input() != 'q':
-    time.sleep(1)
-    print('bruh')
+while True:
+    if not queueFromUDP.empty():
+        parser.insertOrder(queueFromUDP.get())
+        print('Client List: ', clientList)
+        for c in clientList.values():
+            for o in c.orderList:
+                print(o.number, o.workpiece, o.quantity, o.due_date, o.late_pen, o.early_pen)
