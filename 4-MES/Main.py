@@ -3,61 +3,62 @@ from Recipe.Recipe import *
 import threading
 import time
 import queue
+import mysql.connector
 
 class newQueue(queue.Queue):
     def peek(self):
         return self.queue[0]
 
-buffer = [['P5', 'P9'], "uma info", "outra info", 0]
-myQueue = newQueue()
-myQueue.put(buffer)
+    def orderedPut(self, item):
+        #place item in queue ordered by due date
+        for i in range(len(self.queue)):
+            if item['DueDate'] < self.queue[i]['DueDate']:
+                self.queue.insert(i, item)
+                break
+        else:
+            self.queue.append(item)
 
+class SQLManager():
+    def __init__(self):
+        pass
 
 class Manager():
-    def __printRecipes(self, queue):   
-        myRecipe = Recipe()
-        lastCount = -1
-        while True:
-            time.sleep(0.5)
-            if queue.qsize() > 0 and queue.peek()[3] != lastCount: 
-                buff = queue.peek()
-                lastCount = buff[3]
-                print(buff[0])
-                for r in buff[0]:
-                    print(myRecipe.getRecipes(r))
+    def __init__(self, orderQueue, requestQueue):
+        self.OrderQueue = orderQueue
+        self.RequestQueue = requestQueue
+        self.cells = self.__initCells() #hardcoded
+        self.__configMachines() #hardcoded
 
-    def __counter(self, queue):
-        buff = queue.get()
-        
-        while True:
-            time.sleep(1)
-            print("\ncounter: ", buff[3], "  queue size: ", queue.qsize())
-            buff[3] = buff[3] + 1
-            queue.queue.clear()
-            queue.put(buff)
-
-    def __print(self, queue):
-        while True:
-            time.sleep(2)
-            
-            print(queue.get())
-        
+    def __initCells(self,): #hardcoded
+        cells = []
+        for i in range(6):
+            cells.append(Cell(i))
+        return cells
     
-    def printRecipes(self, queue):
-        threading.Thread(target=self.__printRecipes, daemon=True, args=(queue,)).start()
+    def __configMachines(self): #hardcoded
+        self.cells[0].addMachine(Machine(0, 'M1'))
+        self.cells[0].addMachine(Machine(1, 'M2'))
+        self.cells[1].addMachine(Machine(0, 'M1'))
+        self.cells[1].addMachine(Machine(1, 'M2'))
+        self.cells[2].addMachine(Machine(0, 'M1'))
+        self.cells[2].addMachine(Machine(1, 'M2'))
 
-    def counter(self):
-        threading.Thread(target=self.__counter, daemon=True,args=(myQueue,)).start()
+        self.cells[3].addMachine(Machine(0, 'M3'))
+        self.cells[3].addMachine(Machine(1, 'M4'))
+        self.cells[4].addMachine(Machine(0, 'M3'))
+        self.cells[4].addMachine(Machine(1, 'M4'))
+        self.cells[5].addMachine(Machine(0, 'M3'))
+        self.cells[5].addMachine(Machine(1, 'M4'))
 
-    def print(self, queue):
-        threading.Thread(target=self.__print, daemon=True, args=(queue,)).start()
+    #def makeRequest(self, )
+
+    def __processOrders(self):
+        while True:
+            currOrder = self.OrderQueue.get()
 
 
 
+order = {'clientID' : 'Client AA', 'Order Number' : 18, 'WorkPiece' : 'P5', 'Quantity' : 8, 'DueDate' : 7, 'LatePen' : 10, 'EarlyPen' : 5}
 
-manager = Manager()
-manager.printRecipes(myQueue)
-manager.counter()
-manager.print(myQueue)
-
-Input = input("press enter to stop")
+myQueue = newQueue()
+myQueue.orderedPutput(order)

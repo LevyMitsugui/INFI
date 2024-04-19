@@ -29,4 +29,13 @@ class Recipe(object):
                 if row['Piece'] == name:
                     recipes.append((float(row['Time']), row['Material'], row['Tools'].split(';')))
         return recipes
+    
+def getRecipes(filename, name):
+        recipes = []
+        with open(filename, newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                if row['Piece'] == name:
+                    recipes.append((float(row['Time']), row['Material'], row['Tools'].split(';')))
+        return recipes
 
