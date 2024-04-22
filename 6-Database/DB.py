@@ -55,6 +55,30 @@ class Database:
 			self.db.commit()
 
 
+
+	def getOrderByNum(self, client, order_number):
+		cursor = self.db.cursor()
+		client = [client]																	#Transform the name of client, as the query needs to have the name in quotes
+		sql = "SELECT EXISTS(SELECT * FROM clients WHERE name = \"" + client[0] + "\")"		#Check if the client exists
+		cursor.execute(sql)
+		c_exists = cursor.fetchall()
+		if(c_exists[0][0]):
+			sql = "SELECT id FROM clients WHERE name = \"" + client[0] + "\""				
+			cursor.execute(sql)
+			c_id = cursor.fetchall()
+			sql = "SELECT EXISTS(SELECT * FROM orders WHERE number = " + str(order_number) + " AND client_id = " + str(c_id[0][0]) + ")"
+			cursor.execute(sql)
+			o_exists = cursor.fetchall()
+			if(o_exists[0][0]):
+				sql = "SELECT * FROM orders WHERE number = " + str(order_number) + " AND client_id = " + str(c_id[0][0])
+				cursor.execute(sql)
+				self.order = cursor.fetchall()
+				self.order = db.filterOrder(self.order)
+			else:
+				print("Order doesn't exist")
+		else:
+			print("Client doesn't exist")
+
 	def getOrders(self):
 		cursor = self.db.cursor()
 		sql = "CREATE TEMPORARY TABLE temp SELECT * FROM orders"							#Creates a temporary table to store the result of the query
@@ -93,7 +117,24 @@ class Database:
 			print(x)
 		print("#############################\n")
 
-	#CRUD - Create Read Update and Delete
+	def printOrder(self):
+		print("Order found:" + str(self.order[0]))
+
+	def filterOrder(self, order):
+		cursor = self.db.cursor()
+		ord_client = order[0][1]
+		ord_number = order[0][2]
+		sql = "CREATE TEMPORARY TABLE temp SELECT * FROM orders WHERE number = " + str(ord_number) + " AND client_id = " + str(ord_client)							#Creates a temporary table to store the result of the query
+		cursor.execute(sql)
+		sql = "ALTER TABLE temp DROP COLUMN client_id, DROP COLUMN id"						#Drops the columns that are not needed (leave only relevant data)
+		cursor.execute(sql)
+		sql = "SELECT * FROM temp"															#Selects all rows from the temporary table
+		cursor.execute(sql)
+		filtered_order = cursor.fetchall()
+		sql = "DROP TABLE temp"																#Drops the temporary table
+		cursor.execute(sql)
+		self.db.commit()
+		return filtered_order
 
 
 
@@ -117,21 +158,23 @@ db.getClients()
 db.printClients()
 db.printOrders()
 
+# db.insertClient("AA")
+# db.insertClient("BB")
 
-db.insertClient("AA")
-db.insertClient("BB")
-
-	#Create and insert 2 different orders
+# 	#Create and insert 2 different orders
 order1 = Order(2, "P3", 5, 6, 12, 3)
-order2 = Order(19, "P6", 1, 4, 10, 10)
-db.insertOrder("AA", order1)
-db.insertOrder("BB", order2)
+# order2 = Order(19, "P6", 1, 4, 10, 10)
+# db.insertOrder("AA", order1)
+# db.insertOrder("BB", order2)
 
-	#Get clients, orders after insertion and print them
-db.getClients()
-db.getOrders()
-db.printClients()
-db.printOrders()
+# 	#Get clients, orders after insertion and print them
+# db.getClients()
+# db.getOrders()
+# db.printClients()
+# db.printOrders()
+
+db.getOrderByNum("AA", 2)
+db.printOrder()
 
 
 
