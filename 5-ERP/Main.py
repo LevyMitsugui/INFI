@@ -2,11 +2,16 @@ import socket
 import threading
 import queue
 import time
+import sys
+sys.path.append("..")
+
+from ..Database.DB import *         # TO RUN THE CODE YOU MUST GO TO THE PREVIOUS FOLDER OF INFI AND RUN "python -m INFI.5-ERP.Main"
 from xml.dom import minidom
 
 class Parser(object):
     def __init__(self, clientList):
         self.clientList = clientList
+        self.db = Database()                                                                            # initialize database connector
 
     def insertOrder(self, xml):
         info = minidom.parseString(xml)
@@ -26,6 +31,7 @@ class Parser(object):
                           info.getElementsByTagName('Order')[i].getAttribute('LatePen'),
                           info.getElementsByTagName('Order')[i].getAttribute('EarlyPen'))
             client.addOrder(order)
+            self.db.insertOrder(info.getElementsByTagName('Client')[0].getAttribute('NameId'), order)   # Insert order in the database
             
 class Client:
     def __init__(self):

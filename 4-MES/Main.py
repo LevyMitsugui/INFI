@@ -3,7 +3,10 @@ from Recipe.Recipe import *
 import threading
 import time
 import queue
-import mysql.connector
+# import sys
+# sys.path.append("..")
+
+# from ..Database.DB import *         # TO RUN THE CODE YOU MUST GO TO THE PREVIOUS FOLDER OF INFI AND RUN "python -m INFI.4-MES.Main"
 
 class newQueue(queue.Queue):
     def peek(self):
@@ -21,6 +24,14 @@ class newQueue(queue.Queue):
 class SQLManager():
     def __init__(self):
         pass
+    #     self.db = Database()
+
+    # def getOrder(self):
+    #     orderTup = self.db.processMostUrgentOrder()
+    #     if(not orderTup):
+    #         return None
+    #     order = {'clientID' : orderTup[0][0] , 'Order Number' : orderTup[0][1], 'WorkPiece' : orderTup[0][2], 'Quantity' : orderTup[0][3], 'DueDate' : orderTup[0][4], 'LatePen' : orderTup[0][5], 'EarlyPen' : orderTup[0][6]}
+    #     return order
 
 class Manager():
     def __init__(self, orderQueue, requestQueue):
@@ -61,4 +72,7 @@ class Manager():
 order = {'clientID' : 'Client AA', 'Order Number' : 18, 'WorkPiece' : 'P5', 'Quantity' : 8, 'DueDate' : 7, 'LatePen' : 10, 'EarlyPen' : 5}
 
 myQueue = newQueue()
-myQueue.orderedPutput(order)
+# mySQL = SQLManager()
+# myQueue.orderedPut(mySQL.getOrder())
+myQueue.orderedPut(order)
+print(myQueue.peek())
