@@ -2,16 +2,25 @@ import mysql.connector;
 
 class Database:
 	def __init__(self):
+		'''
+		Initializes a new instance of the class.
+
+		Parameters:
+		None
+
+		Returns:
+		None
+		'''
 		try:
-			self.db = mysql.connector.connect(       								# Creates a connection to the database
+			self.db = mysql.connector.connect(       								# Creates a connector to access the database
 					host="localhost",
-					user="infi",
-					password="infi2324",
-					database="infi2324"												# Selects the desired database from the server
+					user="infi",													# The user you selected to access the server
+					password="infi2324",											# The password you selected to access the server
+					database="infi2324"												# Selects internally the desired database from the server
 			)
-			self.db.orders = []
-			self.db.open = []
-			self.db.order_by_num = []
+			self.orders = []
+			self.open = []
+			self.order_by_num = []
 			print("Connected to the database server")
 
 		except mysql.connector.Error as err:
@@ -37,7 +46,7 @@ class Database:
 		self.db.commit()
 
 
-	def updateOrders(self):
+	def getOrders(self):
 		'''
 		Updates all orders from the database
 
@@ -61,7 +70,7 @@ class Database:
 		self.db.commit()
 
 
-	def updateOpenOrders(self):
+	def getOpenOrders(self):
 		'''
 		Updates all pendent orders from the database sorted from smaller to larger due_date
 
@@ -134,7 +143,7 @@ class Database:
 		print  ("###############################################################################\n")
 
 
-	def getOrderByNum(self, client, order_number):
+	def processOrderByNum(self, client, order_number):
 		'''
 		Gets a specific order from the database by the client and the order number and closes it
 
@@ -166,7 +175,7 @@ class Database:
 		else:
 			print("Client doesn't exist")
 
-	def getMostUrgentOrder(self):
+	def processMostUrgentOrder(self):
 		'''
 		Gets the most urgent order from the database (if due_date is the same, the order with the lower number is chosen) and closes it
 
@@ -212,13 +221,13 @@ order2 = Order(19, "P6", 1, 4, 10, 10)
 # db.insertOrder("AA", order1)						#Insert order1
 # db.insertOrder("BB", order2)						#Insert order2
 
-# db.getOrderByNum("AA", 2)							#Get order1 and closes it
-# db.getMostUrgentOrder()								#Get most urgent order and closes it
+# db.processOrderByNum("AA", 2)							#Get order1 and closes it
+# db.processMostUrgentOrder()								#Get most urgent order and closes it
 
 # 	#Get clients, orders after action
-db.updateOrders()
+db.getOrders()
 db.printOrders()
-db.updateOpenOrders()
+db.getOpenOrders()
 db.printOpen()
 
 
