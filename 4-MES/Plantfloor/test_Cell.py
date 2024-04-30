@@ -1,10 +1,15 @@
 import unittest
 import Cell
 import Machine
+import sys
+sys.path.append('path_to_customQueue_directory')  # Add the path to the customQueue directory
+
+from customQueue.customQueue import customQueue
 
 class testCell(unittest.TestCase):
     def test_addMachine(self):
-        cell = Cell.Cell(1)
+        requestQueue = customQueue.customQueue()
+        cell = Cell.Cell(1, requestQueue, './Recipes/recipes.csv')
         
         cellID = cell.getID()
         self.assertEqual(cellID, 1)
