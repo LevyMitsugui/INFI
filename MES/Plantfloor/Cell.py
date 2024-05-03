@@ -51,6 +51,7 @@ class Cell:
         threading.Thread(target=self.__cycle, daemon=True).start()
 
     def __cycle(self):
+        #TODO implement this: while ocpcua Connected, because, for now, the code will run even if there is no connection
         while True:
             time.sleep(1)
             request = self.requestQueue.get()
@@ -61,7 +62,7 @@ class Cell:
                 request['Piece'] == 'P6' or\
                 request['Piece'] == 'P7' or\
                 request['Piece'] == 'P8':
-                    print('Can process')
+                    print('[Cell Cycle] Can process')
                     self.setBusy()
                 else:
                     print('Can not process')
@@ -72,12 +73,15 @@ class Cell:
                 request['Piece'] == 'P5' or\
                 request['Piece'] == 'P7' or\
                 request['Piece'] == 'P9':
-                    print('Can process')
+                    print('[Cell Cycle] Can process')
                     self.setBusy()
                 else:
-                    print('Can not process')
+                    print('[Cell Cycle] Can not process')
                     self.requestQueue.orderedPut(request)
-            
+            else:
+                print('[Cell Cycle] Indetermined piece, request will not be put back in queue')
+                request = None
+                
             if self.isBusy():
                 toolsOrder = request['Tools'] #exp: 'T1;T2;T3'
                 toolsOrder = toolsOrder.split(';') #exp: ['T1', 'T2', 'T3']
@@ -85,97 +89,61 @@ class Cell:
 
                 for t in toolsOrder:
                     if t not in self.__allTools:
-                        print('Invalid tool: ', t)
+                        print('[Cell Cycle] Invalid tool: ', t)
                         break
                 
                 if len(toolsOrder) == 1:
+                    print('[Cell Cycle] One step process')
                     self.machines[1].setBusy()
                     self.machines[1].setTool(toolsOrder[0])
 
-                    while not self.machines[1].isPieceInPosition(): #wait until piece is in position
+                    while not self.machines[1].machineDone(): #wait until piece is processed #TODO mock function just to simulate the piece processing
                         time.sleep(0.5)
                     
-                    self.machines[1].setActive()
-                    time.sleep(times[0])
-                    self.machines[1].setInactive()
-                    
-                    while self.machines[1].isPieceInPosition(): #wait until piece is not in position
-                        time.sleep(0.5)
                     self.machines[1].setFree()
                     self.setFree()
+                    print('[Cell Cycle] Done one step process')
                         
                 elif len(toolsOrder) == 2:
+                    print('[Cell Cycle] Two step process')
                     self.machines[0].setBusy()
                     self.machines[0].setTool(toolsOrder[0])
                     self.machines[1].setTool(toolsOrder[1])
                     
-                    while not self.machines[0].isPieceInPosition():
-                        time.sleep(0.5)
-                        
-                    self.machines[0].setActive()
-                    time.sleep(times[0])
-                    self.machines[0].setInactive()
-
-                    while self.machines[0].isPieceInPosition(): #wait until piece is not in position
+                    while not self.machines[0].machineDone(): #wait until piece is processed #TODO mock function
                         time.sleep(0.5)
                     self.machines[0].setFree()
 
-                    
                     self.machines[1].setBusy()
-                    while not self.machines[1].isPieceInPosition():
-                        time.sleep(0.5)
-                        
-                    self.machines[1].setActive()
-                    time.sleep(times[1])
-                    self.machines[1].setInactive()
-
-                    while self.machines[1].isPieceInPosition(): #wait until piece is not in position
-                        time.sleep(0.5)
+                    while not self.machines[1].machineDone(): #wait until piece is processed #TODO mock
+                        time.sleep(0.5)   
                     self.machines[1].setFree()
                     self.setFree()
+                    print('[Cell Cycle] Done two step process')
 
                 elif len(toolsOrder) == 3:
+                    print('[Cell Cycle] Three step process')
                     self.machines[0].setBusy()
                     self.machines[0].setTool(toolsOrder[0])
                     self.machines[1].setTool(toolsOrder[1])
                     
-                    while not self.machines[0].isPieceInPosition():
+                    while not self.machines[0].machineDone(): #wait until piece is processed #TODO mock function just to simulate the piece processing
                         time.sleep(0.5)
-                        
-                    self.machines[0].setActive()
-                    time.sleep(times[0])
-                    self.machines[0].setInactive()
+                    self.machines[0].setFree()    
 
-                    while self.machines[0].isPieceInPosition(): #wait until piece is not in position
-                        time.sleep(0.5)
-                    self.machines[0].setFree()
-
-                    
                     self.machines[1].setBusy()
-                    while not self.machines[1].isPieceInPosition():
+                    while not self.machines[1].machineDone(): #wait until piece is processed #TODO mock function
                         time.sleep(0.5)
-                        
-                    self.machines[1].setActive()
-                    time.sleep(times[1])
-                    self.machines[1].setInactive()
 
                     self.machines[1].setTool(toolsOrder[2])
-                    #tool in position?
-                    while not self.machines[1].isToolInPosition(): #wait until tool is in position
-                        time.sleep(30) #TEMPORARY SOLUTION                        
-                        self.machines[1].setToolInPosition()#TODO fix tool in position
                     
-                    self.machines[1].setActive()
-                    time.sleep(times[2])
-                    self.machines[1].setInactive()
-                    
-                    while self.machines[1].isPieceInPosition(): #wait until piece is not in position
+                    while not self.machines[1].machineDone(): #wait until piece is processed #TODO mock function
                         time.sleep(0.5)
                     self.machines[1].setFree()
                     self.setFree()
 
                 else:
-                    print('Invalid number of tools: ', len(toolsOrder))
+                    print('[Cell Cycle] Invalid number of tools: ', len(toolsOrder))
                     break
 
     def printStatus(self):

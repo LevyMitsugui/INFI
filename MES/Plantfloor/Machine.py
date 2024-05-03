@@ -58,3 +58,7 @@ class Machine:
     def __verifyType(self, type):
         if type != 'M1' and type != 'M2' and type != 'M3' and type != 'M4':
             raise ValueError('Invalid machine type')
+        
+    #mock functions #TODO should be removed when system is operating
+    def machineDone(self):   
+        return True
