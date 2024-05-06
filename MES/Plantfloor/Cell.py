@@ -3,7 +3,7 @@ import csv
 import threading
 
 class Cell:
-    def __init__(self, ID, requestQueue):
+    def __init__(self, ID, requestQueue, doneRequestQueue):
         """
         Initializes an instance of the class with the given ID.
 
@@ -20,15 +20,19 @@ class Cell:
         self.ID = ID
         self.busy = False
         self.requestQueue = requestQueue
+        self.doneRequestQueue = doneRequestQueue
         self.machines = []
+        self.processedRequests = 0
 
-        self.__allTools = self.__availableTools()
+        #self.__allTools = self.__availableTools()
 
         self.run()
         self.printStatus()
 
     def addMachine(self, machine):
+        print('[Cell ', self.ID,' Cycle] Adding machine', machine.getID(), 'to cell', self.ID)
         self.machines.append(machine)
+        self.updateCellTools()
 
     
     def setBusy(self):
@@ -52,34 +56,40 @@ class Cell:
 
     def __cycle(self):
         #TODO implement this: while ocpcua Connected, because, for now, the code will run even if there is no connection
+        
         while True:
             time.sleep(1)
-            request = self.requestQueue.get()
+
+            if len(self.machines) < 2 or len(self.machines) > 2:
+                print('[Cell ', self.ID,' Cycle] Machines improperly allocated to cell (machines:', len(self.machines), ')')
+                continue
             
+            request = self.requestQueue.get()  
+
             if self.machines[0].getType() == 'M1' and self.machines[1].getType() == 'M2':
                 if request['Piece'] == 'P3' or\
                 request['Piece'] == 'P4' or\
                 request['Piece'] == 'P6' or\
                 request['Piece'] == 'P7' or\
                 request['Piece'] == 'P8':
-                    print('[Cell Cycle] Can process')
+                    print('[Cell ', self.ID,' Cycle] Can process')
                     self.setBusy()
                 else:
-                    print('Can not process')
-                    self.requestQueue.orderedPut(request)
+                    print('[Cell ', self.ID,' Cycle] Can not process')
+                    self.requestQueue.put(request)
             elif self.machines[0].getType() == 'M3' and self.machines[1].getType() == 'M4':
                 if request['Piece'] == 'P3' or\
                 request['Piece'] == 'P8' or\
                 request['Piece'] == 'P5' or\
                 request['Piece'] == 'P7' or\
                 request['Piece'] == 'P9':
-                    print('[Cell Cycle] Can process')
+                    print('[Cell ', self.ID,' Cycle] Can process')
                     self.setBusy()
                 else:
-                    print('[Cell Cycle] Can not process')
+                    print('[Cell ', self.ID,' Cycle] Can not process')
                     self.requestQueue.orderedPut(request)
             else:
-                print('[Cell Cycle] Indetermined piece, request will not be put back in queue')
+                print('[Cell ', self.ID,' Cycle] Indetermined piece, request will not be put back in queue')
                 request = None
                 
             if self.isBusy():
@@ -89,26 +99,27 @@ class Cell:
 
                 for t in toolsOrder:
                     if t not in self.__allTools:
-                        print('[Cell Cycle] Invalid tool: ', t)
+                        print('[Cell ', self.ID,' Cycle] Invalid tool: ', t)
                         break
                 
                 if len(toolsOrder) == 1:
-                    print('[Cell Cycle] One step process')
+                    print('[Cell ', self.ID,' Cycle] One step process')
                     self.machines[1].setBusy()
-                    self.machines[1].setTool(toolsOrder[0])
+                    self.machines[1].setToolSelect(toolsOrder[0])
 
                     while not self.machines[1].machineDone(): #wait until piece is processed #TODO mock function just to simulate the piece processing
                         time.sleep(0.5)
                     
                     self.machines[1].setFree()
                     self.setFree()
-                    print('[Cell Cycle] Done one step process')
+                    self.processedRequests += 1
+                    print('[Cell ', self.ID,' Cycle] Done one step process. Cell processed ', self.processedRequests, ' requests so far')
                         
                 elif len(toolsOrder) == 2:
-                    print('[Cell Cycle] Two step process')
+                    print('[Cell ', self.ID,' Cycle] Two step process')
                     self.machines[0].setBusy()
-                    self.machines[0].setTool(toolsOrder[0])
-                    self.machines[1].setTool(toolsOrder[1])
+                    self.machines[0].setToolSelect(toolsOrder[0])
+                    self.machines[1].setToolSelect(toolsOrder[1])
                     
                     while not self.machines[0].machineDone(): #wait until piece is processed #TODO mock function
                         time.sleep(0.5)
@@ -119,13 +130,14 @@ class Cell:
                         time.sleep(0.5)   
                     self.machines[1].setFree()
                     self.setFree()
-                    print('[Cell Cycle] Done two step process')
+                    self.processedRequests += 1
+                    print('[Cell ', self.ID,' Cycle] Done two step process. Cell processed ', self.processedRequests, ' requests so far')
 
                 elif len(toolsOrder) == 3:
-                    print('[Cell Cycle] Three step process')
+                    print('[Cell ', self.ID,' Cycle] Three step process')
                     self.machines[0].setBusy()
-                    self.machines[0].setTool(toolsOrder[0])
-                    self.machines[1].setTool(toolsOrder[1])
+                    self.machines[0].setToolSelect(toolsOrder[0])
+                    self.machines[1].setToolSelect(toolsOrder[1])
                     
                     while not self.machines[0].machineDone(): #wait until piece is processed #TODO mock function just to simulate the piece processing
                         time.sleep(0.5)
@@ -135,16 +147,20 @@ class Cell:
                     while not self.machines[1].machineDone(): #wait until piece is processed #TODO mock function
                         time.sleep(0.5)
 
-                    self.machines[1].setTool(toolsOrder[2])
+                    self.machines[1].setToolSelect(toolsOrder[2])
                     
                     while not self.machines[1].machineDone(): #wait until piece is processed #TODO mock function
                         time.sleep(0.5)
                     self.machines[1].setFree()
                     self.setFree()
+                    self.processedRequests += 1
+                    print('[Cell ', self.ID,' Cycle] Done three step process. Cell processed ', self.processedRequests, ' requests so far')
 
                 else:
-                    print('[Cell Cycle] Invalid number of tools: ', len(toolsOrder))
+                    print('[Cell ', self.ID,' Cycle] Invalid number of tools in request: ', len(toolsOrder))
                     break
+
+                self.doneRequestQueue.put(request['Piece'])
 
     def printStatus(self):
         threading.Thread(target=self.__printStatus, daemon=True).start()
@@ -159,11 +175,11 @@ class Cell:
             currStatus = []
             currStatus.append(self.isBusy())
             for m in self.machines:
-                currStatus.append(m.getStatus())
+                currStatus.append(m.isBusy())
 
             if currStatus != pastStatus:
                 pastStatus = currStatus
-                print('Cell', self.ID, 'is busy:', currStatus, 'machines:', [m.getID() for m in self.machines])
+                print('[Cell ', self.ID,' Cycle] Is cell', self.ID, 'busy?:', currStatus, 'machines:', [m.getID() for m in self.machines])
             time.sleep(0.5)
 
             
@@ -176,6 +192,9 @@ class Cell:
                 if t not in tools:
                     tools.append(t)
         return tools
+    
+    def updateCellTools(self):
+        self.__allTools = self.__availableTools()
     
     def __reader(self, filename):
         with open(filename, newline='') as csvfile:

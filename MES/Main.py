@@ -25,26 +25,32 @@ class SQLManager():
 
 class Manager():
 
-    def __init__(self, orderQueue, requestQueue, recipesFile):
+    def __init__(self, orderQueue, requestQueue, doneRequestQueue,recipesFile):
         self.OrderQueue = orderQueue
         self.RequestQueue = requestQueue
+        self.DoneRequestQueue = doneRequestQueue
         self.cells = self.__initCells() #hardcoded
         self.__configMachines() #hardcoded
+
+        self.piecesProcessed = []
 
         self.recipes = self.__reader(recipesFile) #recipes is a reader
 
     def __initCells(self,): #hardcoded
         cells = []
-        for i in range(6):
-            cells.append(Cell(i, self.RequestQueue))
+        for i in range(1):
+            cells.append(Cell(i, self.RequestQueue, self.DoneRequestQueue))
         return cells
     
 
     def __configMachines(self): #hardcoded
+        print('[Manager] Configuring Machines')
         self.cells[0].addMachine(Machine(0, 'M1'))
         self.cells[0].addMachine(Machine(1, 'M2'))
+        print('[Manager] Machines Configured')
         #self.cells[1].addMachine(Machine(0, 'M1'))
         #self.cells[1].addMachine(Machine(1, 'M2'))
+        #print('[Manager] Machines Configured')
         #self.cells[2].addMachine(Machine(0, 'M1'))
         #self.cells[2].addMachine(Machine(1, 'M2'))
 
@@ -65,30 +71,58 @@ class Manager():
         while True:
             time.sleep(0.5)
             currOrder = self.OrderQueue.get()
+
+            if currOrder['WorkPiece'] == 'P1' or currOrder['WorkPiece'] == 'P2':
+                print('[Manager, postRequests] P1 & P2 are not processable, order will not be posted and will be removed from queue')
+                continue
+
             for row in self.recipes:
                 if row['Piece'] == currOrder['WorkPiece']:
                     request = row
                     break
-            print('Posting request: ',request)
-            self.RequestQueue.put(request)
+            print('[Manager, postRequests] Posting request: ',request)
             
+            quantity = int(currOrder['Quantity'])
+
+            for counter in range(quantity):
+                self.RequestQueue.put(request)
+            print('[Manager, postRequests] Posted ', quantity, ' requests for ', currOrder['WorkPiece'])
+            
+    def __wareHouse(self):
+        while True:
+            time.sleep(2)
+            while self.DoneRequestQueue.qsize() > 0:
+                self.piecesProcessed.append(self.DoneRequestQueue.get())
+                print('[Manager, __wareHouse] WareHouse: ', self.piecesProcessed)
 
     def postRequests(self):
         #tries to run thread
         try:
-            print('Starting thread')
             threading.Thread(target=self.__postRequests, daemon=True).start()
-            print('Thread started')
+            print('[Manager] PostRequests thread started')
         except:
-            print('Thread did not start')
+            print('[Manager] Could not start postRequests thread')
+
+    def startWareHouse(self):
+        try:
+            threading.Thread(target=self.__wareHouse, daemon=True).start()
+            print('[Manager] StartWareHouse thread started')
+        except:
+            print('[Manager] Could not start StartWareHouse thread')
+
+    def addProcessedPiece(self, piece):
+        self.piecesProcessed.append(piece)
 
 
-order = {'clientID' : 'Client AA', 'Order Number' : 18, 'WorkPiece' : 'P5', 'Quantity' : 8, 'DueDate' : 7, 'LatePen' : 10, 'EarlyPen' : 5}
+
+order = {'clientID' : 'Client AA', 'Order Number' : 18, 'WorkPiece' : 'P4', 'Quantity' : 8, 'DueDate' : 7, 'LatePen' : 10, 'EarlyPen' : 5}
 
 orderQueue = customQueue.customQueue()
 requestQueue = customQueue.customQueue()
+doneRequestQueue = customQueue.customQueue()
 
-manager = Manager(orderQueue, requestQueue, './Recipe/Recipes.csv')
+manager = Manager(orderQueue, requestQueue, doneRequestQueue, './Recipe/Recipes.csv')
 manager.postRequests()
+manager.startWareHouse()
 orderQueue.put(order)
 input()
