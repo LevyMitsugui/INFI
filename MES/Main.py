@@ -38,7 +38,7 @@ class Manager():
 
     def __initCells(self,): #hardcoded
         cells = []
-        for i in range(1):
+        for i in range(2):
             cells.append(Cell(i, self.RequestQueue, self.DoneRequestQueue))
         return cells
     
@@ -47,10 +47,10 @@ class Manager():
         print('[Manager] Configuring Machines')
         self.cells[0].addMachine(Machine(0, 'M1'))
         self.cells[0].addMachine(Machine(1, 'M2'))
-        print('[Manager] Machines Configured')
-        #self.cells[1].addMachine(Machine(0, 'M1'))
-        #self.cells[1].addMachine(Machine(1, 'M2'))
         #print('[Manager] Machines Configured')
+        self.cells[1].addMachine(Machine(0, 'M1'))
+        self.cells[1].addMachine(Machine(1, 'M2'))
+        print('[Manager] Machines Configured')
         #self.cells[2].addMachine(Machine(0, 'M1'))
         #self.cells[2].addMachine(Machine(1, 'M2'))
 
@@ -90,7 +90,7 @@ class Manager():
             
     def __wareHouse(self):
         while True:
-            time.sleep(2)
+            time.sleep(2.73)
             while self.DoneRequestQueue.qsize() > 0:
                 self.piecesProcessed.append(self.DoneRequestQueue.get())
                 print('[Manager, __wareHouse] WareHouse: ', self.piecesProcessed)
@@ -115,7 +115,8 @@ class Manager():
 
 
 
-order = {'clientID' : 'Client AA', 'Order Number' : 18, 'WorkPiece' : 'P4', 'Quantity' : 8, 'DueDate' : 7, 'LatePen' : 10, 'EarlyPen' : 5}
+order = {'clientID' : 'Client AA', 'Order Number' : 18, 'WorkPiece' : 'P6', 'Quantity' : 8, 'DueDate' : 7, 'LatePen' : 10, 'EarlyPen' : 5}
+order1 = {'clientID' : 'Client AA', 'Order Number' : 19, 'WorkPiece' : 'P7', 'Quantity' : 12, 'DueDate' : 7, 'LatePen' : 10, 'EarlyPen' : 5}
 
 orderQueue = customQueue.customQueue()
 requestQueue = customQueue.customQueue()
@@ -125,4 +126,5 @@ manager = Manager(orderQueue, requestQueue, doneRequestQueue, './Recipe/Recipes.
 manager.postRequests()
 manager.startWareHouse()
 orderQueue.put(order)
+orderQueue.put(order1)
 input()

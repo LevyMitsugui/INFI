@@ -24,10 +24,10 @@ class Cell:
         self.machines = []
         self.processedRequests = 0
 
-        #self.__allTools = self.__availableTools()
+        #self.__allTools = self.__availableTools() 
 
         self.run()
-        self.printStatus()
+        #self.printStatus()#TODO remove all functions related to printStatus ([]function, []thread)
 
     def addMachine(self, machine):
         print('[Cell ', self.ID,' Cycle] Adding machine', machine.getID(), 'to cell', self.ID)
@@ -106,7 +106,9 @@ class Cell:
                     print('[Cell ', self.ID,' Cycle] One step process')
                     self.machines[1].setBusy()
                     self.machines[1].setToolSelect(toolsOrder[0])
+                    self.machines[1].setTime(times[0])
 
+                    time.sleep(float(times[0]))
                     while not self.machines[1].machineDone(): #wait until piece is processed #TODO mock function just to simulate the piece processing
                         time.sleep(0.5)
                     
@@ -119,7 +121,9 @@ class Cell:
                     print('[Cell ', self.ID,' Cycle] Two step process')
                     self.machines[0].setBusy()
                     self.machines[0].setToolSelect(toolsOrder[0])
+                    self.machines[0].setTime(times[0])
                     self.machines[1].setToolSelect(toolsOrder[1])
+                    self.machines[1].setTime(times[1])
                     
                     while not self.machines[0].machineDone(): #wait until piece is processed #TODO mock function
                         time.sleep(0.5)
@@ -131,13 +135,15 @@ class Cell:
                     self.machines[1].setFree()
                     self.setFree()
                     self.processedRequests += 1
-                    print('[Cell ', self.ID,' Cycle] Done two step process. Cell processed ', self.processedRequests, ' requests so far')
+                    print('[Cell ', self.ID,' Cycle] Done two step process. Cell', self.ID, ' processed ', self.processedRequests, ' requests so far')
 
                 elif len(toolsOrder) == 3:
                     print('[Cell ', self.ID,' Cycle] Three step process')
                     self.machines[0].setBusy()
                     self.machines[0].setToolSelect(toolsOrder[0])
+                    self.machines[0].setTime(times[0])
                     self.machines[1].setToolSelect(toolsOrder[1])
+                    self.machines[1].setTime(times[1])
                     
                     while not self.machines[0].machineDone(): #wait until piece is processed #TODO mock function just to simulate the piece processing
                         time.sleep(0.5)
@@ -148,6 +154,7 @@ class Cell:
                         time.sleep(0.5)
 
                     self.machines[1].setToolSelect(toolsOrder[2])
+                    self.machines[1].setTime(times[2])
                     
                     while not self.machines[1].machineDone(): #wait until piece is processed #TODO mock function
                         time.sleep(0.5)
@@ -177,7 +184,7 @@ class Cell:
             for m in self.machines:
                 currStatus.append(m.isBusy())
 
-            if currStatus != pastStatus:
+            if currStatus[0] != pastStatus[0] or currStatus[1] != pastStatus[1] or currStatus[2] != pastStatus[2]:
                 pastStatus = currStatus
                 print('[Cell ', self.ID,' Cycle] Is cell', self.ID, 'busy?:', currStatus, 'machines:', [m.getID() for m in self.machines])
             time.sleep(0.5)

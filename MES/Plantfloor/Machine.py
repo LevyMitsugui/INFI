@@ -18,6 +18,7 @@ class Machine:
         self.busy = False
         self.type = type
         self.toolSelect = ''
+        self.time = 0
         self.availableTools = self.__retrieveToolList()
 
     def setBusy(self):
@@ -35,7 +36,10 @@ class Machine:
     def getType(self):
         return self.type
 
-    def setToolSelect(self, toolSelect):
+    def setTime(self, time):
+        self.time = time#TODO finish integration with OPCUA
+
+    def setToolSelect(self, toolSelect):#TODO finish integration with OPCUA
         if toolSelect not in self.availableTools:
             raise ValueError('Invalid tool selection')
         self.toolSelect = toolSelect
@@ -60,5 +64,5 @@ class Machine:
             raise ValueError('Invalid machine type')
         
     #mock functions #TODO should be removed when system is operating
-    def machineDone(self):   
+    def machineDone(self):#TODO finish integration with OPCUA   
         return True
