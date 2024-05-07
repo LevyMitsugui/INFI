@@ -12,18 +12,34 @@ class OPCUAClient:
         except Exception as err:
             print(err)
             sys.exit(1)
-    
+
     def __opcuaClient(self):
-        test_var = self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.GVL.test_var")
-        
+        testVarNode = self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.GVL.test_var")
+        testVecNode = self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.GVL.test_vec")
+
+
         while True:
-            print(test_var.get_value())
-            test_var.set_value(test_var.get_value()+1, ua.VariantType.Int16)
+            testVar = testVarNode.get_value()
+            testVec = testVecNode.get_value()
+
+            print(testVar)
+            print(testVec)
+
+            testVar += 1
+            testVec[0] += 1
+
+            testVarNode.set_value(testVar, ua.VariantType.Int16)
+            testVecNode.set_value(testVec, ua.VariantType.Int16)
+            
             print("connected")
             time.sleep(2)
     
     def run(self):
         threading.Thread(target=self.__opcuaClient, daemon=True).start()
 
+    def setMachineTool(self, machine, tool):
+
+
 myClient = OPCUAClient()
 myClient.run()
+input()
