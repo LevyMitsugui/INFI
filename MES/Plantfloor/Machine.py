@@ -43,6 +43,7 @@ class Machine:
         if toolSelect not in self.availableTools:
             raise ValueError('Invalid tool selection')
         self.toolSelect = toolSelect
+        #opcuaClient.setTool(2, self.toolSelect)
 
     def getToolSelect(self):
         return self.toolSelect
