@@ -18,7 +18,7 @@ class SQLManager():
             time.sleep(1)
             orderTup = self.db.processMostUrgentOrder()
             if(not orderTup):
-                return None
+                continue
             order = {'clientID' : orderTup[0][0] , 'Order Number' : orderTup[0][1], 'WorkPiece' : orderTup[0][2], 'Quantity' : orderTup[0][3], 'DueDate' : orderTup[0][4], 'LatePen' : orderTup[0][5], 'EarlyPen' : orderTup[0][6]}
             self.OrderQueue.put(order)
 

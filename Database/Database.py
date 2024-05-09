@@ -304,7 +304,7 @@ class Database:
 				self.__fetchOpen__()
 				return self.order
 			else:
-				print("No order to process")
+				print("[database] No open order to process in SQL database")
 
 			cursor.close()
 			self.__deletesConnector__()

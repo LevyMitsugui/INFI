@@ -174,7 +174,7 @@ class Cell:
                 self.doneRequestQueue.put(request['Piece'])
 
     def getRequest(self):
-        print('[Cell ', self.ID, ' getRequest] Request queue size: ', self.requestQueue.qsize())
+        #print('[Cell ', self.ID, ' getRequest] Request queue size: ', self.requestQueue.qsize())
         for iterator in range(self.requestQueue.qsize()):
             #print("[Cell ", self.ID, " getRequest] Request index: ", iterator)
             request = self.requestQueue.peek(block = False, index = iterator)

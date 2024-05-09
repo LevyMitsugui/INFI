@@ -1,13 +1,13 @@
 
 import queue
 import time
-import threading
 
 class customQueue(queue.Queue):
     #def peek(self):
     #    return self.queue[0]
     
     def peek(self, block=True, timeout=None, index=0):
+        locked = False
         with self.not_empty:
             if not block:
                 if not self._qsize():
@@ -15,6 +15,7 @@ class customQueue(queue.Queue):
             elif timeout is None:
                 while not self._qsize():
                     self.not_empty.wait()
+                    locked = True
             elif timeout < 0:
                 raise ValueError("'timeout' must be a non-negative number")
             else:
@@ -25,7 +26,9 @@ class customQueue(queue.Queue):
                         print('empty queue')
                     self.not_empty.wait(remaining)
             item = self._peek(index)
-            self.not_full.notify()
+            if locked == True:
+                self.not_full.notify()
+                locked = False
             return item
         
     def _peek(self, index=0):
