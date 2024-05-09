@@ -124,17 +124,19 @@ class Manager():
 
 
 
-#order = {'clientID' : 'Client AA', 'Order Number' : 18, 'WorkPiece' : 'P6', 'Quantity' : 8, 'DueDate' : 7, 'LatePen' : 10, 'EarlyPen' : 5}
-#order1 = {'clientID' : 'Client AA', 'Order Number' : 19, 'WorkPiece' : 'P7', 'Quantity' : 12, 'DueDate' : 7, 'LatePen' : 10, 'EarlyPen' : 5}
+order = {'clientID' : 'Client AA', 'Order Number' : 18, 'WorkPiece' : 'P6', 'Quantity' : 8, 'DueDate' : 7, 'LatePen' : 10, 'EarlyPen' : 5}
+order1 = {'clientID' : 'Client AA', 'Order Number' : 19, 'WorkPiece' : 'P7', 'Quantity' : 12, 'DueDate' : 7, 'LatePen' : 10, 'EarlyPen' : 5}
 
 orderQueue = customQueue.customQueue()
 requestQueue = customQueue.customQueue()
 doneRequestQueue = customQueue.customQueue()
 
 SQLManager = SQLManager(orderQueue)
-SQLManager.getOrder()
+#SQLManager.getOrder()
 manager = Manager(orderQueue, requestQueue, doneRequestQueue, './Recipe/Recipes.csv')
 manager.postRequests()
 manager.startWareHouse()
-#orderQueue.put(order1)
+
+orderQueue.put(order)
+orderQueue.put(order1)
 input()
