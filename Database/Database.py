@@ -1,7 +1,7 @@
 import mysql.connector;
 
 class Database:
-	def __init__(self):
+	def __init__(self, user, password, database):
 		'''
 		Initializes a new instance of the class.
 
@@ -11,24 +11,31 @@ class Database:
 		Returns:
 		None
 		'''
-		self.orders = []
-		self.open = []
-		self.order = []
-		self.__createsDatabase__()
+		self.erp_orders = []
+		self.mes_orders = []
+		self.erp_open = []
+		self.mes_open = []
+		self.erp_order = []
+		self.mes_order = []
+		self.ware1 = []
+		self.ware2 = []
+		self.user = user
+		self.password = password
+		# self.database = database
+		self.__createsDatabase__(database)
+		# self.__createsDatabase__("erp")
 		
 
-	def __createsConnector__(self):
+	def __createsConnector__(self, dbname):
 		try:
 			self.connector = mysql.connector.connect(       						# Creates a connector to access the database
 					host="localhost",
-					user="root",													# The user YOU selected to access the server
-					password="admin",											# The password YOU selected to access the server
-					database="infi",
-					auth_plugin='mysql_native_password'
+					user=self.user,													# The user YOU selected to access the server
+					password=self.password,											# The password YOU selected to access the server
 			)
 
 			cursor = self.connector.cursor()
-			sql = "USE infi"
+			sql = "USE {}".format(dbname)
 			cursor.execute(sql)
 			
 			cursor.close()
@@ -41,62 +48,99 @@ class Database:
 	def __deletesConnector__(self):
 		self.connector.close()
 
-	def __createsDatabase__(self):
+	def __createsDatabase__(self, dbname):
 		
 		try:
 			self.connector = mysql.connector.connect(       						# Creates a connector to access the database
 					host="localhost",
-					user="root",													# The user YOU selected to access the server
-					password="admin",
-					#auth_plugin='mysql_native_password'											# The password YOU selected to access the server
+					user=self.user,													# The user YOU selected to access the server
+					password=self.password											# The password YOU selected to access the server
 			)
 			print("Connected to the database server")
 
 			cursor = self.connector.cursor()
-			sql = "CREATE DATABASE IF NOT EXISTS infi"
+			sql = "CREATE DATABASE IF NOT EXISTS {}".format(dbname)
 			cursor.execute(sql)
 			self.connector.commit()
 
-			sql = "USE infi"
+			sql = "USE {}".format(dbname)
+			
 			cursor.execute(sql)
 
-			sql = "CREATE TABLE IF NOT EXISTS orders(id INT NOT NULL AUTO_INCREMENT, client VARCHAR(30) NOT NULL, number INT NOT NULL, workpiece VARCHAR(2) NOT NULL, quantity INT NOT NULL, due_date INT NOT NULL, late_pen INT NOT NULL, early_pen INT NOT NULL, PRIMARY KEY (id));"
+
+			sql = "CREATE TABLE IF NOT EXISTS {}_orders(id INT NOT NULL AUTO_INCREMENT, client VARCHAR(30) NOT NULL, number INT NOT NULL, workpiece VARCHAR(2) NOT NULL, quantity INT NOT NULL, due_date INT NOT NULL, late_pen INT NOT NULL, early_pen INT NOT NULL, PRIMARY KEY (id));".format(dbname)
 			cursor.execute(sql)
 
-			sql = "CREATE TABLE IF NOT EXISTS open(id INT NOT NULL);"
+			sql = "CREATE TABLE IF NOT EXISTS {}_open(id INT NOT NULL);".format(dbname)
 			cursor.execute(sql)
 
-			sql = "CREATE TRIGGER IF NOT EXISTS after_order_insert AFTER INSERT  ON orders FOR EACH ROW INSERT INTO open VALUES (NEW.id);"
+			sql = "CREATE TRIGGER IF NOT EXISTS after_order_insert AFTER INSERT  ON {}_orders FOR EACH ROW INSERT INTO {}_open VALUES (NEW.id);".format(dbname,dbname)			
 			cursor.execute(sql)
 			
-			sql = "CREATE TRIGGER IF NOT EXISTS before_order_delete BEFORE DELETE ON orders FOR EACH ROW DELETE FROM open WHERE id = OLD.id;"
+			sql = "CREATE TRIGGER IF NOT EXISTS before_order_delete BEFORE DELETE ON {}_orders FOR EACH ROW DELETE FROM {}_open WHERE id = OLD.id;".format(dbname, dbname)
 			cursor.execute(sql)
+			# if (dbname == "erp"):
+			# 	sql = "CREATE TABLE IF NOT EXISTS erp_orders(id INT NOT NULL AUTO_INCREMENT, client VARCHAR(30) NOT NULL, number INT NOT NULL, workpiece VARCHAR(2) NOT NULL, quantity INT NOT NULL, due_date INT NOT NULL, late_pen INT NOT NULL, early_pen INT NOT NULL, PRIMARY KEY (id));"
+			# 	cursor.execute(sql)
+
+			# 	sql = "CREATE TABLE IF NOT EXISTS erp_open(id INT NOT NULL);"
+			# 	cursor.execute(sql)
+
+			# 	sql = "CREATE TRIGGER IF NOT EXISTS after_order_insert AFTER INSERT  ON erp_orders FOR EACH ROW INSERT INTO erp_open VALUES (NEW.id);"
+			# 	cursor.execute(sql)
+				
+			# 	sql = "CREATE TRIGGER IF NOT EXISTS before_order_delete BEFORE DELETE ON erp_orders FOR EACH ROW DELETE FROM erp_open WHERE id = OLD.id;"
+			# 	cursor.execute(sql)
+
+			# el
+			if (dbname == "mes"):
+				# sql = "CREATE TABLE IF NOT EXISTS mes_orders(id INT NOT NULL AUTO_INCREMENT, client VARCHAR(30) NOT NULL, number INT NOT NULL, workpiece VARCHAR(2) NOT NULL, quantity INT NOT NULL, due_date INT NOT NULL, late_pen INT NOT NULL, early_pen INT NOT NULL, PRIMARY KEY (id));"
+				# cursor.execute(sql)
+
+				# sql = "CREATE TABLE IF NOT EXISTS mes_open(id INT NOT NULL);"
+				# cursor.execute(sql)
+
+				sql = "CREATE TABLE IF NOT EXISTS {}_ware1(workpiece VARCHAR(2) NOT NULL, quantity INT NOT NULL);".format(dbname)
+				cursor.execute(sql)
+
+				sql = "CREATE TABLE IF NOT EXISTS {}_ware2(workpiece VARCHAR(2) NOT NULL, quantity INT NOT NULL);".format(dbname)
+				cursor.execute(sql)
+
+				# sql = "CREATE TRIGGER IF NOT EXISTS after_order_insert AFTER INSERT  ON mes_orders FOR EACH ROW INSERT INTO mes_open VALUES (NEW.id);"
+				# cursor.execute(sql)
+				
+				# sql = "CREATE TRIGGER IF NOT EXISTS before_order_delete BEFORE DELETE ON mes_orders FOR EACH ROW DELETE FROM mes_open WHERE id = OLD.id;"
+				# cursor.execute(sql)
 
 			self.connector.commit()
 
 			cursor.close()
 			self.__deletesConnector__()
 
-			self.__fetchAll__()
+			self.__fetchAll__(dbname)
 		except mysql.connector.Error as err:
 			print("Error connecting to database server: " + str(err))
 
 	
-	def __fetchOrders__(self):
-		self.getOrders()
-		self.__printOrders__()
+	def __fetchOrders__(self, dbname):
+		self.getOrders(dbname)
+		self.__printOrders__(dbname)
 
-	def __fetchOpen__(self):	
-		self.getOpenOrders()
-		self.__printOpen__()
+	def __fetchOpen__(self, dbname):	
+		self.getOpenOrders(dbname)
+		self.__printOpen__(dbname)
 	
-	def __fetchAll__(self):
-		self.getOrders()
-		self.getOpenOrders()
-		self.__printOrders__()
-		self.__printOpen__()
+	def __fetchAll__(self, dbname):
+		self.getOrders(dbname)
+		self.getOpenOrders(dbname)
+		self.__printOrders__(dbname)
+		self.__printOpen__(dbname)
 
-	def insertOrder(self, client, order):
+	def __fetchWare__(self, warenumber):	
+		self.getWare(warenumber)
+		self.__printWare__(warenumber)
+
+	def insertOrder(self, client, order, dbname):
 		'''
 		Inserts an order to the orders table of the database
 
@@ -107,9 +151,9 @@ class Database:
 		Returns:
 		None
 		'''
-		if(self.__createsConnector__()):											# Connects to the server
+		if(self.__createsConnector__(dbname)):											# Connects to the server
 			cursor = self.connector.cursor()													#Creates a cursor object to execute queries, cursors are used to execute single queries
-			sql = "INSERT INTO orders (client, number, workpiece, quantity, due_date, late_pen, early_pen) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+			sql = "INSERT INTO {}_orders (client, number, workpiece, quantity, due_date, late_pen, early_pen) VALUES (%s, %s, %s, %s, %s, %s, %s)".format(dbname)
 			value = (client, order.number, order.workpiece, order.quantity, order.due_date, order.late_pen, order.early_pen)
 																					#Insert to the orders table the data of the order plus the ID of the desired client
 			cursor.execute(sql, value)
@@ -118,10 +162,10 @@ class Database:
 			cursor.close()
 			self.__deletesConnector__()
 
-			self.__fetchOrders__()
+			self.__fetchOrders__(dbname)
 
 
-	def getOrders(self):
+	def getOrders(self, dbname):
 		'''
 		Updates all orders from the database
 
@@ -131,15 +175,20 @@ class Database:
 		Returns:
 		None
 		'''
-		if(self.__createsConnector__()):											# Connects to the server
+		if(self.__createsConnector__(dbname)):											# Connects to the server
 			cursor = self.connector.cursor()
-			sql = "CREATE TEMPORARY TABLE temp SELECT * FROM orders"
+			
+			sql = "CREATE TEMPORARY TABLE temp SELECT * FROM {}_orders".format(dbname)
 			cursor.execute(sql)
 			sql = "ALTER TABLE temp DROP COLUMN id"
 			cursor.execute(sql)
 			sql = "SELECT * FROM temp"
 			cursor.execute(sql)
-			self.orders = cursor.fetchall()
+
+			if(dbname == "erp"):
+				self.erp_orders = cursor.fetchall()
+			elif(dbname == "mes"):
+				self.mes_orders = cursor.fetchall()
 
 			sql = "DROP TABLE temp"	
 			cursor.execute(sql)
@@ -149,7 +198,7 @@ class Database:
 			self.__deletesConnector__()
 
 
-	def getOpenOrders(self):
+	def getOpenOrders(self, dbname):
 		'''
 		Updates all pendent orders from the database sorted from smaller to larger due_date
 
@@ -159,15 +208,19 @@ class Database:
 		Returns:
 		None
 		'''
-		if(self.__createsConnector__()):											# Connects to the server
+		if(self.__createsConnector__(dbname)):											# Connects to the server
 			cursor = self.connector.cursor()
-			sql = "CREATE TEMPORARY TABLE temp SELECT * FROM orders WHERE id IN (SELECT id FROM open)"
+			value = (dbname, dbname)
+			sql = "CREATE TEMPORARY TABLE temp SELECT * FROM {}_orders WHERE id IN (SELECT id FROM {}_open)".format(dbname, dbname)
 			cursor.execute(sql)
 			sql = "ALTER TABLE temp DROP COLUMN id"
 			cursor.execute(sql)
 			sql = "SELECT * FROM temp ORDER BY due_date"
 			cursor.execute(sql)
-			self.open = cursor.fetchall()
+			if (dbname == "erp"):
+				self.erp_open = cursor.fetchall()
+			elif (dbname == "mes"):
+				self.mes_open = cursor.fetchall()
 
 			sql = "DROP TABLE temp"
 			cursor.execute(sql)
@@ -176,8 +229,51 @@ class Database:
 			cursor.close()
 			self.__deletesConnector__()
 
+	def getWare(self, warenumber):
+		'''
+		Updates all workpieces at the selected warehouse
 
-	def __printOrders__(self):
+		Parameters:
+		None
+
+		Returns:
+		None
+		'''
+		if(self.__createsConnector__("mes")):											# Connects to the server
+			cursor = self.connector.cursor()
+			sql = "SELECT * FROM mes_ware{}".format(warenumber)
+			cursor.execute(sql)
+			if(warenumber == 1):
+				self.mes_ware1 = cursor.fetchall()
+			elif(warenumber == 2):
+				self.mes_ware2 = cursor.fetchall()
+			self.connector.commit()
+
+			cursor.close()
+			self.__deletesConnector__()
+
+
+	def __printWare__(self, warenumber):
+		'''
+		Prints all workpieces at the selected warehouse
+
+		Parameters:
+		None
+
+		Returns:
+		None
+		'''
+		if(warenumber == 1):
+			print("\n############################### [MES] Warehouse 1 ############################### \n   workpiece | quantity")
+			for x in self.mes_ware1:
+				print(list(x))
+		elif(warenumber == 2):
+			print("\n############################### [MES] Warehouse 2 ############################### \n   workpiece | quantity")
+			for x in self.mes_ware2:
+				print(list(x))
+		print      ("#################################################################################\n")
+
+	def __printOrders__(self, dbname):
 		'''
 		Prints all orders from the database
 
@@ -188,13 +284,18 @@ class Database:
 		None
 		'''
 		
-		print("\n################################### Orders #################################### \n   client | ord_num | workpiece | quantity | due_date | late_pen | early_pen")
-		for x in self.orders:
-			print(list(x))
-		print  ("###############################################################################\n")
+		if(dbname == "erp"):
+			print("\n################################ [ERP] Orders ################################# \n   client | ord_num | workpiece | quantity | due_date | late_pen | early_pen")
+			for x in self.erp_orders:
+				print(list(x))
+		elif(dbname == "mes"):
+			print("\n################################ [MES] Orders ################################# \n   client | ord_num | workpiece | quantity | due_date | late_pen | early_pen")
+			for x in self.mes_orders:
+				print(list(x))
+		print      ("###############################################################################\n")
 
 
-	def __printOpen__(self):
+	def __printOpen__(self, dbname):
 		'''
 		Prints all pendent orders from the database
 
@@ -204,13 +305,18 @@ class Database:
 		Returns:
 		None
 		'''
-		print("\n################################ Open Orders ################################## \n   client | ord_num | workpiece | quantity | due_date | late_pen | early_pen")
-		for x in self.open:
-			print(list(x))
-		print  ("###############################################################################\n")
+		if(dbname == "erp"):
+			print("\n############################# [ERP] Open Orders ############################### \n   client | ord_num | workpiece | quantity | due_date | late_pen | early_pen")
+			for x in self.erp_open:
+				print(list(x))
+		elif(dbname == "mes"):
+			print("\n############################# [MES] Open Orders ############################### \n   client | ord_num | workpiece | quantity | due_date | late_pen | early_pen")
+			for x in self.mes_open:
+				print(list(x))
+		print  	   ("###############################################################################\n")
 
 
-	def printOrder(self):
+	def printOrder(self, dbname):
 		'''
 		Prints the last specific order gotten from the database
 
@@ -220,13 +326,18 @@ class Database:
 		Returns:
 		None
 		'''
-		print("\n################################ Order Found ################################## \n   client | ord_num | workpiece | quantity | due_date | late_pen | early_pen")
-		for x in self.order:
-			print(list(x))
-		print  ("###############################################################################\n")
+		if(dbname == "erp"):
+			print("\n################################ [ERP] Order Found ################################## \n   client | ord_num | workpiece | quantity | due_date | late_pen | early_pen")
+			for x in self.erp_order:
+				print(list(x))
+		elif(dbname == "mes"):
+			print("\n################################ [MES] Order Found ################################## \n   client | ord_num | workpiece | quantity | due_date | late_pen | early_pen")
+			for x in self.mes_order:
+				print(list(x))
+		print      ("###############################################################################\n")
 
 
-	def processOrderByNum(self, client, order_number):
+	def processOrderByNum(self, client, order_number, dbname):
 		'''
 		Gets a specific order from the database by the client and the order number and closes it
 
@@ -235,23 +346,29 @@ class Database:
 		order_number (int): The number of the order
 
 		Returns:
-		None
+		List: The order with the correspondent client and order number
+		None: If no order was found
 		'''
-		if(self.__createsConnector__()):											# Connects to the server
+		if(self.__createsConnector__(dbname)):											# Connects to the server
+			
+			
 			cursor = self.connector.cursor()
-			sql = "SELECT EXISTS(SELECT * FROM orders WHERE client = \"" + client + "\")"		#Check if the client exists
+			sql = "SELECT EXISTS(SELECT * FROM {}_orders WHERE client = \"".format(dbname) + client + "\")"		#Check if the client exists
 			cursor.execute(sql)
 			c_exists = cursor.fetchall()
 			if(c_exists[0][0]):
-				sql = "SELECT EXISTS(SELECT * FROM orders WHERE number = " + str(order_number) + " AND client = \"" + client + "\")"
+				sql = "SELECT EXISTS(SELECT * FROM {}_orders WHERE number = ".format(dbname) + str(order_number) + " AND client = \"" + client + "\")"
 				cursor.execute(sql)
 				o_exists = cursor.fetchall()
 				if(o_exists[0][0]):
-					sql = "SELECT * FROM orders WHERE number = " + str(order_number) + " AND client = \"" + client + "\""
+					sql = "SELECT * FROM {}_orders WHERE number = ".format(dbname) + str(order_number) + " AND client = \"" + client + "\""
 					cursor.execute(sql)
-					self.order = cursor.fetchall()
+					if(dbname == "erp"):
+						self.erp_order = cursor.fetchall()
+					elif(dbname == "mes"):
+						self.mes_order = cursor.fetchall()
 					cursor.execute("SET SQL_SAFE_UPDATES = 0")
-					cursor.execute("DELETE FROM open WHERE id IN (SELECT id FROM orders WHERE number = " + str(order_number) + " AND client = \"" + client + "\")")
+					cursor.execute("DELETE FROM {}_open WHERE id IN (SELECT id FROM {}_orders WHERE number = ".format(dbname, dbname) + str(order_number) + " AND client = \"" + client + "\")", values)
 					cursor.execute("SET SQL_SAFE_UPDATES = 1")
 					self.connector.commit()
 					
@@ -259,7 +376,10 @@ class Database:
 					self.__deletesConnector__()
 
 					self.__fetchOpen__()
-					return self.order
+					if(dbname == "erp"):
+						return self.erp_order
+					elif(dbname == "mes"):
+						return self.mes_order
 				else:
 					print("Order doesn't exist")
 			else:
@@ -269,7 +389,7 @@ class Database:
 			self.__deletesConnector__()
 			return None
 
-	def processMostUrgentOrder(self):
+	def processMostUrgentOrder(self, dbname):
 		'''
 		Gets the most urgent order from the database (if due_date is the same, the order with the lower number is chosen) and closes it
 
@@ -277,39 +397,86 @@ class Database:
 		None
 
 		Returns:
-		None
+		List: The most urgent order
+		None: If no order was found
 		'''
-		if(self.__createsConnector__()):											# Connects to the server
+		if(self.__createsConnector__(dbname)):											# Connects to the server
 			cursor = self.connector.cursor()
-			sql = "SELECT EXISTS(SELECT * FROM orders WHERE id IN (SELECT id FROM open))"		#Check if any order exists
+			
+			
+			sql = "SELECT EXISTS(SELECT * FROM {}_orders WHERE id IN (SELECT id FROM {}_open))".format(dbname, dbname)		#Check if any order exists
 			cursor.execute(sql)
 			exists = cursor.fetchall()
 			if(exists[0][0]):
-				cursor.execute("CREATE TEMPORARY TABLE temp SELECT * FROM orders WHERE id IN (SELECT id FROM open)")
+				cursor.execute("CREATE TEMPORARY TABLE temp SELECT * FROM {}_orders WHERE id IN (SELECT id FROM {}_open)".format(dbname, dbname))
 				cursor.execute("SELECT MIN(due_date) FROM temp")
 				min_due_date = cursor.fetchall()
 				cursor.execute("SET SQL_SAFE_UPDATES = 0")
 				cursor.execute("DELETE FROM temp WHERE due_date <> " + str(min_due_date[0][0]))
 				self.connector.commit()
-				cursor.execute("DELETE FROM open WHERE id IN (SELECT MIN(id) FROM temp)")
+				cursor.execute("DELETE FROM {}_open WHERE id IN (SELECT MIN(id) FROM temp)".format(dbname))
 				cursor.execute("SET SQL_SAFE_UPDATES = 1")
 				cursor.execute("ALTER TABLE temp DROP COLUMN id")
 				cursor.execute("SELECT * FROM temp")
-				self.order = cursor.fetchall()
+				if(dbname == "erp"):
+					self.erp_order = cursor.fetchall()
+				elif(dbname == "mes"):
+					self.mes_order = cursor.fetchall()
 				cursor.execute("DROP TABLE temp")
 				self.connector.commit()
 
 				cursor.close()
 				self.__deletesConnector__()
-				self.__fetchOpen__()
-				return self.order
+				self.__fetchOpen__(dbname)
+
+				if(dbname == "erp"):
+					return self.erp_order
+				elif(dbname == "mes"):
+					return self.mes_order
 			else:
-				print("[database] No open order to process in SQL database")
+				print("[Database] No open order to process in SQL database")
 
 			cursor.close()
 			self.__deletesConnector__()
 			return None
 			
+	def updateWare(self, workpiece, quantity, dbname, warenum):
+		'''
+		Updates the selected warehouse with the new quantity
+
+		Parameters:
+		workpiece (str): The name of the workpiece
+		quantity (int): The new quantity
+
+		Returns:
+		None
+		'''
+		if(self.__createsConnector__(dbname)):											# Connects to the server
+			cursor = self.connector.cursor()
+			
+			sql = "SELECT EXISTS(SELECT * FROM mes_ware{} WHERE workpiece = '{}')".format(warenum, workpiece)		#Check if any workpiece of the type was already processed
+			cursor.execute(sql)
+			print(sql)
+			exists = cursor.fetchall()
+			if(exists[0][0]):
+				if(warenum == 1):
+					sql = "UPDATE mes_ware1 SET quantity = quantity - {} WHERE workpiece = '{}'".format(quantity, workpiece)
+				elif(warenum == 2):
+					sql = "UPDATE mes_ware2 SET quantity = quantity + {} WHERE workpiece = '{}'".format(quantity, workpiece)
+				cursor.execute(sql)
+				self.connector.commit()
+
+			else:
+				print("[Database] No Workpiece of this type in the Warehouse")
+				if(warenum == 2):
+					sql = "INSERT INTO mes_ware2(workpiece, quantity) VALUES (%s, %s)"
+					value = (workpiece, quantity)
+					cursor.execute(sql, value)
+					self.connector.commit()
+
+			cursor.close()
+			self.__deletesConnector__()
+			self.__fetchWare__(warenum)
 
 	# Coppied that just for testing, but it already exists in ERP Main.py
 # class Order:

@@ -10,15 +10,18 @@ from Database import Database         # TO RUN THE CODE YOU MUST GO TO THE PREVI
 
 class SQLManager():
     def __init__(self, orderQueue):
-        self.db = Database()
+        self.erpDB = Database("root", "admin", "erp")
+        self.mesDB = Database("root", "admin", "mes")
         self.OrderQueue = orderQueue
 
     def __getOrder(self):
         while True:
             time.sleep(1)
-            orderTup = self.db.processMostUrgentOrder()
+            orderTup = self.erpDB.processMostUrgentOrder("erp")
             if(not orderTup):
                 continue
+            structOrder = Order(orderTup[0][1], orderTup[0][2], orderTup[0][3], orderTup[0][4], orderTup[0][5], orderTup[0][6])
+            self.mesDB.insertOrder(orderTup[0][0], structOrder, "mes")
             order = {'clientID' : orderTup[0][0] , 'Order Number' : orderTup[0][1], 'WorkPiece' : orderTup[0][2], 'Quantity' : orderTup[0][3], 'DueDate' : orderTup[0][4], 'LatePen' : orderTup[0][5], 'EarlyPen' : orderTup[0][6]}
             self.OrderQueue.put(order)
 
@@ -41,6 +44,8 @@ class Manager():
         self.piecesProcessed = []
 
         self.recipes = self.__reader(recipesFile) #recipes is a reader
+
+        self.db = Database("root", "admin", "mes")
 
     def __initCells(self,): #hardcoded
         cells = []
@@ -78,6 +83,10 @@ class Manager():
         while True:
             time.sleep(0.5)
             currOrder = self.OrderQueue.get()
+            mesOrder = self.db.processMostUrgentOrder("mes")
+            if(not mesOrder):
+                continue
+            self.db.updateWare(mesOrder[0][2], mesOrder[0][3], "mes", 2)
 
             if currOrder['WorkPiece'] == 'P1' or currOrder['WorkPiece'] == 'P2':
                 print('[Manager, postRequests] P1 & P2 are not processable, order will not be posted and will be removed from queue')
@@ -122,6 +131,14 @@ class Manager():
         self.piecesProcessed.append(piece)
 
 
+class Order:
+    def __init__(self, number, workpiece, quantity, due_date, late_pen, early_pen):
+        self.number = number
+        self.workpiece = workpiece
+        self.quantity = quantity
+        self.due_date = due_date
+        self.late_pen = late_pen
+        self.early_pen = early_pen
 
 
 order = {'clientID' : 'Client AA', 'Order Number' : 18, 'WorkPiece' : 'P6', 'Quantity' : 8, 'DueDate' : 7, 'LatePen' : 10, 'EarlyPen' : 5}
@@ -132,7 +149,7 @@ requestQueue = customQueue.customQueue()
 doneRequestQueue = customQueue.customQueue()
 
 SQLManager = SQLManager(orderQueue)
-#SQLManager.getOrder()
+SQLManager.getOrder()
 manager = Manager(orderQueue, requestQueue, doneRequestQueue, './Recipe/Recipes.csv')
 manager.postRequests()
 manager.startWareHouse()
