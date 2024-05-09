@@ -15,6 +15,6 @@
 ]>
 <DOCUMENT>
 <Client NameId="Client CC"/>
-<Order Number="905" WorkPiece="P5" Quantity="3" DueDate="8" LatePen="10" EarlyPen="5"/>
-<Order Number="906" WorkPiece="P6" Quantity="1" DueDate="8" LatePen="10" EarlyPen="2"/>
+<Order Number="905" WorkPiece="P5" Quantity="30" DueDate="8" LatePen="10" EarlyPen="5"/>
+<Order Number="906" WorkPiece="P6" Quantity="100" DueDate="8" LatePen="10" EarlyPen="2"/>
 </DOCUMENT>

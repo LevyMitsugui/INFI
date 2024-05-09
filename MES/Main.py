@@ -44,7 +44,7 @@ class Manager():
 
     def __initCells(self,): #hardcoded
         cells = []
-        for i in range(2):
+        for i in range(6):
             cells.append(Cell(i, self.RequestQueue, self.DoneRequestQueue))
         return cells
     
@@ -56,16 +56,17 @@ class Manager():
         #print('[Manager] Machines Configured')
         self.cells[1].addMachine(Machine(0, 'M1'))
         self.cells[1].addMachine(Machine(1, 'M2'))
-        print('[Manager] Machines Configured')
-        #self.cells[2].addMachine(Machine(0, 'M1'))
-        #self.cells[2].addMachine(Machine(1, 'M2'))
+        #print('[Manager] Machines Configured')
+        self.cells[2].addMachine(Machine(0, 'M1'))
+        self.cells[2].addMachine(Machine(1, 'M2'))
 
-        #self.cells[3].addMachine(Machine(0, 'M3'))
-        #self.cells[3].addMachine(Machine(1, 'M4'))
-        #self.cells[4].addMachine(Machine(0, 'M3'))
-        #self.cells[4].addMachine(Machine(1, 'M4'))
-        #self.cells[5].addMachine(Machine(0, 'M3'))
-        #self.cells[5].addMachine(Machine(1, 'M4'))
+        self.cells[3].addMachine(Machine(0, 'M3'))
+        self.cells[3].addMachine(Machine(1, 'M4'))
+        self.cells[4].addMachine(Machine(0, 'M3'))
+        self.cells[4].addMachine(Machine(1, 'M4'))
+        self.cells[5].addMachine(Machine(0, 'M3'))
+        self.cells[5].addMachine(Machine(1, 'M4'))
+        print('[Manager] Machines Configured')
 
     def __reader(self, filename):
         with open(filename, newline='') as csvfile:

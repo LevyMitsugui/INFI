@@ -195,10 +195,7 @@ class Cell:
 
             elif self.machines[0].getType() == 'M3' and self.machines[1].getType() == 'M4':
                 if request['Piece'] == 'P3' or\
-                request['Piece'] == 'P8' or\
-                request['Piece'] == 'P5' or\
-                request['Piece'] == 'P7' or\
-                request['Piece'] == 'P9':
+                request['Piece'] == 'P8' :
                     requestTaken = self.requestQueue.get(iterator)
                     print('[cell ', self.ID, ' getRequest] Request Peeked ', request)
                     print('[Cell ', self.ID, ' getRequest] Request taken: ', requestTaken)
