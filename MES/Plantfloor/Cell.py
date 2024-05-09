@@ -63,10 +63,9 @@ class Cell:
             if len(self.machines) < 2 or len(self.machines) > 2:
                 print('[Cell ', self.ID,' Cycle] Machines improperly allocated to cell (machines:', len(self.machines), ')')
                 continue
-            
-            request = self.requestQueue.get()  
+            #request = self.requestQueue.get()  
 
-            if self.machines[0].getType() == 'M1' and self.machines[1].getType() == 'M2':
+            """ if self.machines[0].getType() == 'M1' and self.machines[1].getType() == 'M2':
                 if request['Piece'] == 'P3' or\
                 request['Piece'] == 'P4' or\
                 request['Piece'] == 'P6' or\
@@ -90,8 +89,13 @@ class Cell:
                     self.requestQueue.orderedPut(request)
             else:
                 print('[Cell ', self.ID,' Cycle] Indetermined piece, request will not be put back in queue')
-                request = None
-                
+                request = None """
+            
+            request = self.getRequest()
+            if request is None:
+                continue
+            self.setBusy()
+
             if self.isBusy():
                 toolsOrder = request['Tools'] #exp: 'T1;T2;T3'
                 toolsOrder = toolsOrder.split(';') #exp: ['T1', 'T2', 'T3']
@@ -168,6 +172,46 @@ class Cell:
                     break
 
                 self.doneRequestQueue.put(request['Piece'])
+
+    def getRequest(self):
+        print('[Cell ', self.ID, ' getRequest] Request queue size: ', self.requestQueue.qsize())
+        for iterator in range(self.requestQueue.qsize()):
+            #print("[Cell ", self.ID, " getRequest] Request index: ", iterator)
+            request = self.requestQueue.peek(block = False, index = iterator)
+            
+            if self.machines[0].getType() == 'M1' and self.machines[1].getType() == 'M2':
+                if request['Piece'] == 'P3' or\
+                request['Piece'] == 'P4' or\
+                request['Piece'] == 'P6' or\
+                request['Piece'] == 'P7' or\
+                request['Piece'] == 'P8':
+                    requestTaken = self.requestQueue.get(iterator)
+                    print('[cell ', self.ID, ' getRequest] Request Peeked ', request)
+                    print('[Cell ', self.ID, ' getRequest] Request taken: ', requestTaken)
+                    if request != requestTaken:
+                        self.requestQueue.put(requestTaken)
+                        return None
+                    return requestTaken
+
+            elif self.machines[0].getType() == 'M3' and self.machines[1].getType() == 'M4':
+                if request['Piece'] == 'P3' or\
+                request['Piece'] == 'P8' or\
+                request['Piece'] == 'P5' or\
+                request['Piece'] == 'P7' or\
+                request['Piece'] == 'P9':
+                    requestTaken = self.requestQueue.get(iterator)
+                    print('[cell ', self.ID, ' getRequest] Request Peeked ', request)
+                    print('[Cell ', self.ID, ' getRequest] Request taken: ', requestTaken)
+                    if request != requestTaken:
+                        self.requestQueue.put(requestTaken)
+                        return None
+                    return requestTaken
+
+            else:
+                request = None
+        
+        return None
+
 
     def printStatus(self):
         threading.Thread(target=self.__printStatus, daemon=True).start()

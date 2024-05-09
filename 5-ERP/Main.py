@@ -5,7 +5,7 @@ import time
 import sys
 sys.path.append("..")
 
-from ..Database.DB import *         # TO RUN THE CODE YOU MUST GO TO THE PREVIOUS FOLDER OF INFI AND RUN "python -m INFI.5-ERP.Main"
+from Database import Database         # TO RUN THE CODE YOU MUST GO TO THE PREVIOUS FOLDER OF INFI AND RUN "python -m INFI.5-ERP.Main"
 from xml.dom import minidom
 
 class Parser(object):

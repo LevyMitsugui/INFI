@@ -7,7 +7,7 @@ class customQueue(queue.Queue):
     #def peek(self):
     #    return self.queue[0]
     
-    def peek(self, block=True, timeout=None):
+    def peek(self, block=True, timeout=None, index=0):
         with self.not_empty:
             if not block:
                 if not self._qsize():
@@ -24,12 +24,12 @@ class customQueue(queue.Queue):
                     if remaining <= 0.0:
                         print('empty queue')
                     self.not_empty.wait(remaining)
-            item = self._peek()
+            item = self._peek(index)
             self.not_full.notify()
             return item
         
-    def _peek(self):
-        return self.queue[0]
+    def _peek(self, index=0):
+        return self.queue[index]
 
     def orderedPut(self, item):
         #place item in queue ordered by due date

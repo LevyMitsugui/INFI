@@ -3,6 +3,7 @@ import Cell
 import Machine
 import sys
 sys.path.append('C:\\Users\\Levy\\Documents\\GitHub\\INFI\\MES\\customQueue')  # Add the path to the customQueue directory  # Add the path to the customQueue directory
+sys.path.append('C:\\Users\\Levy\\Documents\\GitHub\\INFI\\MES\\Plantfloor')  # Add the path to the customQueue directory  # Add the path to the customQueue directory
 
 from customQueue import customQueue
 
@@ -30,6 +31,12 @@ class testCell(unittest.TestCase):
         cell.setBusy()
         cell.setFree()
         self.assertFalse(cell.isBusy())
+
+    def test_getRequest():
+        requestQueue = customQueue()
+        cell = Cell.Cell(1, requestQueue, 'recipes.csv')
+        request = cell.getRequest()
+        self.assertEqual(request, None)
 
 if __name__ == '__main__':
     unittest.main()

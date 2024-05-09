@@ -2,26 +2,32 @@ from Plantfloor import *
 from Recipe.Recipe import *
 import threading
 import time
-#import queue
 import customQueue
-#import mysql.connector
-
-""" class newQueue(queue.Queue):
-    def peek(self):
-        return self.queue[0]
-
-    def orderedPut(self, item):
-        #place item in queue ordered by due date
-        for i in range(len(self.queue)):
-            if item['DueDate'] < self.queue[i]['DueDate']:
-                self.queue.insert(i, item)
-                break
-        else:
-            self.queue.append(item) """
+import sys
+sys.path.append("..")
+from Database import Database         # TO RUN THE CODE YOU MUST GO TO THE PREVIOUS FOLDER OF INFI AND RUN "python -m INFI.4-MES.Main"
+#from ..Database import *
 
 class SQLManager():
-    def __init__(self):
-        pass
+    def __init__(self, orderQueue):
+        self.db = Database()
+        self.OrderQueue = orderQueue
+
+    def __getOrder(self):
+        while True:
+            time.sleep(1)
+            orderTup = self.db.processMostUrgentOrder()
+            if(not orderTup):
+                return None
+            order = {'clientID' : orderTup[0][0] , 'Order Number' : orderTup[0][1], 'WorkPiece' : orderTup[0][2], 'Quantity' : orderTup[0][3], 'DueDate' : orderTup[0][4], 'LatePen' : orderTup[0][5], 'EarlyPen' : orderTup[0][6]}
+            self.OrderQueue.put(order)
+
+    def getOrder(self):
+        try:
+            threading.Thread(target=self.__getOrder, daemon=True).start()
+            print('[Manager] getOrder thread started')
+        except:
+            print('[Manager] getOrder thread failed')
 
 class Manager():
 
@@ -91,8 +97,9 @@ class Manager():
     def __wareHouse(self):
         while True:
             time.sleep(2.73)
-            while self.DoneRequestQueue.qsize() > 0:
-                self.piecesProcessed.append(self.DoneRequestQueue.get())
+            if self.DoneRequestQueue.qsize() > 0:
+                while self.DoneRequestQueue.qsize() > 0:
+                    self.piecesProcessed.append(self.DoneRequestQueue.get())
                 print('[Manager, __wareHouse] WareHouse: ', self.piecesProcessed)
 
     def postRequests(self):
@@ -115,16 +122,18 @@ class Manager():
 
 
 
-order = {'clientID' : 'Client AA', 'Order Number' : 18, 'WorkPiece' : 'P6', 'Quantity' : 8, 'DueDate' : 7, 'LatePen' : 10, 'EarlyPen' : 5}
-order1 = {'clientID' : 'Client AA', 'Order Number' : 19, 'WorkPiece' : 'P7', 'Quantity' : 12, 'DueDate' : 7, 'LatePen' : 10, 'EarlyPen' : 5}
+
+#order = {'clientID' : 'Client AA', 'Order Number' : 18, 'WorkPiece' : 'P6', 'Quantity' : 8, 'DueDate' : 7, 'LatePen' : 10, 'EarlyPen' : 5}
+#order1 = {'clientID' : 'Client AA', 'Order Number' : 19, 'WorkPiece' : 'P7', 'Quantity' : 12, 'DueDate' : 7, 'LatePen' : 10, 'EarlyPen' : 5}
 
 orderQueue = customQueue.customQueue()
 requestQueue = customQueue.customQueue()
 doneRequestQueue = customQueue.customQueue()
 
+SQLManager = SQLManager(orderQueue)
+SQLManager.getOrder()
 manager = Manager(orderQueue, requestQueue, doneRequestQueue, './Recipe/Recipes.csv')
 manager.postRequests()
 manager.startWareHouse()
-orderQueue.put(order)
-orderQueue.put(order1)
+#orderQueue.put(order1)
 input()

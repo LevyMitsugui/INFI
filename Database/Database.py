@@ -15,14 +15,16 @@ class Database:
 		self.open = []
 		self.order = []
 		self.__createsDatabase__()
+		
 
 	def __createsConnector__(self):
 		try:
 			self.connector = mysql.connector.connect(       						# Creates a connector to access the database
 					host="localhost",
-					user="infi",													# The user YOU selected to access the server
-					password="infi2324",											# The password YOU selected to access the server
-					database="infi"
+					user="root",													# The user YOU selected to access the server
+					password="admin",											# The password YOU selected to access the server
+					database="infi",
+					auth_plugin='mysql_native_password'
 			)
 
 			cursor = self.connector.cursor()
@@ -44,8 +46,9 @@ class Database:
 		try:
 			self.connector = mysql.connector.connect(       						# Creates a connector to access the database
 					host="localhost",
-					user="infi",													# The user YOU selected to access the server
-					password="infi2324",											# The password YOU selected to access the server
+					user="root",													# The user YOU selected to access the server
+					password="admin",
+					#auth_plugin='mysql_native_password'											# The password YOU selected to access the server
 			)
 			print("Connected to the database server")
 
