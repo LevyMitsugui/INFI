@@ -456,7 +456,6 @@ class Database:
 			
 			sql = "SELECT EXISTS(SELECT * FROM mes_ware{} WHERE workpiece = '{}')".format(warenum, workpiece)		#Check if any workpiece of the type was already processed
 			cursor.execute(sql)
-			print(sql)
 			exists = cursor.fetchall()
 			if(exists[0][0]):
 				if(warenum == 1):
