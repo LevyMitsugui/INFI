@@ -31,21 +31,19 @@ class SQLManager():
 
 class Manager():
 
-    def __init__(self, orderQueue, requestQueue, doneRequestQueue,recipesFile):
+    def __init__(self, orderQueue, requestQueue, doneRequestQueue, recipesFile):
         self.OrderQueue = orderQueue
         self.RequestQueue = requestQueue
         self.DoneRequestQueue = doneRequestQueue
+        self.piecesProcessed = []
+        self.recipes = self.__reader(recipesFile)
         self.cells = self.__initCells() #hardcoded
         self.__configMachines() #hardcoded
-
-        self.piecesProcessed = []
-
-        self.recipes = self.__reader(recipesFile) #recipes is a reader
 
     def __initCells(self,): #hardcoded
         cells = []
         for i in range(6):
-            cells.append(Cell(i, self.RequestQueue, self.DoneRequestQueue))
+            cells.append(Cell(i, self.RequestQueue, self.DoneRequestQueue, recipes=self.recipes))
         return cells
     
 
@@ -136,5 +134,6 @@ SQLManager.getOrder()
 manager = Manager(orderQueue, requestQueue, doneRequestQueue, './Recipe/Recipes.csv')
 manager.postRequests()
 manager.startWareHouse()
+#orderQueue.put(order)
 #orderQueue.put(order1)
 input()

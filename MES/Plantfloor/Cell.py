@@ -3,7 +3,7 @@ import csv
 import threading
 
 class Cell:
-    def __init__(self, ID, requestQueue, doneRequestQueue):
+    def __init__(self, ID, requestQueue, doneRequestQueue, recipes):
         """
         Initializes an instance of the class with the given ID.
 
@@ -23,6 +23,7 @@ class Cell:
         self.doneRequestQueue = doneRequestQueue
         self.machines = []
         self.processedRequests = 0
+        self.recipes = recipes
 
         #self.__allTools = self.__availableTools() 
 
@@ -178,7 +179,13 @@ class Cell:
         for iterator in range(self.requestQueue.qsize()):
             #print("[Cell ", self.ID, " getRequest] Request index: ", iterator)
             request = self.requestQueue.peek(block = False, index = iterator)
-            
+            recipe = self.__verifyRequest(request)
+            if(recipe != None):
+                print('****[Cell ', self.ID, ' getRequest] **** verified request gave recipe: ', recipe)
+                procedure = self.__arrangeSteps(recipe)
+                if procedure != None:
+                    print('******** verified request gave procedure: ', procedure)
+
             if self.machines[0].getType() == 'M1' and self.machines[1].getType() == 'M2':
                 if request['Piece'] == 'P3' or\
                 request['Piece'] == 'P4' or\
@@ -209,7 +216,43 @@ class Cell:
         
         return None
 
+    def __verifyRequest(self, request):#TODO restructure this
+        valid = []
+        for recipe in self.recipes:
+            if recipe['Piece'] == request['Piece']:
+                for tool in self.__allTools:
+                    valid.append(tool in recipe['Tools'])
+                if all(valid):
+                    return recipe        
 
+        return None
+    
+    def __arrangeSteps(self, recipe):
+        steps = []
+        timeIndex = 0
+        times = recipe['Time'].split(';')
+        
+        for it in range(len(self.machines)):
+            for tool in recipe['Tools']:
+                print('[Cell ', self.ID,' Cycle] Checking machine ', it, ' for tool ', tool)
+                if tool in self.machines[it].availableTools:
+                    steps.append({'Machine': it, 'Tool': tool, 'Time': times[timeIndex]})
+                    timeIndex += 1
+                else:
+                    break
+        
+        """ if len(steps) != len(recipe['Tools']):
+            print('[Cell ', self.ID,' Cycle] Invalid number of tools in request: ', len(steps))
+        if len(steps) != len(times):
+            print('[Cell ', self.ID,' Cycle] Invalid number of times in request: ', len(steps))
+        if len(steps) != timeIndex+1:
+            print('[Cell ', self.ID,' Cycle] Invalid number of steps in request or invelid number of times: ', len(steps))
+ """
+        if len(steps) == len(recipe['Tools']) and len(steps) == len(times) and len(steps) == timeIndex+1:
+            return steps
+
+        return None
+    
     def printStatus(self):
         threading.Thread(target=self.__printStatus, daemon=True).start()
     

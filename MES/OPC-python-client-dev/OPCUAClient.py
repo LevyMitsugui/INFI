@@ -13,14 +13,14 @@ class OPCUAClient:
             print(err)
             sys.exit(1)
 
-    def __opcuaClient(self):
-        testVarNode = self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.GVL.test_var")
-        testVecNode = self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.GVL.test_vec")
+        self.testVarNode = self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.GVL.test_var")
+        self.testVecNode = self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.GVL.test_vec")
 
+    def __opcuaClient(self):
 
         while True:
-            testVar = testVarNode.get_value()
-            testVec = testVecNode.get_value()
+            testVar = self.testVarNode.get_value()
+            testVec = self.testVecNode.get_value()
 
             print(testVar)
             print(testVec)
@@ -28,8 +28,8 @@ class OPCUAClient:
             testVar += 1
             testVec[0] += 1
 
-            testVarNode.set_value(testVar, ua.VariantType.Int16)
-            testVecNode.set_value(testVec, ua.VariantType.Int16)
+            self.testVarNode.set_value(testVar, ua.VariantType.Int16)
+            self.testVecNode.set_value(testVec, ua.VariantType.Int16)
             
             print("connected")
             time.sleep(2)
@@ -37,7 +37,13 @@ class OPCUAClient:
     def run(self):
         threading.Thread(target=self.__opcuaClient, daemon=True).start()
 
-    def setMachineTool(self, machine, tool):
+    #def setMachineTool(self, machine, tool):
+
+    def writeOnTest(self, value):
+        self.testVarNode.set_value(value, ua.VariantType.Int16)
+
+    def readFromTest(self):
+        return self.testVarNode.get_value()
 
 
 myClient = OPCUAClient()
