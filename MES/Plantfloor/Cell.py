@@ -25,7 +25,7 @@ class Cell:
         self.processedRequests = 0
         self.recipes = recipes
 
-        #self.__allTools = self.__availableTools() 
+        self.__allTools = []#self.__availableTools() 
 
         self.run()
         #self.printStatus()#TODO remove all functions related to printStatus ([]function, []thread)
@@ -64,166 +64,53 @@ class Cell:
             if len(self.machines) < 2 or len(self.machines) > 2:
                 print('[Cell ', self.ID,' Cycle] Machines improperly allocated to cell (machines:', len(self.machines), ')')
                 continue
-            #request = self.requestQueue.get()  
 
-            """ if self.machines[0].getType() == 'M1' and self.machines[1].getType() == 'M2':
-                if request['Piece'] == 'P3' or\
-                request['Piece'] == 'P4' or\
-                request['Piece'] == 'P6' or\
-                request['Piece'] == 'P7' or\
-                request['Piece'] == 'P8':
-                    print('[Cell ', self.ID,' Cycle] Can process')
-                    self.setBusy()
-                else:
-                    print('[Cell ', self.ID,' Cycle] Can not process')
-                    self.requestQueue.put(request)
-            elif self.machines[0].getType() == 'M3' and self.machines[1].getType() == 'M4':
-                if request['Piece'] == 'P3' or\
-                request['Piece'] == 'P8' or\
-                request['Piece'] == 'P5' or\
-                request['Piece'] == 'P7' or\
-                request['Piece'] == 'P9':
-                    print('[Cell ', self.ID,' Cycle] Can process')
-                    self.setBusy()
-                else:
-                    print('[Cell ', self.ID,' Cycle] Can not process')
-                    self.requestQueue.orderedPut(request)
-            else:
-                print('[Cell ', self.ID,' Cycle] Indetermined piece, request will not be put back in queue')
-                request = None """
-            
-            request = self.getRequest()
-            if request is None:
+            request, recipe = self.getRequest()
+            if request is None or recipe is None:
                 continue
             self.setBusy()
 
-            if self.isBusy():
-                toolsOrder = request['Tools'] #exp: 'T1;T2;T3'
-                toolsOrder = toolsOrder.split(';') #exp: ['T1', 'T2', 'T3']
-                times = request['Time'].split(';')
-
-                for t in toolsOrder:
-                    if t not in self.__allTools:
-                        print('[Cell ', self.ID,' Cycle] Invalid tool: ', t)
-                        break
-                
-                if len(toolsOrder) == 1:
-                    print('[Cell ', self.ID,' Cycle] One step process')
-                    self.machines[1].setBusy()
-                    self.machines[1].setToolSelect(toolsOrder[0])
-                    self.machines[1].setTime(times[0])
-
-                    time.sleep(float(times[0]))
-                    while not self.machines[1].machineDone(): #wait until piece is processed #TODO mock function just to simulate the piece processing
-                        time.sleep(0.5)
-                    
-                    self.machines[1].setFree()
-                    self.setFree()
-                    self.processedRequests += 1
-                    print('[Cell ', self.ID,' Cycle] Done one step process. Cell processed ', self.processedRequests, ' requests so far')
-                        
-                elif len(toolsOrder) == 2:
-                    print('[Cell ', self.ID,' Cycle] Two step process')
-                    self.machines[0].setBusy()
-                    self.machines[0].setToolSelect(toolsOrder[0])
-                    self.machines[0].setTime(times[0])
-                    self.machines[1].setToolSelect(toolsOrder[1])
-                    self.machines[1].setTime(times[1])
-                    
-                    while not self.machines[0].machineDone(): #wait until piece is processed #TODO mock function
-                        time.sleep(0.5)
-                    self.machines[0].setFree()
-
-                    self.machines[1].setBusy()
-                    while not self.machines[1].machineDone(): #wait until piece is processed #TODO mock
-                        time.sleep(0.5)   
-                    self.machines[1].setFree()
-                    self.setFree()
-                    self.processedRequests += 1
-                    print('[Cell ', self.ID,' Cycle] Done two step process. Cell', self.ID, ' processed ', self.processedRequests, ' requests so far')
-
-                elif len(toolsOrder) == 3:
-                    print('[Cell ', self.ID,' Cycle] Three step process')
-                    self.machines[0].setBusy()
-                    self.machines[0].setToolSelect(toolsOrder[0])
-                    self.machines[0].setTime(times[0])
-                    self.machines[1].setToolSelect(toolsOrder[1])
-                    self.machines[1].setTime(times[1])
-                    
-                    while not self.machines[0].machineDone(): #wait until piece is processed #TODO mock function just to simulate the piece processing
-                        time.sleep(0.5)
-                    self.machines[0].setFree()    
-
-                    self.machines[1].setBusy()
-                    while not self.machines[1].machineDone(): #wait until piece is processed #TODO mock function
-                        time.sleep(0.5)
-
-                    self.machines[1].setToolSelect(toolsOrder[2])
-                    self.machines[1].setTime(times[2])
-                    
-                    while not self.machines[1].machineDone(): #wait until piece is processed #TODO mock function
-                        time.sleep(0.5)
-                    self.machines[1].setFree()
-                    self.setFree()
-                    self.processedRequests += 1
-                    print('[Cell ', self.ID,' Cycle] Done three step process. Cell processed ', self.processedRequests, ' requests so far')
-
-                else:
-                    print('[Cell ', self.ID,' Cycle] Invalid number of tools in request: ', len(toolsOrder))
-                    break
-
-                self.doneRequestQueue.put(request['Piece'])
+            print('[Cell ', self.ID,' Cycle] Request: ', request)
+            print('[Cell ', self.ID,' Cycle] Recipe: ', recipe)
+            
+            self.setFree()
+            self.doneRequestQueue.put(request['Piece'])
 
     def getRequest(self):
-        #print('[Cell ', self.ID, ' getRequest] Request queue size: ', self.requestQueue.qsize())
         for iterator in range(self.requestQueue.qsize()):
-            #print("[Cell ", self.ID, " getRequest] Request index: ", iterator)
             request = self.requestQueue.peek(block = False, index = iterator)
-            recipe = self.__verifyRequest(request)
-            if(recipe != None):
-                print('****[Cell ', self.ID, ' getRequest] **** verified request gave recipe: ', recipe)
-                procedure = self.__arrangeSteps(recipe)
-                if procedure != None:
-                    print('******** verified request gave procedure: ', procedure)
+            recipe = self.getRecipe(request)
 
-            if self.machines[0].getType() == 'M1' and self.machines[1].getType() == 'M2':
-                if request['Piece'] == 'P3' or\
-                request['Piece'] == 'P4' or\
-                request['Piece'] == 'P6' or\
-                request['Piece'] == 'P7' or\
-                request['Piece'] == 'P8':
-                    requestTaken = self.requestQueue.get(iterator)
-                    print('[cell ', self.ID, ' getRequest] Request Peeked ', request)
-                    print('[Cell ', self.ID, ' getRequest] Request taken: ', requestTaken)
-                    if request != requestTaken:
-                        self.requestQueue.put(requestTaken)
-                        return None
-                    return requestTaken
-
-            elif self.machines[0].getType() == 'M3' and self.machines[1].getType() == 'M4':
-                if request['Piece'] == 'P3' or\
-                request['Piece'] == 'P8' :
-                    requestTaken = self.requestQueue.get(iterator)
-                    print('[cell ', self.ID, ' getRequest] Request Peeked ', request)
-                    print('[Cell ', self.ID, ' getRequest] Request taken: ', requestTaken)
-                    if request != requestTaken:
-                        self.requestQueue.put(requestTaken)
-                        return None
-                    return requestTaken
-
-            else:
+            if(recipe != None and self.requestQueue.qsize() > 0):
+                requestGotten = self.requestQueue.get(iterator)
+                
+                if requestGotten['Piece'] != request['Piece']:
+                    self.requestQueue.put(requestGotten)
+                    print('!![Cell ', self.ID, ' getRequest]!! Failded to get right request')
+                    return (None, None)
+                
+                print('**[Cell ', self.ID, ' getRequest]** verified request gave recipe: ', recipe)
+                return (request, recipe)
+                
+            else: #There is no recipe for this request
                 request = None
         
-        return None
+        return (None, None)
 
-    def __verifyRequest(self, request):#TODO restructure this
+    def getRecipe(self, request):#TODO restructure this
         valid = []
+
         for recipe in self.recipes:
             if recipe['Piece'] == request['Piece']:
-                for tool in self.__allTools:
-                    valid.append(tool in recipe['Tools'])
+                tools = recipe['Tools'].split(';')
+                for tool in tools:
+                    if len(valid) == len(tools):
+                        break
+                    print('[Cell ', self.ID,' Cycle] Checking tool: ', tool, ' in recipe: ', tools, 'is valid: ', tool in self.__allTools)
+                    valid.append(tool in self.__allTools)
+                print('[Cell ', self.ID,' Cycle] Valid: ', valid)
                 if all(valid):
-                    return recipe        
+                    return recipe                
 
         return None
     
@@ -274,7 +161,8 @@ class Cell:
             time.sleep(0.5)
 
             
-
+    def getAllTools(self):
+        return self.__allTools
  
     def __availableTools(self):
         tools = []
