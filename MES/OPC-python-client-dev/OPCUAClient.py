@@ -13,37 +13,71 @@ class OPCUAClient:
             print(err)
             sys.exit(1)
 
-        self.testVarNode = self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.GVL.test_var")
-        self.testVecNode = self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.GVL.test_vec")
+        #PRECISA TESTAR, SE ISSO DEVE FICAR AQUI OU NO updateNodesAndVars!!!
+        self.machineStatusNode = self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.GVL.machine_status")
+        self.toolSelectNode = self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.GVL.tool_select")
+        self.toolTimeNode = self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.GVL.tool_time")
+        self.WH1Node = self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.GVL.WH1_piece_count")
+        self.WH2Node = self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.GVL.WH2_piece_count")
 
-    def __opcuaClient(self):
+        #self.updateNodesAndVars(self)
 
-        while True:
-            testVar = self.testVarNode.get_value()
-            testVec = self.testVecNode.get_value()
 
-            print(testVar)
-            print(testVec)
+    def updateNodesAndVars(self):
+        self.machineStatus = self.machineStatusNode.get_value()
+        self.toolSelect = self.toolSelectNode.get_value()
+        self.toolTime = self.toolTimeNode.get_value()
+        self.WH1 = self.WH1Node.get_value()
+        self.WH2 = self.WH2Node.get_value()
 
-            testVar += 1
-            testVec[0] += 1
+    def setMachineToolAndTime(self, machine, cell, tool, time):
+        if machine == 2:
+            cell += 6
 
-            self.testVarNode.set_value(testVar, ua.VariantType.Int16)
-            self.testVecNode.set_value(testVec, ua.VariantType.Int16)
-            
-            print("connected")
-            time.sleep(2)
+        self.updateNodesAndVars(self)
+
+        self.toolSelect[cell-1] = tool
+        self.toolTime[cell-1] = time
+
+        self.toolSelectNode.setvalue(self.toolSelect, ua.VariantType.Int16)
+        self.toolTimeNode.setvalue(self.toolTime, ua.VariantType.Int16)
+
+    def getMachineTool(self, machine, cell):
+        if machine == 2:
+            cell += 6
+
+        self.updateNodesAndVars(self)
+
+        return self.toolSelect[cell-1]
+
+    def getMachineStatus(self, machine, cell):
+        if machine == 2:
+            cell += 6
+
+        self.updateNodesAndVars(self)
+
+        return self.machineStatus[cell-1]
     
-    def run(self):
-        threading.Thread(target=self.__opcuaClient, daemon=True).start()
 
-    #def setMachineTool(self, machine, tool):
+    def setMachineStatus(self, machine, cell, status):
+        if machine == 2:
+            cell += 6
 
-    def writeOnTest(self, value):
-        self.testVarNode.set_value(value, ua.VariantType.Int16)
+        self.updateNodesAndVars(self)
 
-    def readFromTest(self):
-        return self.testVarNode.get_value()
+        self.machineStatus[cell-1] = status
+
+        self.machineStatusNode.setvalue(self.machineStatus, ua.VariantType.Int16)
+
+    def getWH1PieceCount(self, piece):
+        self.updateNodesAndVars(self)
+
+        return self.WH1[piece-1]
+
+    def getWH2PieceCount(self, piece):
+        self.updateNodesAndVars(self)
+
+        return self.WH2[piece-1]
 
 
 myClient = OPCUAClient()

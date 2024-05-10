@@ -2,8 +2,7 @@ import sys
 from opcua import ua, Client
 import time
 
-client = Client("opc.tcp://localhost:4840/freeopcua/server/")
-client.connect()
+
 
 try: 
     client = Client("opc.tcp://localhost:4840/freeopcua/server/")
