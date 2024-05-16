@@ -34,29 +34,28 @@ class SQLManager():
 
 class Manager():
 
-    def __init__(self, orderQueue, requestQueue, doneRequestQueue, recipesFile):
+    def __init__(self, orderQueue, requestQueue, doneRequestQueue, recipesFile, transformFile):
         self.OrderQueue = orderQueue
         self.RequestQueue = requestQueue
         self.DoneRequestQueue = doneRequestQueue
         self.piecesProcessed = []
-        self.recipes = self.__reader(recipesFile)
-        self.cells = self.__initCells() #hardcoded
-        self.__configMachines() #hardcoded
+        self.recipes = self.__csvReader__(recipesFile)
+        self.transformations = self.__csvReader__(transformFile)
+        self.cells = self.__initCells__() #hardcoded
+        self.__configMachines__() #hardcoded
 
         self.piecesProcessed = []
 
-        self.recipes = self.__reader(recipesFile) #recipes is a reader
-
         self.db = Database("root", "admin", "mes")
 
-    def __initCells(self,): #hardcoded
+    def __initCells__(self,): #hardcoded
         cells = []
         for i in range(6):
-            cells.append(Cell(i, self.RequestQueue, self.DoneRequestQueue, recipes=self.recipes))
+            cells.append(Cell(i, self.RequestQueue, self.DoneRequestQueue, recipes=self.recipes, transformations=self.transformations))
         return cells
     
 
-    def __configMachines(self): #hardcoded
+    def __configMachines__(self): #hardcoded
         print('[Manager] Configuring Machines')
         self.cells[0].addMachine(Machine(0, 'M1'))
         self.cells[0].addMachine(Machine(1, 'M2'))
@@ -80,13 +79,12 @@ class Manager():
         print('[Manager] cell 5 all tools: ', self.cells[5].getAllTools())
         print('[Manager] Machines Configured')
 
-    def __reader(self, filename):
+    def __csvReader__(self, filename):
         with open(filename, newline='') as csvfile:
             reader = csv.DictReader(csvfile)
             return [row for row in reader]
-
-
-    def __postRequests(self):
+        
+    def __postRequests__(self):
         while True:
             time.sleep(0.5)
             currOrder = self.OrderQueue.get()
@@ -111,7 +109,7 @@ class Manager():
                 self.RequestQueue.put(request)
             print('[Manager, postRequests] Posted ', quantity, ' requests for ', currOrder['WorkPiece'])
             
-    def __wareHouse(self):
+    def __wareHouse__(self):
         while True:
             time.sleep(2.73)
             if self.DoneRequestQueue.qsize() > 0:
@@ -122,20 +120,23 @@ class Manager():
     def postRequests(self):
         #tries to run thread
         try:
-            threading.Thread(target=self.__postRequests, daemon=True).start()
+            threading.Thread(target=self.__postRequests__, daemon=True).start()
             print('[Manager] PostRequests thread started')
         except:
             print('[Manager] Could not start postRequests thread')
 
     def startWareHouse(self):
         try:
-            threading.Thread(target=self.__wareHouse, daemon=True).start()
+            threading.Thread(target=self.__wareHouse__, daemon=True).start()
             print('[Manager] StartWareHouse thread started')
         except:
             print('[Manager] Could not start StartWareHouse thread')
 
     def addProcessedPiece(self, piece):
         self.piecesProcessed.append(piece)
+ 
+            
+
 
 
 class Order:
@@ -157,7 +158,7 @@ doneRequestQueue = customQueue.customQueue()
 
 SQLManager = SQLManager(orderQueue)
 SQLManager.getOrder()
-manager = Manager(orderQueue, requestQueue, doneRequestQueue, './Recipe/Recipes.csv')
+manager = Manager(orderQueue, requestQueue, doneRequestQueue, './Recipe/Recipes.csv', './Recipe/WorkPieceTransform.csv')
 manager.postRequests()
 manager.startWareHouse()
 

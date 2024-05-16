@@ -18,7 +18,7 @@ class OPCUAClient:
         self.toolTimeNode = self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.GVL.tool_time")
         self.WH1Node = self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.GVL.WH1_piece_count")
         self.WH2Node = self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.GVL.WH2_piece_count")
-
+        
         #self.updateNodesAndVars(self)
 
 
@@ -79,6 +79,40 @@ class OPCUAClient:
 
         return self.WH2[piece-1]
     
+    def spawn(self, pieceType, quantity, gate): #TODO implement this
+        #set a "quantity" of "pieceType" on "gate"
+        pass
+
+    def getGateStatus(self, gate): #TODO implement this
+        #returns the status of the gate
+        pass
+
+    def __cellRefToMachine__(self, machine, cell):
+        """
+        Converts the given cell reference to the corresponding machine INDEX reference.
+
+        Parameters:
+            machine (int): The machine number (1 or 2).
+            cell (int): The cell number (1 to 6).
+
+        Returns:
+            int: The converted machine INDEX (0-11).
+        """
+        
+        """ ret = -1
+        if cell < 4:
+            ret = cell + (machine-1)*3
+        elif cell>=4:
+            ret = cell + 3 + (machine-1)*3
+        return ret-1 """
+
+        ret = -1
+        ret = (cell+6*(machine-1))-1
+
+        return ret
+    
+    
+    """ 
 i = 0
 while True:
     try:
@@ -112,4 +146,4 @@ while True:
 
 myClient = OPCUAClient()
 myClient.run()
-input()
+input() """

@@ -12,14 +12,14 @@ class Machine:
         Returns:
             None
         """
-        self.__verifyType(type)
+        self.__verifyType__(type)
         
         self.ID = ID
         self.busy = False
         self.type = type
         self.toolSelect = ''
         self.time = 0
-        self.availableTools = self.__retrieveToolList()
+        self.availableTools = self.__retrieveToolList__()
 
     def setBusy(self):
         self.busy = True
@@ -51,8 +51,8 @@ class Machine:
     def getAvailableTools(self):
         return self.availableTools
     
-    def __retrieveToolList(self):
-        with open('Plantfloor/Tools.csv', newline='') as csvfile:
+    def __retrieveToolList__(self):
+        with open('./Tools.csv', newline='') as csvfile:
             reader = csv.DictReader(csvfile)
             tools = []
             for row in reader:
@@ -60,10 +60,13 @@ class Machine:
                     tools = row['Tools'].split(';')
             return tools
         
-    def __verifyType(self, type):
+    def __verifyType__(self, type):
         if type != 'M1' and type != 'M2' and type != 'M3' and type != 'M4':
             raise ValueError('Invalid machine type')
         
     #mock functions #TODO should be removed when system is operating
     def machineDone(self):#TODO finish integration with OPCUA   
+        return True
+    
+    def canUpdateTool(self):#TODO finish integration with OPCUA
         return True

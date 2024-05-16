@@ -3,7 +3,7 @@ import csv
 import threading
 
 class Cell:
-    def __init__(self, ID, requestQueue, doneRequestQueue, recipes):
+    def __init__(self, ID, requestQueue, doneRequestQueue, recipes, transformations):
         """
         Initializes an instance of the class with the given ID.
 
@@ -24,14 +24,17 @@ class Cell:
         self.machines = []
         self.processedRequests = 0
         self.recipes = recipes
+        self.transformations = transformations
 
-        self.__allTools = []#self.__availableTools() 
+        self.setsLists = []
+
+        self.__allTools__ = []
 
         self.run()
         #self.printStatus()#TODO remove all functions related to printStatus ([]function, []thread)
 
     def addMachine(self, machine):
-        print('[Cell ', self.ID,' Cycle] Adding machine', machine.getID(), 'to cell', self.ID)
+        #print('[Cell ', self.ID,' Cycle] Adding machine', machine.getID(), 'to cell', self.ID)
         self.machines.append(machine)
         self.updateCellTools()
 
@@ -53,28 +56,37 @@ class Cell:
         return self.machines
     
     def run(self):
-        threading.Thread(target=self.__cycle, daemon=True).start()
+        threading.Thread(target=self.__cycle__, daemon=True).start()
 
-    def __cycle(self):
+
+    def __cycle__(self):
         #TODO implement this: while ocpcua Connected, because, for now, the code will run even if there is no connection
+        while len(self.machines) < 2 or len(self.machines) > 2:
+            time.sleep(1)
+            print('[Cell ', self.ID,' Cycle] Machines improperly allocated to cell (machines:', len(self.machines), ')')
         
         while True:
-            time.sleep(1)
-
-            if len(self.machines) < 2 or len(self.machines) > 2:
-                print('[Cell ', self.ID,' Cycle] Machines improperly allocated to cell (machines:', len(self.machines), ')')
-                continue
-
-            request, recipe = self.getRequest()
-            if request is None or recipe is None:
-                continue
-            self.setBusy()
-
-            print('[Cell ', self.ID,' Cycle] Request: ', request)
-            print('[Cell ', self.ID,' Cycle] Recipe: ', recipe)
+            time.sleep(0.1)
             
-            self.setFree()
-            self.doneRequestQueue.put(request['Piece'])
+            if self.machines[0].machineDone():
+                request, recipe = self.getRequest()
+                if request is None or recipe is None:
+                    continue
+                self.setBusy()
+
+                self.setsLists.insert(0, self.__arrangeSteps__(recipe))
+                #SET VARIABLES THROUGH OPCUA
+
+
+                #when processed remove the steps done by the first machine
+                
+                
+                self.setFree()
+                self.doneRequestQueue.put(request['Piece'])
+
+            if self.machines[1].machineDone() and self.machines[0].canUpdateTool():
+                stepsM1 = self.setsLists.pop()
+                self.machines[0].updateTool(stepsM1[1])
 
     def getRequest(self):
         for iterator in range(self.requestQueue.qsize()):
@@ -107,43 +119,70 @@ class Cell:
                     if len(valid) == len(tools):
                         break
                     print('[Cell ', self.ID,' Cycle] Checking tool: ', tool, ' in recipe: ', tools, 'is valid: ', tool in self.__allTools)
-                    valid.append(tool in self.__allTools)
+                    valid.append(tool in self.__allTools__)
                 print('[Cell ', self.ID,' Cycle] Valid: ', valid)
                 if all(valid):
                     return recipe                
 
         return None
     
-    def __arrangeSteps(self, recipe):
-        steps = []
-        timeIndex = 0
-        times = recipe['Time'].split(';')
+    def __removeDoneSteps__(self, machine, setList):
+        """
+        A function that removes steps that are marked as done for a specific machine
         
-        for it in range(len(self.machines)):
-            for tool in recipe['Tools']:
-                print('[Cell ', self.ID,' Cycle] Checking machine ', it, ' for tool ', tool)
-                if tool in self.machines[it].availableTools:
-                    steps.append({'Machine': it, 'Tool': tool, 'Time': times[timeIndex]})
-                    timeIndex += 1
-                else:
+        Parameters:
+            machine (str): The machine name to filter the steps for.
+            steps (list): A list of steps to filter.
+        
+        Returns:
+            None
+        """
+        for stepsSet in setList:
+            for step in stepsSet:
+                if step[0] == machine:
+                    stepsSet.remove(step)
+                
+            
+        return stepsSet
+
+    def __arrangeSteps__(self, recipe, maxToolChange = 2):
+        steps = []
+        tools = recipe['Tools'].split(';')
+        midPieces = self.__midPieces__(recipe)
+        #set steps of second machine first
+        changes = 0
+        for iterator in range(len(tools)-1, 0, -1):
+            steps.insert(0, (1,tools[iterator], midPieces[len(midPieces)-1-changes]))
+            changes += 1
+            if changes == maxToolChange:
+                break
+
+        if len(tools) >= 2:
+            steps.insert(0, (0,tools[0], midPieces[0]))
+
+        
+        return steps
+    
+    def __midPieces__(self, recipe):
+        midPieces = []
+        material = recipe['Material']
+        tools = recipe['Tools'].split(';')
+        midPieces.append(material)
+        for t in tools:
+            for transformation in self.transformations:
+                if transformation['Tool'] == t and transformation['Material'] == material:
+                    if transformation['Piece'] == recipe['Piece']:
+                        break
+                    midPieces.append(transformation['Piece'])
+                    material = transformation['Piece']
                     break
         
-        """ if len(steps) != len(recipe['Tools']):
-            print('[Cell ', self.ID,' Cycle] Invalid number of tools in request: ', len(steps))
-        if len(steps) != len(times):
-            print('[Cell ', self.ID,' Cycle] Invalid number of times in request: ', len(steps))
-        if len(steps) != timeIndex+1:
-            print('[Cell ', self.ID,' Cycle] Invalid number of steps in request or invelid number of times: ', len(steps))
- """
-        if len(steps) == len(recipe['Tools']) and len(steps) == len(times) and len(steps) == timeIndex+1:
-            return steps
+        return midPieces
 
-        return None
-    
     def printStatus(self):
-        threading.Thread(target=self.__printStatus, daemon=True).start()
+        threading.Thread(target=self.__printStatus__, daemon=True).start()
     
-    def __printStatus(self):
+    def __printStatus__(self):
         pastStatus = []
         pastStatus.append(self.isBusy())
         for m in self.machines:
@@ -162,9 +201,9 @@ class Cell:
 
             
     def getAllTools(self):
-        return self.__allTools
+        return self.__allTools__
  
-    def __availableTools(self):
+    def __availableTools__(self):
         tools = []
         for m in self.machines:
             for t in m.getAvailableTools():
@@ -173,11 +212,11 @@ class Cell:
         return tools
     
     def updateCellTools(self):
-        self.__allTools = self.__availableTools()
+        self.__allTools__ = self.__availableTools__()
     
-    def __reader(self, filename):
+    def __reader__(self, filename):
         with open(filename, newline='') as csvfile:
             return csv.DictReader(csvfile)
         
-    def __getToolOrder(self, Piece):
+    def __getToolOrder__(self, Piece):
         return self.recipes.getRecipeData(Piece).get('Tools')
