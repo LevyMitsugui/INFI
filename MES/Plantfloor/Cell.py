@@ -25,6 +25,8 @@ class Cell:
         self.processedRequests = 0
         self.recipes = recipes
 
+        
+
         self.__allTools = []#self.__availableTools() 
 
         self.run()
@@ -106,9 +108,9 @@ class Cell:
                 for tool in tools:
                     if len(valid) == len(tools):
                         break
-                    print('[Cell ', self.ID,' Cycle] Checking tool: ', tool, ' in recipe: ', tools, 'is valid: ', tool in self.__allTools)
+                    # print('[Cell ', self.ID,' Cycle] Checking tool: ', tool, ' in recipe: ', tools, 'is valid: ', tool in self.__allTools)
                     valid.append(tool in self.__allTools)
-                print('[Cell ', self.ID,' Cycle] Valid: ', valid)
+                # print('[Cell ', self.ID,' Cycle] Valid: ', valid)
                 if all(valid):
                     return recipe                
 

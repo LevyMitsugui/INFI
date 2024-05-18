@@ -10,7 +10,7 @@ from Database import Database         # TO RUN THE CODE YOU MUST GO TO THE PREVI
 
 class SQLManager():
     def __init__(self, orderQueue):
-        self.erpDB = Database("root", "admin", "erp")
+        self.erpDB = Database("root", "admin", "erp")                           # Creates a connector to access the database
         self.mesDB = Database("root", "admin", "mes")
         self.OrderQueue = orderQueue
 
@@ -31,6 +31,38 @@ class SQLManager():
             print('[Manager] getOrder thread started')
         except:
             print('[Manager] getOrder thread failed')
+
+    # def getData(self, orderQueue, requestQueue, doneRequestQueue):
+    #     ordersTup = self.erpDB.getOpenOrders("mes")
+    #     if len(ordersTup) > 0:
+    #         print('[Database] Exist open orders at ERP database, orders added to MES orderQueue')
+    #         for x in ordersTup:
+    #             order = {'clientID' : x[0] , 'Order Number' : x[1], 'WorkPiece' : x[2], 'Quantity' : x[3], 'DueDate' : x[4], 'LatePen' : x[5], 'EarlyPen' : x[6]}
+    #             orderQueue.put(order)
+    #             print(order)
+    #     else:
+    #         print('[Database] No orders to add to MES orderQueue')
+
+    #     ordersTup = self.mesDB.getOpenOrders("mes")
+    #     if len(ordersTup) > 0:
+    #         print('[Database] Exist processing orders at MES database, orders added to MES requestQueue')
+    #         for x in ordersTup:
+    #             order = {'clientID' : x[0] , 'Order Number' : x[1], 'WorkPiece' : x[2], 'Quantity' : x[3], 'DueDate' : x[4], 'LatePen' : x[5], 'EarlyPen' : x[6]}
+    #             requestQueue.put(order)
+    #             print(order)
+    #     else:
+    #         print('[Database] No orders to add to MES requestQueue')
+
+    #     ordersTup = self.mesDB.getOrdersDone("mes")
+    #     if len(ordersTup) > 0:
+    #         print('[Database] Exist orders done at MES database, orders added to MES doneRequestQueue')
+    #         for x in ordersTup:
+    #             order = {'clientID' : x[0] , 'Order Number' : x[1], 'WorkPiece' : x[2], 'Quantity' : x[3], 'DueDate' : x[4], 'LatePen' : x[5], 'EarlyPen' : x[6]}
+    #             doneRequestQueue.put(order)
+    #             print(order)
+    #     else:
+    #         print('[Database] No orders to add to MES doneRequestQueue')
+
 
 class Manager():
 
@@ -88,15 +120,17 @@ class Manager():
 
     def __postRequests(self):
         while True:
-            time.sleep(0.5)
+            time.sleep(3)
             currOrder = self.OrderQueue.get()
-            mesOrder = self.db.processMostUrgentOrder("mes")
-            if(not mesOrder):
-                continue
-            self.db.updateWare(mesOrder[0][2], mesOrder[0][3], "mes", 2)
 
             if currOrder['WorkPiece'] == 'P1' or currOrder['WorkPiece'] == 'P2':
                 print('[Manager, postRequests] P1 & P2 are not processable, order will not be posted and will be removed from queue')
+                continue
+
+            # mesOrder = self.db.processMostUrgentOrder("mes")
+            mesOrder = self.db.processOrderByNum(currOrder['clientID'] , currOrder['Order Number'] , "mes")
+            if mesOrder is None:    # Order not found at database open orders
+                print('[Manager, postRequests] Order not found at MES database, it will not be posted and will be removed from queue')
                 continue
 
             for row in self.recipes:
@@ -116,8 +150,11 @@ class Manager():
             time.sleep(2.73)
             if self.DoneRequestQueue.qsize() > 0:
                 while self.DoneRequestQueue.qsize() > 0:
-                    self.piecesProcessed.append(self.DoneRequestQueue.get())
+                    doneRequest = self.DoneRequestQueue.get()
+                    self.piecesProcessed.append(doneRequest)
+                    self.db.updateWare(doneRequest, 1, "mes", 2)
                 print('[Manager, __wareHouse] WareHouse: ', self.piecesProcessed)
+                self.db.__fetchWare__(2)
 
     def postRequests(self):
         #tries to run thread
@@ -138,6 +175,36 @@ class Manager():
         self.piecesProcessed.append(piece)
 
 
+
+    def postDoneOrders(self):
+        try:
+            threading.Thread(target=self.__postDoneOrders, daemon=True).start()
+            print('[Manager] PostDoneOrders thread started')
+        except:
+            print('[Manager] Could not start PostDoneOrders thread')
+
+    def __postDoneOrders(self):
+        while True:
+            time.sleep(0.41)
+            DoneOrders = self.db.getMostUrgentOrder("mes")
+            if DoneOrders is None:
+                continue
+            
+            request_client = DoneOrders[0][0]
+            request_number = DoneOrders[0][1]
+            request_workpiece = DoneOrders[0][2]
+            request_quantity = DoneOrders[0][3]
+            if self.piecesProcessed.count(request_workpiece) >= request_quantity:
+                for x in self.piecesProcessed:
+                    if x == request_workpiece:
+                        self.piecesProcessed.remove(x)
+                        self.db.setOrderDone(request_client, request_number, "mes")
+            else:
+                continue
+
+            print('[Manager, postDoneOrders] Order done: ', DoneOrders[0])
+
+
 class Order:
     def __init__(self, number, workpiece, quantity, due_date, late_pen, early_pen):
         self.number = number
@@ -156,10 +223,13 @@ requestQueue = customQueue.customQueue()
 doneRequestQueue = customQueue.customQueue()
 
 SQLManager = SQLManager(orderQueue)
+# SQLManager.getData(orderQueue, requestQueue, doneRequestQueue)
+
 SQLManager.getOrder()
 manager = Manager(orderQueue, requestQueue, doneRequestQueue, './Recipe/Recipes.csv')
 manager.postRequests()
 manager.startWareHouse()
+# manager.postDoneOrders()
 
 #orderQueue.put(order)
 #orderQueue.put(order1)
