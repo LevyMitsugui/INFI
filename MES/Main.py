@@ -120,7 +120,7 @@ class Manager():
 
     def __postRequests(self):
         while True:
-            time.sleep(3)
+            time.sleep(0.5)
             currOrder = self.OrderQueue.get()
 
             if currOrder['WorkPiece'] == 'P1' or currOrder['WorkPiece'] == 'P2':
@@ -194,15 +194,18 @@ class Manager():
             request_number = DoneOrders[0][1]
             request_workpiece = DoneOrders[0][2]
             request_quantity = DoneOrders[0][3]
-            if self.piecesProcessed.count(request_workpiece) >= request_quantity:
-                for x in self.piecesProcessed:
-                    if x == request_workpiece:
-                        self.piecesProcessed.remove(x)
-                        self.db.setOrderDone(request_client, request_number, "mes")
-            else:
-                continue
+            if self.piecesProcessed.count(request_workpiece) == self.db.countPieces(request_workpiece, 2):
+                if self.piecesProcessed.count(request_workpiece) >= request_quantity:
+                    for x in self.piecesProcessed:
+                        if x == request_workpiece:
+                            self.piecesProcessed.remove(x)
+                            self.db.updateWare(request_workpiece, -1, "mes", 2)
+                    self.db.setOrderDone(request_client, request_number, "mes")
+                    self.db.__fetchWare__(2)
+                    print('[Manager, postDoneOrders] Order done: ', DoneOrders[0])
+                else:
+                    continue
 
-            print('[Manager, postDoneOrders] Order done: ', DoneOrders[0])
 
 
 class Order:
@@ -229,7 +232,7 @@ SQLManager.getOrder()
 manager = Manager(orderQueue, requestQueue, doneRequestQueue, './Recipe/Recipes.csv')
 manager.postRequests()
 manager.startWareHouse()
-# manager.postDoneOrders()
+manager.postDoneOrders()
 
 #orderQueue.put(order)
 #orderQueue.put(order1)
