@@ -161,6 +161,4 @@ manager = Manager(orderQueue, requestQueue, doneRequestQueue, './Recipe/Recipes.
 manager.postRequests()
 manager.startWareHouse()
 
-#orderQueue.put(order)
-#orderQueue.put(order1)
 input()
