@@ -6,7 +6,7 @@ import customQueue
 import sys
 sys.path.append("..")
 from Database import Database         # TO RUN THE CODE YOU MUST GO TO THE PREVIOUS FOLDER OF INFI AND RUN "python -m INFI.4-MES.Main"
-#from ..Database import *
+from OPCUAClient import OPCUAClient
 
 class SQLManager():
     def __init__(self, orderQueue):
@@ -18,6 +18,7 @@ class SQLManager():
         while True:
             time.sleep(1)
             orderTup = self.erpDB.processMostUrgentOrder("erp")
+            print('is this the demon loop?')
             if(not orderTup):
                 continue
             structOrder = Order(orderTup[0][1], orderTup[0][2], orderTup[0][3], orderTup[0][4], orderTup[0][5], orderTup[0][6])
@@ -27,20 +28,23 @@ class SQLManager():
 
     def getOrder(self):
         try:
-            threading.Thread(target=self.__getOrder, daemon=True).start()
+            threading.Thread(target=self.__getOrder, daemon = True).start()
             print('[Manager] getOrder thread started')
         except:
             print('[Manager] getOrder thread failed')
 
 class Manager():
 
-    def __init__(self, orderQueue, requestQueue, doneRequestQueue, recipesFile, transformFile):
+    def __init__(self, orderQueue, requestQueue, doneRequestQueue, OPCUAClient,recipesFile):
         self.OrderQueue = orderQueue
         self.RequestQueue = requestQueue
         self.DoneRequestQueue = doneRequestQueue
+        self.OPCUAClient = OPCUAClient
         self.piecesProcessed = []
+
+        self.shutdown = False
+
         self.recipes = self.__csvReader__(recipesFile)
-        self.transformations = self.__csvReader__(transformFile)
         self.cells = self.__initCells__() #hardcoded
         self.__configMachines__() #hardcoded
 
@@ -50,33 +54,33 @@ class Manager():
 
     def __initCells__(self,): #hardcoded
         cells = []
-        for i in range(6):
-            cells.append(Cell(i, self.RequestQueue, self.DoneRequestQueue, recipes=self.recipes, transformations=self.transformations))
+        for i in range(1):
+            cells.append(Cell(i+1, self.RequestQueue, self.DoneRequestQueue, recipes=self.recipes))
         return cells
     
 
     def __configMachines__(self): #hardcoded
         print('[Manager] Configuring Machines')
-        self.cells[0].addMachine(Machine(0, 'M1'))
-        self.cells[0].addMachine(Machine(1, 'M2'))
-        print('[Manager] cell 0 all tools: ', self.cells[0].getAllTools())
+        self.cells[0].addMachine(Machine(0, 'M1', self.OPCUAClient))
+        self.cells[0].addMachine(Machine(1, 'M2', self.OPCUAClient))
+        """ print('[Manager] cell 0 all tools: ', self.cells[0].getAllTools())
         #print('[Manager] Machines Configured')
-        self.cells[1].addMachine(Machine(0, 'M1'))
-        self.cells[1].addMachine(Machine(1, 'M2'))
+        self.cells[1].addMachine(Machine(0, 'M1', self.OPCUAClient))
+        self.cells[1].addMachine(Machine(1, 'M2', self.OPCUAClient))
         print('[Manager] cell 1 all tools: ', self.cells[1].getAllTools())
         #print('[Manager] Machines Configured')
-        self.cells[2].addMachine(Machine(0, 'M1'))
-        self.cells[2].addMachine(Machine(1, 'M2'))
+        self.cells[2].addMachine(Machine(0, 'M1', self.OPCUAClient))
+        self.cells[2].addMachine(Machine(1, 'M2', self.OPCUAClient))
         print('[Manager] cell 2 all tools: ', self.cells[2].getAllTools())
-        self.cells[3].addMachine(Machine(0, 'M3'))
-        self.cells[3].addMachine(Machine(1, 'M4'))
+        self.cells[3].addMachine(Machine(0, 'M3', self.OPCUAClient))
+        self.cells[3].addMachine(Machine(1, 'M4', self.OPCUAClient))
         print('[Manager] cell 3 all tools: ', self.cells[3].getAllTools())
-        self.cells[4].addMachine(Machine(0, 'M3'))
-        self.cells[4].addMachine(Machine(1, 'M4'))
+        self.cells[4].addMachine(Machine(0, 'M3', self.OPCUAClient))
+        self.cells[4].addMachine(Machine(1, 'M4', self.OPCUAClient))
         print('[Manager] cell 4 all tools: ', self.cells[4].getAllTools())
-        self.cells[5].addMachine(Machine(0, 'M3'))
-        self.cells[5].addMachine(Machine(1, 'M4'))
-        print('[Manager] cell 5 all tools: ', self.cells[5].getAllTools())
+        self.cells[5].addMachine(Machine(0, 'M3', self.OPCUAClient))
+        self.cells[5].addMachine(Machine(1, 'M4', self.OPCUAClient))
+        print('[Manager] cell 5 all tools: ', self.cells[5].getAllTools()) """
         print('[Manager] Machines Configured')
 
     def __csvReader__(self, filename):
@@ -135,9 +139,6 @@ class Manager():
     def addProcessedPiece(self, piece):
         self.piecesProcessed.append(piece)
  
-            
-
-
 
 class Order:
     def __init__(self, number, workpiece, quantity, due_date, late_pen, early_pen):
@@ -156,9 +157,12 @@ orderQueue = customQueue.customQueue()
 requestQueue = customQueue.customQueue()
 doneRequestQueue = customQueue.customQueue()
 
-SQLManager = SQLManager(orderQueue)
-SQLManager.getOrder()
-manager = Manager(orderQueue, requestQueue, doneRequestQueue, './Recipe/Recipes.csv', './Recipe/WorkPieceTransform.csv')
+
+# SQLManager.getOrder()
+
+OPCUAClient = OPCUAClient()
+
+manager = Manager(orderQueue, requestQueue, doneRequestQueue, OPCUAClient, './Recipe/Recipes.csv')
 manager.postRequests()
 manager.startWareHouse()
 

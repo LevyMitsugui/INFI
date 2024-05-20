@@ -1,7 +1,9 @@
 import csv
+import os
+import time
 
 class Machine:
-    def __init__(self, ID, type):
+    def __init__(self, ID, type, opcuaClient):
         """
         Initializes a new instance of the class.
 
@@ -15,6 +17,7 @@ class Machine:
         self.__verifyType__(type)
         
         self.ID = ID
+        self.opcuaClient = opcuaClient
         self.busy = False
         self.type = type
         self.toolSelect = ''
@@ -52,7 +55,9 @@ class Machine:
         return self.availableTools
     
     def __retrieveToolList__(self):
-        with open('./Tools.csv', newline='') as csvfile:
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(current_dir, 'Tools.csv')
+        with open(file_path, newline='') as csvfile:
             reader = csv.DictReader(csvfile)
             tools = []
             for row in reader:
@@ -65,8 +70,18 @@ class Machine:
             raise ValueError('Invalid machine type')
         
     #mock functions #TODO should be removed when system is operating
-    def machineDone(self):#TODO finish integration with OPCUA   
+    def machineDone(self, cell):
+        if(self.opcuaClient.getMachineStatus(cell, self.ID)):
+            return True
+        return False
+        
+    def waitForMachineDone(self, cell):
+        while(not self.opcuaClient.getMachineStatus(cell, self.ID)):
+            time.sleep(1)
         return True
     
+    def updateToolAndTime(self, cell, tool, time):
+        self.opcuaClient.setMachineUpdate(1, (cell + (self.ID - 1)*6), tool, time)
+
     def canUpdateTool(self):#TODO finish integration with OPCUA
         return True

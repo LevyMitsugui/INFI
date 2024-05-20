@@ -3,7 +3,7 @@ import csv
 import threading
 
 class Cell:
-    def __init__(self, ID, requestQueue, doneRequestQueue, recipes, transformations):
+    def __init__(self, ID, requestQueue, doneRequestQueue, recipes):
         """
         Initializes an instance of the class with the given ID.
 
@@ -24,7 +24,6 @@ class Cell:
         self.machines = []
         self.processedRequests = 0
         self.recipes = recipes
-        self.transformations = transformations
 
         self.setsLists = []
 
@@ -61,14 +60,33 @@ class Cell:
 
     def __cycle__(self):
         #TODO implement this: while ocpcua Connected, because, for now, the code will run even if there is no connection
-        while len(self.machines) < 2 or len(self.machines) > 2:
+        while len(self.machines) != 2:
             time.sleep(1)
             print('[Cell ', self.ID,' Cycle] Machines improperly allocated to cell (machines:', len(self.machines), ')')
         
         while True:
-            time.sleep(0.1)
+            time.sleep(1)
             
-            if self.machines[0].machineDone():
+            #self.machines[0].waitForMachineDone(self.ID)
+            #self.machines[1].waitForMacihneDone(self.ID)
+            print('oh mano')
+            request, recipe = self.getRequest()
+            if request is None or recipe is None:
+                continue
+            self.setBusy()
+            print('unbelivable')
+            self.setsLists.insert(0, self.__arrangeSteps__(recipe))
+            onePieceSteps = self.setsLists.pop()
+            print(onePieceSteps)
+            #onePieceSteps[0][0]
+            #self.machines[onePieceSteps[0][0]].updateToolAndTime(self.ID, onePieceSteps[0][1],onePieceSteps[0][2])
+            #self.__removeDoneSteps__(onePieceSteps[0][0], self.setsLists)
+            
+            #self.machines[1].waitForMachineDone()
+            #self.machines[1].updateToolAndTime(self.ID, onePieceSteps[1][1],onePieceSteps[1][2])
+
+
+            """ if self.machines[0].machineDone():
                 request, recipe = self.getRequest()
                 if request is None or recipe is None:
                     continue
@@ -77,8 +95,6 @@ class Cell:
                 self.setsLists.insert(0, self.__arrangeSteps__(recipe))
                 #SET VARIABLES THROUGH OPCUA
 
-
-                #when processed remove the steps done by the first machine
                 
                 
                 self.setFree()
@@ -86,22 +102,21 @@ class Cell:
 
             if self.machines[1].machineDone() and self.machines[0].canUpdateTool():
                 stepsM1 = self.setsLists.pop()
-                self.machines[0].updateTool(stepsM1[1])
+                self.machines[0].updateTool(stepsM1[1]) """
 
     def getRequest(self):
         for iterator in range(self.requestQueue.qsize()):
             request = self.requestQueue.peek(block = False, index = iterator)
             recipe = self.getRecipe(request)
-
             if(recipe != None and self.requestQueue.qsize() > 0):
                 requestGotten = self.requestQueue.get(iterator)
-                
+                print(requestGotten)
                 if requestGotten['Piece'] != request['Piece']:
                     self.requestQueue.put(requestGotten)
-                    print('!![Cell ', self.ID, ' getRequest]!! Failded to get right request')
+                    #print('!![Cell ', self.ID, ' getRequest]!! Failded to get right request')
                     return (None, None)
                 
-                print('**[Cell ', self.ID, ' getRequest]** verified request gave recipe: ', recipe)
+                #print('**[Cell ', self.ID, ' getRequest]** verified request gave recipe: ', recipe)
                 return (request, recipe)
                 
             else: #There is no recipe for this request
@@ -118,9 +133,9 @@ class Cell:
                 for tool in tools:
                     if len(valid) == len(tools):
                         break
-                    print('[Cell ', self.ID,' Cycle] Checking tool: ', tool, ' in recipe: ', tools, 'is valid: ', tool in self.__allTools)
+                    #print('[Cell ', self.ID,' Cycle] Checking tool: ', tool, ' in recipe: ', tools, 'is valid: ', tool in self.__allTools__)
                     valid.append(tool in self.__allTools__)
-                print('[Cell ', self.ID,' Cycle] Valid: ', valid)
+                #print('[Cell ', self.ID,' Cycle] Valid: ', valid)
                 if all(valid):
                     return recipe                
 
@@ -149,9 +164,9 @@ class Cell:
         steps = []
 
         if ';' in recipe['Tools']:
-            tools = recipe['Tools'].split(';')
+            tools = [int(tool.strip('T')) for tool in recipe['Tools'].split(';')]
         else:
-            tools = [recipe['Tools']]
+            tools = [int(recipe['Tools'].strip('T'))]
         
         if ';' in recipe['Time']:
             times = [eval(x) for x in recipe['Time'].split(';')]
@@ -207,7 +222,8 @@ class Cell:
         return tools
     
     def updateCellTools(self):
-        self.__allTools__ = self.__availableTools__()
+        #self.__allTools__ = self.__availableTools__()
+        self.__allTools__.append(self.__availableTools__())
     
     def __reader__(self, filename):
         with open(filename, newline='') as csvfile:
