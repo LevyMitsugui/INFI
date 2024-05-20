@@ -29,7 +29,7 @@ class Cell:
 
         self.__allTools__ = []
 
-        self.run()
+        #self.run()
         #self.printStatus()#TODO remove all functions related to printStatus ([]function, []thread)
 
     def addMachine(self, machine):
@@ -69,15 +69,16 @@ class Cell:
             
             #self.machines[0].waitForMachineDone(self.ID)
             #self.machines[1].waitForMacihneDone(self.ID)
-            print('oh mano')
             request, recipe = self.getRequest()
             if request is None or recipe is None:
+                print('req dropped')
                 continue
             self.setBusy()
-            print('unbelivable')
+            self.print('The game has begun!')
             self.setsLists.insert(0, self.__arrangeSteps__(recipe))
+            print(self.setsLists)
             onePieceSteps = self.setsLists.pop()
-            print(onePieceSteps)
+            print('É aqui oh mano:', onePieceSteps)
             #onePieceSteps[0][0]
             #self.machines[onePieceSteps[0][0]].updateToolAndTime(self.ID, onePieceSteps[0][1],onePieceSteps[0][2])
             #self.__removeDoneSteps__(onePieceSteps[0][0], self.setsLists)
@@ -110,7 +111,7 @@ class Cell:
             recipe = self.getRecipe(request)
             if(recipe != None and self.requestQueue.qsize() > 0):
                 requestGotten = self.requestQueue.get(iterator)
-                print(requestGotten)
+                #print(requestGotten)
                 if requestGotten['Piece'] != request['Piece']:
                     self.requestQueue.put(requestGotten)
                     #print('!![Cell ', self.ID, ' getRequest]!! Failded to get right request')
@@ -125,15 +126,20 @@ class Cell:
         return (None, None)
 
     def getRecipe(self, request):#TODO restructure this
-        valid = []
+        
 
         for recipe in self.recipes:
+            valid = []
             if recipe['Piece'] == request['Piece']:
-                tools = recipe['Tools'].split(';')
-                for tool in tools:
+                if ';' in recipe['Tools']:
+                    tools = recipe['Tools'].split(';')
+                else:
+                    tools = [recipe['Tools']]
+                
+                for tool in tools:#for a tool in the recipe
                     if len(valid) == len(tools):
                         break
-                    #print('[Cell ', self.ID,' Cycle] Checking tool: ', tool, ' in recipe: ', tools, 'is valid: ', tool in self.__allTools__)
+                    #print('[Cell ', self.ID,' Cycle] Checking tool: ', tool, ' in available tools: ', self.__allTools__, 'is valid: ', tool in self.__allTools__)
                     valid.append(tool in self.__allTools__)
                 #print('[Cell ', self.ID,' Cycle] Valid: ', valid)
                 if all(valid):
@@ -222,8 +228,8 @@ class Cell:
         return tools
     
     def updateCellTools(self):
-        #self.__allTools__ = self.__availableTools__()
-        self.__allTools__.append(self.__availableTools__())
+        self.__allTools__ = self.__availableTools__()
+        #self.__allTools__.append(self.__availableTools__())
     
     def __reader__(self, filename):
         with open(filename, newline='') as csvfile:

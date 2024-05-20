@@ -18,7 +18,6 @@ class SQLManager():
         while True:
             time.sleep(1)
             orderTup = self.erpDB.processMostUrgentOrder("erp")
-            print('is this the demon loop?')
             if(not orderTup):
                 continue
             structOrder = Order(orderTup[0][1], orderTup[0][2], orderTup[0][3], orderTup[0][4], orderTup[0][5], orderTup[0][6])
@@ -157,8 +156,8 @@ orderQueue = customQueue.customQueue()
 requestQueue = customQueue.customQueue()
 doneRequestQueue = customQueue.customQueue()
 
-
-# SQLManager.getOrder()
+SQLManager = SQLManager(orderQueue)
+SQLManager.getOrder()
 
 OPCUAClient = OPCUAClient()
 
