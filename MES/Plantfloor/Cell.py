@@ -147,37 +147,32 @@ class Cell:
 
     def __arrangeSteps__(self, recipe, maxToolChange = 2):
         steps = []
-        tools = recipe['Tools'].split(';')
-        midPieces = self.__midPieces__(recipe)
+
+        if ';' in recipe['Tools']:
+            tools = recipe['Tools'].split(';')
+        else:
+            tools = [recipe['Tools']]
+        
+        if ';' in recipe['Time']:
+            times = [eval(x) for x in recipe['Time'].split(';')]
+        else:
+            times = [eval(recipe['Time'])]
+        
+        
         #set steps of second machine first
         changes = 0
         for iterator in range(len(tools)-1, 0, -1):
-            steps.insert(0, (1,tools[iterator], midPieces[len(midPieces)-1-changes]))
+            steps.insert(0, (1,tools[iterator], times[iterator]))
             changes += 1
             if changes == maxToolChange:
                 break
 
         if len(tools) >= 2:
-            steps.insert(0, (0,tools[0], midPieces[0]))
+            steps.insert(0, (0,tools[0], times[0]))
 
         
         return steps
     
-    def __midPieces__(self, recipe):
-        midPieces = []
-        material = recipe['Material']
-        tools = recipe['Tools'].split(';')
-        midPieces.append(material)
-        for t in tools:
-            for transformation in self.transformations:
-                if transformation['Tool'] == t and transformation['Material'] == material:
-                    if transformation['Piece'] == recipe['Piece']:
-                        break
-                    midPieces.append(transformation['Piece'])
-                    material = transformation['Piece']
-                    break
-        
-        return midPieces
 
     def printStatus(self):
         threading.Thread(target=self.__printStatus__, daemon=True).start()
