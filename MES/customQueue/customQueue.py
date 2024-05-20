@@ -44,3 +44,11 @@ class customQueue(queue.Queue):
         else:
             self.queue.append(item)
 
+
+    def remove(self, item):
+        for i in range(len(self.queue)):
+            gotten = self.queue.get()
+            if(item != gotten):
+                self.queue.put(gotten)
+            else:
+                return gotten

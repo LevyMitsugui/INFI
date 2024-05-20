@@ -195,29 +195,6 @@ class Database:
 	def __createsConnection__(self, database):
 		return SQLDatabase(self.user, self.password, database)
 
-	# def __createsConnector__(self, dbname):
-	# 	try:
-	# 		self.connector = mysql.connector.connect(       						# Creates a connector to access the database
-	# 				host="localhost",
-	# 				user=self.user,													# The user YOU selected to access the server
-	# 				password=self.password											# The password YOU selected to access the server
-	# 		)
-
-	# 		self.cursor = self.connector.cursor()
-	# 		sql = "USE {}".format(dbname)
-	# 		self.cursor.execute(sql)
-			
-	# 		# cursor.close()
-
-	# 		return self.cursor
-	# 	except mysql.connector.Error as err:
-	# 		print("Connection dropped because of error - " + str(err))
-	# 		return False
-
-	# def __deletesConnector__(self):
-	# 	if self.connector is not None:
-	# 		self.connector.close()
-
 	def __createsDatabase__(self, dbname):
 		
 		try:			
@@ -235,54 +212,26 @@ class Database:
 
 				sql = "CREATE TABLE IF NOT EXISTS {}_open(id INT NOT NULL);".format(dbname)			
 				self.conn.execute_non_query(sql)
+				
+				sql = "CREATE TABLE IF NOT EXISTS {}_processing(id INT NOT NULL);".format(dbname)			
+				self.conn.execute_non_query(sql)
 
 				sql = "CREATE TRIGGER IF NOT EXISTS after_order_insert AFTER INSERT  ON {}_orders FOR EACH ROW INSERT INTO {}_open VALUES (NEW.id);".format(dbname, dbname)			
 				self.conn.execute_non_query(sql)
 				
 				sql = "CREATE TRIGGER IF NOT EXISTS before_order_delete BEFORE DELETE ON {}_orders FOR EACH ROW DELETE FROM {}_open WHERE id = OLD.id;".format(dbname, dbname)
 				self.conn.execute_non_query(sql)
-				# if (dbname == "erp"):
-				#  sql = "CREATE TABLE IF NOT EXISTS erp_orders(id INT NOT NULL AUTO_INCREMENT, client VARCHAR(30) NOT NULL, number INT NOT NULL, workpiece VARCHAR(2) NOT NULL, quantity INT NOT NULL, due_date INT NOT NULL, late_pen INT NOT NULL, early_pen INT NOT NULL, PRIMARY KEY (id));"
-				#  self.conn.execute_query(sql)
 
-				#  sql = "CREATE TABLE IF NOT EXISTS erp_open(id INT NOT NULL);"
-				#  self.conn.execute_query(sql)
+				sql = "CREATE TRIGGER IF NOT EXISTS before_open_delete BEFORE DELETE ON {}_open FOR EACH ROW INSERT INTO {}_processing VALUES (OLD.id);".format(dbname, dbname)
+				self.conn.execute_non_query(sql)
 
-				#  sql = "CREATE TRIGGER IF NOT EXISTS after_order_insert AFTER INSERT  ON erp_orders FOR EACH ROW INSERT INTO erp_open VALUES (NEW.id);"
-				#  self.conn.execute_query(sql)
-					
-
-				#  sql = "CREATE TRIGGER IF NOT EXISTS before_order_delete BEFORE DELETE ON erp_orders FOR EACH ROW DELETE FROM erp_open WHERE id = OLD.id;"
-				#  self.conn.execute_query(sql)
-
-				# el
 				if (dbname == "mes"):
-					# sql = "CREATE TABLE IF NOT EXISTS mes_orders(id INT NOT NULL AUTO_INCREMENT, client VARCHAR(30) NOT NULL, number INT NOT NULL, workpiece VARCHAR(2) NOT NULL, quantity INT NOT NULL, due_date INT NOT NULL, late_pen INT NOT NULL, early_pen INT NOT NULL, PRIMARY KEY (id));"
-					# self.conn.execute_query(sql)
-
-					# sql = "CREATE TABLE IF NOT EXISTS mes_open(id INT NOT NULL);"
-					# self.conn.execute_query(sql)
 
 					sql = "CREATE TABLE IF NOT EXISTS {}_ware1(workpiece VARCHAR(2) NOT NULL);".format(dbname)
 					self.conn.execute_non_query(sql)
 
-					sql = "CREATE TABLE IF NOT EXISTS {}_ware1_qnt(workpiece VARCHAR(2) NOT NULL, quantity INT NOT NULL);".format(dbname)
-					self.conn.execute_non_query(sql)
-
 					sql = "CREATE TABLE IF NOT EXISTS {}_ware2(workpiece VARCHAR(2) NOT NULL);".format(dbname)
 					self.conn.execute_non_query(sql)
-
-					sql = "CREATE TABLE IF NOT EXISTS {}_ware2_qnt(workpiece VARCHAR(2) NOT NULL, quantity INT NOT NULL);".format(dbname)
-					self.conn.execute_non_query(sql)
-
-					# sql = "CREATE TRIGGER IF NOT EXISTS after_order_insert AFTER INSERT  ON mes_orders FOR EACH ROW INSERT INTO mes_open VALUES (NEW.id);"
-					# self.conn.execute_query(sql)
-					
-
-					# sql = "CREATE TRIGGER IF NOT EXISTS before_order_delete BEFORE DELETE ON mes_orders FOR EACH ROW DELETE FROM mes_open WHERE id = OLD.id;"
-					# self.conn.execute_query(sql)
-
-				# self.conn.commit()
 
 			if not aux: # If the database doesn't exists it will be shown
 				self.__fetchAll__(dbname)
@@ -430,7 +379,7 @@ class Database:
 			with conn.cursor() as cursor:
 				sql = "USE {}".format(dbname)
 				cursor.execute(sql)
-				sql = "CREATE TEMPORARY TABLE temp SELECT * FROM {}_orders WHERE id NOT IN (SELECT id FROM {}_open)".format(dbname, dbname)
+				sql = "CREATE TEMPORARY TABLE temp SELECT * FROM {}_orders WHERE id IN (SELECT id FROM {}_processing)".format(dbname, dbname)
 				cursor.execute(sql)
 				sql = "ALTER TABLE temp DROP COLUMN id"
 				cursor.execute(sql)
@@ -506,12 +455,12 @@ class Database:
 				cursor.execute(sql)
 				if(warenumber == 1):
 					self.ware1 = cursor.fetchall()
-					sql = "SELECT * FROM mes_ware{}_qnt".format(warenumber)
+					sql = "SELECT workpiece, COUNT(*) FROM mes_ware{} GROUP BY workpiece".format(warenumber)
 					cursor.execute(sql)
 					self.ware1_qnt = cursor.fetchall()
 				elif(warenumber == 2):
 					self.ware2 = cursor.fetchall()
-					sql = "SELECT * FROM mes_ware{}_qnt".format(warenumber)
+					sql = "SELECT workpiece, COUNT(*) FROM mes_ware{} GROUP BY workpiece".format(warenumber)
 					cursor.execute(sql)
 					self.ware2_qnt = cursor.fetchall()
 				conn.commit()
@@ -763,37 +712,52 @@ class Database:
 				sql = "USE {}".format(dbname)
 				cursor.execute(sql)
 
-				sql = "SELECT EXISTS(SELECT * FROM {}_orders WHERE id NOT IN (SELECT id FROM {}_open))".format(dbname, dbname)		#Check if exists any order being processed
+				
+				sql = "CREATE TEMPORARY TABLE temp SELECT mp.* FROM mes_orders mp JOIN (SELECT workpiece, COUNT(*) AS ware2_count FROM mes_ware2 GROUP BY workpiece) mw ON mp.workpiece = mw.workpiece WHERE mp.quantity <= mw.ware2_count AND done <> 'X' ORDER BY due_date;"
 				cursor.execute(sql)
-				exists = cursor.fetchall()
-				if(exists[0][0]):
-					cursor.execute("CREATE TEMPORARY TABLE temp SELECT * FROM {}_orders WHERE id NOT IN (SELECT id FROM {}_open)".format(dbname, dbname))
-					cursor.execute("SELECT MIN(due_date) FROM temp")
-					min_due_date = cursor.fetchall()
-					cursor.execute("SET SQL_SAFE_UPDATES = 0")
-					cursor.execute("DELETE FROM temp WHERE due_date <> " + str(min_due_date[0][0]))
-					conn.commit()
-					cursor.execute("SET SQL_SAFE_UPDATES = 1")
-					cursor.execute("ALTER TABLE temp DROP COLUMN id")
-					cursor.execute("ALTER TABLE temp DROP COLUMN done")
-					cursor.execute("SELECT * FROM temp")
-					if(dbname == "erp"):
-						self.erp_order = cursor.fetchall()
-					elif(dbname == "mes"):
-						self.mes_order = cursor.fetchall()
-					cursor.execute("DROP TABLE temp")
-					conn.commit()
+				cursor.execute("ALTER TABLE temp DROP COLUMN id")
+				cursor.execute("ALTER TABLE temp DROP COLUMN done")
+				cursor.execute("SELECT * FROM temp")
+				if(dbname == "erp"):
+					self.erp_order = cursor.fetchall()
+				elif(dbname == "mes"):
+					self.mes_order = cursor.fetchall()
+				cursor.execute("DROP TABLE temp")
+				conn.commit()
+				# sql = "SELECT EXISTS(SELECT * FROM {}_orders WHERE id NOT IN (SELECT id FROM {}_open))".format(dbname, dbname)		#Check if exists any order being processed
+				# cursor.execute(sql)
+				# exists = cursor.fetchall()
+				# if(exists[0][0]):
+				# 	cursor.execute("CREATE TEMPORARY TABLE temp SELECT * FROM {}_orders WHERE id NOT IN (SELECT id FROM {}_open)".format(dbname, dbname))
+				# 	cursor.execute("SELECT MIN(due_date) FROM temp")
+				# 	min_due_date = cursor.fetchall()
+				# 	cursor.execute("SET SQL_SAFE_UPDATES = 0")
+				# 	cursor.execute("DELETE FROM temp WHERE due_date <> " + str(min_due_date[0][0]))
+				# 	conn.commit()
+				# 	cursor.execute("SET SQL_SAFE_UPDATES = 1")
+				# 	cursor.execute("ALTER TABLE temp DROP COLUMN id")
+				# 	cursor.execute("ALTER TABLE temp DROP COLUMN done")
+				# 	cursor.execute("SELECT * FROM temp")
+				# 	if(dbname == "erp"):
+				# 		self.erp_order = cursor.fetchall()
+				# 	elif(dbname == "mes"):
+				# 		self.mes_order = cursor.fetchall()
+				# 	cursor.execute("DROP TABLE temp")
+				# 	conn.commit()
 
-				else:
+				# else:
 					# print("[Database] No order being processed in MySQL database")
-					return None			
+					# return None			
 
-		# self.__fetchOpen__(dbname)
 
-		if(dbname == "erp"):
+		if(dbname == "erp" and self.erp_order):
+			self.__fetchProcessing__(dbname)
 			return self.erp_order
-		elif(dbname == "mes"):
+		elif (dbname == "mes" and self.mes_order):
+			self.__fetchProcessing__(dbname)
 			return self.mes_order
+		else:
+			return None
 		
 	def setOrderDone(self, client, order_number, dbname):
 		'''
@@ -808,7 +772,9 @@ class Database:
 		'''
 		sql = "UPDATE {}_orders SET done = 'X' WHERE number = ".format(dbname) + str(order_number) + " AND client = \"" + client + "\""
 		self.conn.execute_non_query(sql)
-
+		sql = "DELETE FROM {}_processing WHERE id IN (SELECT id FROM {}_orders WHERE number = ".format(dbname, dbname) + str(order_number) + " AND client = \"" + client + "\")"
+		self.conn.execute_non_query(sql)
+		
 		self.__fetchOrdersDone__(dbname)
 			
 	def updateWare(self, workpiece, quantity, dbname, warenum):
@@ -826,36 +792,18 @@ class Database:
 			with conn.cursor() as cursor:
 				sql = "USE {}".format(dbname)
 				cursor.execute(sql)
-			
-				sql = "SELECT EXISTS(SELECT * FROM mes_ware{}_qnt WHERE workpiece = '{}')".format(warenum, workpiece)		#Check if any workpiece of the type was already processed
-				cursor.execute(sql)
-				exists = cursor.fetchall()
-				if(exists[0][0]):
-					if(warenum == 1):
-						sql = "UPDATE mes_ware1_qnt SET quantity = quantity - {} WHERE workpiece = '{}'".format(quantity, workpiece)
-					elif(warenum == 2):
-						sql = "UPDATE mes_ware2_qnt SET quantity = quantity + {} WHERE workpiece = '{}'".format(quantity, workpiece)
-					cursor.execute(sql)
-					conn.commit()
-
-				else:
-					print("[Database] No Workpiece of this type in the Warehouse")
-					if(warenum == 2):
-						sql = "INSERT INTO mes_ware2_qnt(workpiece, quantity) VALUES (%s, %s)"
-						value = (workpiece, quantity)
-						cursor.execute(sql, value)
-						conn.commit()
 				if(quantity > 0):
-					sql = "INSERT INTO mes_ware2(workpiece) VALUES (%s)"
+					sql = "INSERT INTO mes_ware{}(workpiece) VALUES (%s)".format(warenum)
+					value = (workpiece,)
+					cursor.execute(sql, value)
 				else:
-					sql = "DELETE FROM mes_ware2 WHERE workpiece = %s"
-				value = (workpiece,)
-				cursor.execute(sql, value)
+					sql = "DELETE FROM mes_ware{} WHERE workpiece = '{}' LIMIT 1".format(warenum, workpiece)
+					cursor.execute(sql)
 				conn.commit()
 
 				# self.__fetchWare__(warenum)
 
-	def countPieces(self, workpiece, warenum):
+	def countPiece(self, workpiece, table):
 		'''
 		Returns the quantity of the selected workpiece in the selected warehouse
 
@@ -866,8 +814,17 @@ class Database:
 		Returns:
 		int: The quantity of the workpiece in the warehouse
 		'''
-		sql = "SELECT quantity FROM mes_ware{}_qnt WHERE workpiece = '{}'".format(warenum, workpiece)
+		sql = "SELECT COUNT(*) FROM {} WHERE workpiece = '{}'".format(table, workpiece)
 		return self.conn.execute_query(sql)
+	
+	def countAllPiece(self, table):
+		sql = "SELECT workpiece, SUM(quantity) FROM {}_orders WHERE ID IN (SELECT * FROM {}) GROUP BY workpiece;".format(self.conn.database, table)
+		return self.conn.execute_query(sql)
+	
+	def countWare(self, warenum):
+		sql = "SELECT workpiece, COUNT(*) as count FROM {}_ware{} GROUP BY workpiece".format(self.conn.database, warenum)
+		return self.conn.execute_query(sql)
+	
 
 	# Coppied that just for testing, but it already exists in ERP Main.py
 # class Order:
