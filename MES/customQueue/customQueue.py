@@ -29,7 +29,7 @@ class customQueue(queue.Queue):
             if locked == True:
                 self.not_full.notify()
                 locked = False
-            return item
+            return dict(item)
         
     def _peek(self, index=0):
         return self.queue[index]

@@ -1,6 +1,10 @@
 import time
 import csv
 import threading
+import sys
+sys.path.append("..")
+from Database import Database
+import PlantFloor
 
 class Cell:
     def __init__(self, ID, requestQueue, doneRequestQueue, recipes):
@@ -24,6 +28,8 @@ class Cell:
         self.machines = []
         self.processedRequests = 0
         self.recipes = recipes
+
+        self.db = Database("root", "admin")
 
         
 
@@ -77,17 +83,26 @@ class Cell:
             
             self.setFree()
             self.doneRequestQueue.put(request['Piece'])
+            if request['Piece'] == "P5":
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!P5, WTF?!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            self.db.processRequestByPiece(request['Piece'], "requests")
 
     def getRequest(self):
         for iterator in range(self.requestQueue.qsize()):
+            request = {}
             request = self.requestQueue.peek(block = False, index = iterator)
             recipe = self.getRecipe(request)
 
             if(recipe != None and self.requestQueue.qsize() > 0):
                 requestGotten = self.requestQueue.get(iterator)
+                reqGotTup = self.db.processRequestByPiece(requestGotten['Piece'], "requests")
+                if(reqGotTup != None):
+                    reqGot = {'Piece': reqGotTup[0][0], 'Material': reqGotTup[0][1], 'Time': reqGotTup[0][2], 'Tools': reqGotTup[0][3]}
                 
                 if requestGotten['Piece'] != request['Piece']:
                     self.requestQueue.put(requestGotten)
+                    if(reqGotTup != None):
+                        self.db.returnRequestByPiece(reqGot['Piece'], "requests")
                     print('!![Cell ', self.ID, ' getRequest]!! Failded to get right request')
                     return (None, None)
                 

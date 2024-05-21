@@ -11,7 +11,7 @@ from xml.dom import minidom
 class Parser(object):
     def __init__(self, clientList):
         self.clientList = clientList
-        self.db = Database("root", "admin", "erp")                                                                            # initialize database connector
+        self.db = Database("root", "admin")                                                                            # initialize database connector
 
     def insertOrder(self, xml):
         info = minidom.parseString(xml)

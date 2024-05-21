@@ -3,8 +3,8 @@ from mysql.connector import errorcode
 from mysql.connector import pooling
 import time
 
-class SQLDatabase:
-	def __init__(self, user, password, database):
+class SQLConnection:
+	def __init__(self, user, password):
 		"""
 		Initializes a new instance of the class.
 
@@ -18,7 +18,6 @@ class SQLDatabase:
 		"""
 		self.user = user
 		self.password = password
-		self.database = database
 		self.pool = self.__createConnectionPool()
 		
 	def __createConnectionPool(self):
@@ -66,102 +65,42 @@ class SQLDatabase:
 		    MySQLConnection: A connection from the connection pool.
 		"""
 		return self.pool.get_connection()
-
-	def close_connection(self, connection):
-		connection.close()
-
-	def execute(self, query):
-		"""
-		Execute a SQL query and return the result.
-
- 		Parameters:
-			query (str): A string representing the SQL query to execute.
-
-		Returns:
-		 	List[Tuple]: A list of tuples containing the result of the query.
-		"""
-		try:
-			with self.get_connection() as connection:
-				with connection.cursor() as cursor:
-					cursor.execute(query)
-					result = cursor.fetchall()
-			return result
-		except Exception as e:
-			print("Error executing query:", e)
-			return None
 	
-	def commit(self, query):
+	def execute_transaction(self, sql, dbname):
 		"""
-		Commit the changes made to the database.
+		Executes a transaction and retries it if a deadlock occurs.
+
+		Parameters:
+			cursor (Cursor): The cursor object for executing SQL queries.
 
 		Returns:
-		 	None
+			None
 		"""
-		try:
-			with self.get_connection() as connection:
-				with connection.cursor() as cursor:
-					cursor.execute(query)
-					connection.commit()
-		except Exception as e:
-			print("Error executing and commiting query:", e)
+		with self.get_connection() as conn:											# Connects to the server
+			with conn.cursor() as cursor:
+				max_retries = 5  # Maximum number of retries
+				retry_delay = 2  # Delay between retries in seconds
+				for i in range(max_retries):
+					try:
+						# Execute the transaction
+						cursor.execute("USE {}".format(dbname))
+						
+						cursor.execute(sql)
+						conn.commit()
+						break  # Exit the loop if the transaction is successful
+					except mysql.connector.errors.InternalError as e:
+						if e.errno == errorcode.ER_LOCK_DEADLOCK:
+							if i == max_retries - 1:
+								raise Exception("Failed to execute transaction after {} retries".format(max_retries))
+							print("Deadlock occurred. Retrying in {} seconds...".format(retry_delay))
+							time.sleep(retry_delay)
+						else:
+							raise
 
-	def execute_query(self, query):
-		"""
-		Execute a SQL query and return the result.
-
- 		Parameters:
-			query (str): A string representing the SQL query to execute.
-
-		Returns:
-		 	List[Tuple]: A list of tuples containing the result of the query.
-		"""
-		try:
-			with self.get_connection() as connection:
-				with connection.cursor() as cursor:
-					cursor.execute("USE {}".format(self.database))
-					cursor.execute(query)
-					result = cursor.fetchall()
-			return result
-		except Exception as e:
-			print("Error executing query at database:", e)
-			return None
-
-	def execute_non_query(self, query):
-		"""
-		Execute a SQL query and return the result.
-
- 		Parameters:
-			query (str): A string representing the SQL query to execute.
-
-		Returns:
-		 	List[Tuple]: A list of tuples containing the result of the query.
-		"""
-		try:
-			with self.get_connection() as connection:
-				with connection.cursor() as cursor:
-					cursor.execute("USE {}".format(self.database))
-					cursor.execute(query)
-					connection.commit()
-		except Exception as e:
-			print("Error executing and commiting query at database:", e)
-
-	def execute_multi_query(self, query):
-		"""
-		Execute a SQL query and return the result.
-
- 		Parameters:
-			query (str): A string representing the SQL query to execute.
-
-		Returns:
-		 	List[Tuple]: A list of tuples containing the result of the query.
-		"""		
-
-	def change_database(self, database):
-		self.database = database
 
 class Database:
 
-	def __init__(self, user, password, database):
+	def __init__(self, user, password):
 		'''
 		Initializes a new instance of the class.
 
@@ -172,15 +111,20 @@ class Database:
 		None
 		'''
 		self.erp_orders = []
-		self.mes_orders = []
 		self.erp_open = []
-		self.mes_open = []
 		self.erp_processing = []
+		self.erp_done = []
+		self.erp_order = []
+		self.mes_orders = []
+		self.mes_open = []
 		self.mes_processing = []
 		self.mes_done = []
-		self.mes_done = []
-		self.erp_order = []
 		self.mes_order = []
+		self.requests_orders = []
+		self.requests_open = []
+		self.requests_processing = []
+		self.requests_done = []
+		self.requests_order = []
 		self.ware1 = []
 		self.ware1_qnt = []
 		self.ware2 = []
@@ -188,55 +132,68 @@ class Database:
 		self.user = user
 		self.password = password
 		# self.database = database
-		self.conn = self.__createsConnection__(database)
-		self.__createsDatabase__(database)
+		self.conn = self.__createsConnection__()
+		self.__createsDatabase__()
 		# self.__createsDatabase__("erp")
 		
-	def __createsConnection__(self, database):
-		return SQLDatabase(self.user, self.password, database)
+	def __createsConnection__(self):
+		return SQLConnection(self.user, self.password)
 
-	def __createsDatabase__(self, dbname):
+	def __createsDatabase__(self):
 		
-		try:			
-			sql = "SHOW DATABASES LIKE '{}'".format(dbname)
-			
-			aux = self.conn.execute(sql)
-			if not aux:	# If the database doesn't exists it will be created
-				sql = "CREATE DATABASE IF NOT EXISTS {}".format(dbname)
-				self.conn.commit(sql)
+		with self.conn.get_connection() as conn:											# Connects to the server
+			with conn.cursor() as cursor:
+				dbname = "erp"
+				for i in range(3):
+					sql = "SHOW DATABASES LIKE '{}'".format(dbname)
+					cursor.execute(sql)
+					
+					aux = cursor.fetchall()
+					if not aux:	# If the database doesn't exists it will be created
+						sql = "CREATE DATABASE IF NOT EXISTS {}".format(dbname)
+						cursor.execute(sql)
+						conn.commit()
 
-				self.conn.change_database(dbname)
+						sql = "USE {}".format(dbname)
+						cursor.execute(sql)
 
-				sql = "CREATE TABLE IF NOT EXISTS {}_orders(id INT NOT NULL AUTO_INCREMENT, done VARCHAR(4) NOT NULL DEFAULT '', client VARCHAR(30) NOT NULL, number INT NOT NULL, workpiece VARCHAR(2) NOT NULL, quantity INT NOT NULL, due_date INT NOT NULL, late_pen INT NOT NULL, early_pen INT NOT NULL, PRIMARY KEY (id));".format(dbname)			
-				self.conn.execute_non_query(sql)
+						if dbname != "requests":
+							sql = "CREATE TABLE IF NOT EXISTS {}_orders(id INT NOT NULL AUTO_INCREMENT, done VARCHAR(1) NOT NULL DEFAULT '', client VARCHAR(30) NOT NULL, number INT NOT NULL, workpiece VARCHAR(2) NOT NULL, quantity INT NOT NULL, due_date INT NOT NULL, late_pen INT NOT NULL, early_pen INT NOT NULL, PRIMARY KEY (id));".format(dbname)
+						else:
+							sql = "CREATE TABLE IF NOT EXISTS {}_orders(id INT NOT NULL AUTO_INCREMENT, done VARCHAR(1) NOT NULL DEFAULT '', workpiece VARCHAR(2) NOT NULL, material VARCHAR(2) NOT NULL, time VARCHAR(8) NOT NULL, tools VARCHAR(8) NOT NULL, PRIMARY KEY (id));".format(dbname)
+						cursor.execute(sql)
 
-				sql = "CREATE TABLE IF NOT EXISTS {}_open(id INT NOT NULL);".format(dbname)			
-				self.conn.execute_non_query(sql)
-				
-				sql = "CREATE TABLE IF NOT EXISTS {}_processing(id INT NOT NULL);".format(dbname)			
-				self.conn.execute_non_query(sql)
+						sql = "CREATE TABLE IF NOT EXISTS {}_open(id INT NOT NULL);".format(dbname)			
+						cursor.execute(sql)
+						
+						sql = "CREATE TABLE IF NOT EXISTS {}_processing(id INT NOT NULL);".format(dbname)			
+						cursor.execute(sql)
 
-				sql = "CREATE TRIGGER IF NOT EXISTS after_order_insert AFTER INSERT  ON {}_orders FOR EACH ROW INSERT INTO {}_open VALUES (NEW.id);".format(dbname, dbname)			
-				self.conn.execute_non_query(sql)
-				
-				sql = "CREATE TRIGGER IF NOT EXISTS before_order_delete BEFORE DELETE ON {}_orders FOR EACH ROW DELETE FROM {}_open WHERE id = OLD.id;".format(dbname, dbname)
-				self.conn.execute_non_query(sql)
+						sql = "CREATE TRIGGER IF NOT EXISTS after_order_insert AFTER INSERT  ON {}_orders FOR EACH ROW INSERT INTO {}_open VALUES (NEW.id);".format(dbname, dbname)			
+						cursor.execute(sql)
+						
+						sql = "CREATE TRIGGER IF NOT EXISTS before_order_delete BEFORE DELETE ON {}_orders FOR EACH ROW DELETE FROM {}_open WHERE id = OLD.id;".format(dbname, dbname)
+						cursor.execute(sql)
 
-				sql = "CREATE TRIGGER IF NOT EXISTS before_open_delete BEFORE DELETE ON {}_open FOR EACH ROW INSERT INTO {}_processing VALUES (OLD.id);".format(dbname, dbname)
-				self.conn.execute_non_query(sql)
+						sql = "CREATE TRIGGER IF NOT EXISTS before_open_delete BEFORE DELETE ON {}_open FOR EACH ROW INSERT INTO {}_processing VALUES (OLD.id);".format(dbname, dbname)
+						cursor.execute(sql)
 
-				if (dbname == "mes"):
+						if (dbname == "mes"):
 
-					sql = "CREATE TABLE IF NOT EXISTS {}_ware1(workpiece VARCHAR(2) NOT NULL);".format(dbname)
-					self.conn.execute_non_query(sql)
+							sql = "CREATE TABLE IF NOT EXISTS {}_ware1(workpiece VARCHAR(2) NOT NULL);".format(dbname)
+							cursor.execute(sql)
 
-					sql = "CREATE TABLE IF NOT EXISTS {}_ware2(workpiece VARCHAR(2) NOT NULL);".format(dbname)
-					self.conn.execute_non_query(sql)
+							sql = "CREATE TABLE IF NOT EXISTS {}_ware2(workpiece VARCHAR(2) NOT NULL);".format(dbname)
+							cursor.execute(sql)
 
-			if not aux: # If the database doesn't exists it will be shown
-				self.__fetchAll__(dbname)
-		except mysql.connector.Error as err:
-			print("Error connecting to database server: " + str(err))
+						conn.commit()
+					
+					if not aux: # If the database doesn't exists it will be shown
+						self.__fetchAll__(dbname)
+					if dbname == "erp":
+						dbname = "mes"
+					elif dbname == "mes":
+						dbname = "requests"
 
 	
 	def __fetchOrders__(self, dbname):
@@ -289,6 +246,28 @@ class Database:
 		# self.__fetchOrders__(dbname)
 		self.__fetchAll__(dbname)
 
+		
+	def insertRequestOrder(self, request, dbname):
+		'''
+		Inserts an order to the orders table of the database
+
+		Parameters:
+		order (Order): The order to be inserted
+
+		Returns:
+		None
+		'''
+		with self.conn.get_connection() as conn:											# Connects to the server
+			with conn.cursor() as cursor:
+				sql = "USE {}".format(dbname)
+				cursor.execute(sql)
+				sql = "INSERT INTO {}_orders (workpiece, material, time, tools) VALUES ('{}', '{}', '{}', '{}')".format(dbname, request['Piece'], request['Material'], request['Time'], request['Tools'])
+				# cursor.execute(sql)
+				self.conn.execute_transaction(sql, dbname)
+				conn.commit()
+
+		# self.__fetchOrders__(dbname)
+		self.__fetchAll__(dbname)
 
 	def getOrders(self, dbname):
 		'''
@@ -321,6 +300,9 @@ class Database:
 				elif(dbname == "mes"):
 					self.mes_orders = cursor.fetchall()
 					orders = self.mes_orders
+				elif(dbname == "requests"):
+					self.requests_orders = cursor.fetchall()
+					orders = self.requests_orders
 
 				sql = "DROP TABLE temp"
 				cursor.execute(sql)
@@ -349,14 +331,21 @@ class Database:
 				cursor.execute(sql)
 				sql = "ALTER TABLE temp DROP COLUMN done"
 				cursor.execute(sql)
-				sql = "SELECT * FROM temp ORDER BY due_date"
-				cursor.execute(sql)
+				if (dbname != "requests"):
+					sql = "SELECT * FROM temp ORDER BY due_date"
+					cursor.execute(sql)
+				else:
+					sql = "SELECT * FROM temp"
+					cursor.execute(sql)
 				if (dbname == "erp"):
 					self.erp_open = cursor.fetchall()
 					openOrders = self.erp_open
 				elif (dbname == "mes"):
 					self.mes_open = cursor.fetchall()
 					openOrders = self.mes_open
+				elif(dbname == "requests"):
+					self.requests_open = cursor.fetchall()
+					openOrders = self.requests_open
 
 				sql = "DROP TABLE temp"
 				cursor.execute(sql)
@@ -385,14 +374,21 @@ class Database:
 				cursor.execute(sql)
 				sql = "ALTER TABLE temp DROP COLUMN done"
 				cursor.execute(sql)
-				sql = "SELECT * FROM temp ORDER BY due_date"
-				cursor.execute(sql)
+				if (dbname != "requests"):
+					sql = "SELECT * FROM temp ORDER BY due_date"
+					cursor.execute(sql)
+				else:
+					sql = "SELECT * FROM temp"
+					cursor.execute(sql)
 				if (dbname == "erp"):
 					self.erp_processing = cursor.fetchall()
 					processingOrders = self.erp_processing
 				elif (dbname == "mes"):
 					self.mes_processing = cursor.fetchall()
 					processingOrders = self.mes_processing
+				elif(dbname == "requests"):
+					self.requests_processing = cursor.fetchall()
+					processingOrders = self.requests_processing
 
 				sql = "DROP TABLE temp"
 				cursor.execute(sql)
@@ -430,6 +426,9 @@ class Database:
 				elif(dbname == "mes"):
 					self.mes_done = cursor.fetchall()
 					ordersDone = self.mes_done
+				elif(dbname == "requests"):
+					self.requests_done = cursor.fetchall()
+					ordersDone = self.requests_done
 
 				sql = "DROP TABLE temp"	
 				cursor.execute(sql)
@@ -507,11 +506,17 @@ class Database:
 			print("\n################################ [ERP] Orders ################################# \n   client | ord_num | workpiece | quantity | due_date | late_pen | early_pen")
 			for x in self.erp_orders:
 				print(list(x))
+			print("###############################################################################\n")
 		elif(dbname == "mes"):
 			print("\n################################ [MES] Orders ################################# \n   client | ord_num | workpiece | quantity | due_date | late_pen | early_pen")
 			for x in self.mes_orders:
 				print(list(x))
-		print      ("###############################################################################\n")
+			print("###############################################################################\n")
+		# elif(dbname == "requests"):
+		# 	print("\n############################# [Requests] Orders ############################### \n   workpiece | material | time | tools")
+		# 	for x in self.requests_orders:
+		# 		print(list(x))
+			# print("###############################################################################\n")
 
 
 	def __printOpen__(self, dbname):
@@ -528,11 +533,17 @@ class Database:
 			print("\n############################# [ERP] Open Orders ############################### \n   client | ord_num | workpiece | quantity | due_date | late_pen | early_pen")
 			for x in self.erp_open:
 				print(list(x))
+			print("###############################################################################\n")
 		elif(dbname == "mes"):
 			print("\n############################# [MES] Open Orders ############################### \n   client | ord_num | workpiece | quantity | due_date | late_pen | early_pen")
 			for x in self.mes_open:
 				print(list(x))
-		print  	   ("###############################################################################\n")
+			print("###############################################################################\n")
+		# elif(dbname == "requests"):
+		# 	print("\n########################## [Requests] Open Orders ############################# \n   workpiece | material | time | tools")
+		# 	for x in self.requests_open:
+		# 		print(list(x))
+			# print("###############################################################################\n")
 
 	
 	def __printProcessing__(self, dbname):
@@ -549,11 +560,17 @@ class Database:
 			print("\n############################# [ERP] Processing Orders ############################### \n   client | ord_num | workpiece | quantity | due_date | late_pen | early_pen")
 			for x in self.erp_processing:
 				print(list(x))
+			print("###############################################################################\n")
 		elif(dbname == "mes"):
 			print("\n############################# [MES] Processing Orders ############################### \n   client | ord_num | workpiece | quantity | due_date | late_pen | early_pen")
 			for x in self.mes_processing:
 				print(list(x))
-		print  	   ("###############################################################################\n")
+			print("###############################################################################\n")
+		# elif(dbname == "requests"):
+		# 	print("\n########################## [Requests] Processing Orders ############################# \n   workpiece | material | time | tools")
+		# 	for x in self.requests_processing:
+		# 		print(list(x))
+			# print("###############################################################################\n")
 
 	
 	def __printDone__(self, dbname):
@@ -570,11 +587,17 @@ class Database:
 			print("\n############################# [ERP] Orders Done ############################### \n   client | ord_num | workpiece | quantity | due_date | late_pen | early_pen")
 			for x in self.erp_done:
 				print(list(x))
+			print("###############################################################################\n")
 		elif(dbname == "mes"):
 			print("\n############################# [MES] Orders Done ############################### \n   client | ord_num | workpiece | quantity | due_date | late_pen | early_pen")
 			for x in self.mes_done:
 				print(list(x))
-		print  	   ("###############################################################################\n")
+			print("###############################################################################\n")
+		# elif(dbname == "requests"):
+		# 	print("\n########################## [Requests] Orders Done ############################# \n   workpiece | material | time | tools")
+		# 	for x in self.requests_done:
+		# 		print(list(x))
+			# print("###############################################################################\n")
 
 
 	def printOrder(self, dbname):
@@ -591,11 +614,17 @@ class Database:
 			print("\n################################ [ERP] Order Found ################################## \n   client | ord_num | workpiece | quantity | due_date | late_pen | early_pen")
 			for x in self.erp_order:
 				print(list(x))
+			print("###############################################################################\n")
 		elif(dbname == "mes"):
 			print("\n################################ [MES] Order Found ################################## \n   client | ord_num | workpiece | quantity | due_date | late_pen | early_pen")
 			for x in self.mes_order:
 				print(list(x))
-		print      ("###############################################################################\n")
+			print("###############################################################################\n")
+		# elif(dbname == "requests"):
+		# 	print("\n############################# [Requests] Order Found ############################### \n   workpiece | material | time | tools")
+		# 	for x in self.requests_order:
+		# 		print(list(x))
+			# print("###############################################################################\n")
 
 
 	def processOrderByNum(self, client, order_number, dbname):
@@ -695,6 +724,170 @@ class Database:
 		elif(dbname == "mes"):
 			return self.mes_order
 		
+		
+	def processRequestOrder(self, dbname):
+		'''
+		Gets the most urgent order from the database (if due_date is the same, the order with the lower number is chosen) and closes it
+
+		Parameters:
+		None
+
+		Returns:
+		List: The most urgent order
+		None: If no order was found
+		'''
+		with self.conn.get_connection() as conn:											# Connects to the server
+			with conn.cursor() as cursor:
+				sql = "USE {}".format(dbname)
+				cursor.execute(sql)
+
+				sql = "SELECT EXISTS(SELECT * FROM {}_orders WHERE id IN (SELECT id FROM {}_open))".format(dbname, dbname)		#Check if any order exists
+				cursor.execute(sql)
+				exists = cursor.fetchall()
+				if(exists[0][0]):
+					cursor.execute("CREATE TEMPORARY TABLE temp SELECT * FROM {}_orders WHERE id IN (SELECT id FROM {}_open)".format(dbname, dbname))
+					cursor.execute("SELECT MIN(id) FROM temp")
+					min_id = cursor.fetchall()
+					cursor.execute("SET SQL_SAFE_UPDATES = 0")
+					cursor.execute("DELETE FROM temp WHERE id <> " + str(min_id[0][0]))
+					conn.commit()
+					cursor.execute("DELETE FROM {}_open WHERE id IN (SELECT MIN(id) FROM temp)".format(dbname))
+					cursor.execute("SET SQL_SAFE_UPDATES = 1")
+					cursor.execute("ALTER TABLE temp DROP COLUMN id")
+					cursor.execute("ALTER TABLE temp DROP COLUMN done")
+					cursor.execute("SELECT * FROM temp")
+					self.requests_order = cursor.fetchall()
+					cursor.execute("DROP TABLE temp")
+					conn.commit()
+
+				else:
+					# print("[Database] No order being processed in mySQL database")
+					return None
+		
+		self.__fetchOpen__(dbname)
+		return self.requests_order
+	
+	def processRequestByPiece(self, workpiece, dbname):
+		'''
+		Gets the most urgent order from the database (if due_date is the same, the order with the lower number is chosen) and closes it
+
+		Parameters:
+		None
+
+		Returns:
+		List: The most urgent order
+		None: If no order was found
+		'''
+		with self.conn.get_connection() as conn:											# Connects to the server
+			with conn.cursor() as cursor:
+				sql = "USE {}".format(dbname)
+				cursor.execute(sql)
+
+				sql = "SELECT EXISTS(SELECT * FROM {}_orders WHERE workpiece = '{}' AND id IN (SELECT id FROM {}_open))".format(dbname, workpiece, dbname)		#Check if any order exists
+				cursor.execute(sql)
+				exists = cursor.fetchall()
+				if(exists[0][0]):
+					cursor.execute("CREATE TEMPORARY TABLE temp SELECT * FROM {}_orders WHERE workpiece = '{}' AND id IN (SELECT id FROM {}_open)".format(dbname, workpiece, dbname))
+					cursor.execute("SELECT MIN(id) FROM temp")
+					min_id = cursor.fetchall()
+					cursor.execute("SET SQL_SAFE_UPDATES = 0")
+					cursor.execute("DELETE FROM temp WHERE id <> " + str(min_id[0][0]))
+					conn.commit()
+					cursor.execute("DELETE FROM {}_open WHERE id IN (SELECT MIN(id) FROM temp)".format(dbname))
+					cursor.execute("SET SQL_SAFE_UPDATES = 1")
+					cursor.execute("ALTER TABLE temp DROP COLUMN id")
+					cursor.execute("ALTER TABLE temp DROP COLUMN done")
+					cursor.execute("SELECT * FROM temp")
+					self.requests_order = cursor.fetchall()
+					cursor.execute("DROP TABLE temp")
+					conn.commit()
+
+				else:
+					# print("[Database] No order being processed in mySQL database")
+					return None
+		
+		self.__fetchOpen__(dbname)
+		return self.requests_order
+	
+	
+	def returnRequestByPiece(self, workpiece, dbname):
+		'''
+		Gets the most urgent order from the database (if due_date is the same, the order with the lower number is chosen) and closes it
+
+		Parameters:
+		None
+
+		Returns:
+		List: The most urgent order
+		None: If no order was found
+		'''
+		with self.conn.get_connection() as conn:											# Connects to the server
+			with conn.cursor() as cursor:
+				sql = "USE {}".format(dbname)
+				cursor.execute(sql)
+
+				sql = "SELECT EXISTS(SELECT * FROM {}_orders WHERE workpiece = '{}' AND id IN (SELECT id FROM {}_processing))".format(dbname, workpiece, dbname)		#Check if any order exists
+				cursor.execute(sql)
+				exists = cursor.fetchall()
+				if(exists[0][0]):
+					cursor.execute("CREATE TEMPORARY TABLE temp SELECT * FROM {}_orders WHERE workpiece = '{}' AND id IN (SELECT id FROM {}_processing)".format(dbname, workpiece, dbname))
+					cursor.execute("SELECT MAX(id) FROM temp")
+					max_id = cursor.fetchall()
+					
+					cursor.execute("SET SQL_SAFE_UPDATES = 0")
+					if(max_id[0][0] != None):
+						cursor.execute("DELETE FROM temp WHERE id <> " + max_id[0][0])
+					if(max_id[0][0] != None):
+						cursor.execute("DELETE FROM {}_processing WHERE id = {}".format(dbname, max_id[0][0]))
+					if(max_id[0][0] != None):
+						cursor.execute("INSERT INTO {}_open(id) VALUES ({})".format(dbname, max_id[0][0]))
+					cursor.execute("SET SQL_SAFE_UPDATES = 1")
+					conn.commit()
+					if(max_id[0][0] == None):
+						return None
+					cursor.execute("ALTER TABLE temp DROP COLUMN id")
+					cursor.execute("ALTER TABLE temp DROP COLUMN done")
+					cursor.execute("SELECT * FROM temp")
+					self.requests_order = cursor.fetchall()
+					cursor.execute("DROP TABLE temp")
+					conn.commit()
+
+				else:
+					# print("[Database] No order being processed in mySQL database")
+					return None
+		
+		self.__fetchOpen__(dbname)
+		return self.requests_order
+	
+	def setRequestDone(self, workpiece, dbname):
+		'''
+		Sets a request as done in the database
+
+		Parameters:
+		request (dic): The request to be set as done
+
+		Returns:
+		None
+		'''
+		with self.conn.get_connection() as conn:											# Connects to the server
+			with conn.cursor() as cursor:
+				sql = "USE {}".format(dbname)
+				cursor.execute(sql)
+				sql = "SELECT MIN(id) FROM {}_orders WHERE workpiece = '{}'".format(dbname, workpiece) + " AND id IN (SELECT id FROM {}_processing)".format(dbname)
+				cursor.execute(sql)
+				min_id = cursor.fetchall()
+				if len(min_id) > 0:
+					min_id = min_id[0][0]
+					if(min_id != None):
+						sql = "UPDATE {}_orders SET done = 'X' WHERE id = {}".format(dbname, min_id)
+						cursor.execute(sql)
+						conn.commit()
+						sql = "DELETE FROM {}_processing WHERE id = {}".format(dbname, min_id)
+						cursor.execute(sql)
+						conn.commit()
+		
+		self.__fetchOrdersDone__(dbname)
+		
 
 	def getMostUrgentOrder(self, dbname):
 		'''
@@ -770,10 +963,16 @@ class Database:
 		Returns:
 		None
 		'''
-		sql = "UPDATE {}_orders SET done = 'X' WHERE number = ".format(dbname) + str(order_number) + " AND client = \"" + client + "\""
-		self.conn.execute_non_query(sql)
-		sql = "DELETE FROM {}_processing WHERE id IN (SELECT id FROM {}_orders WHERE number = ".format(dbname, dbname) + str(order_number) + " AND client = \"" + client + "\")"
-		self.conn.execute_non_query(sql)
+		with self.conn.get_connection() as conn:											# Connects to the server
+			with conn.cursor() as cursor:
+				sql = "USE {}".format(dbname)
+				cursor.execute(sql)
+				sql = "UPDATE {}_orders SET done = 'X' WHERE number = ".format(dbname) + str(order_number) + " AND client = \"" + client + "\""
+				cursor.execute(sql)
+				conn.commit()
+				sql = "DELETE FROM {}_processing WHERE id IN (SELECT id FROM {}_orders WHERE number = ".format(dbname, dbname) + str(order_number) + " AND client = \"" + client + "\")"
+				cursor.execute(sql)
+				conn.commit()
 		
 		self.__fetchOrdersDone__(dbname)
 			
@@ -803,7 +1002,7 @@ class Database:
 
 				# self.__fetchWare__(warenum)
 
-	def countPiece(self, workpiece, table):
+	def countPiece(self, workpiece, table, dbname):
 		'''
 		Returns the quantity of the selected workpiece in the selected warehouse
 
@@ -814,47 +1013,30 @@ class Database:
 		Returns:
 		int: The quantity of the workpiece in the warehouse
 		'''
-		sql = "SELECT COUNT(*) FROM {} WHERE workpiece = '{}'".format(table, workpiece)
-		return self.conn.execute_query(sql)
+		with self.conn.get_connection() as conn:											# Connects to the server
+			with conn.cursor() as cursor:
+				sql = "USE {}".format(dbname)
+				cursor.execute(sql)
+				sql = "SELECT COUNT(*) FROM {} WHERE workpiece = '{}'".format(table, workpiece)
+				cursor.execute(sql)
+				return cursor.fetchall()
 	
-	def countAllPiece(self, table):
-		sql = "SELECT workpiece, SUM(quantity) FROM {}_orders WHERE ID IN (SELECT * FROM {}) GROUP BY workpiece;".format(self.conn.database, table)
-		return self.conn.execute_query(sql)
+	def countAllPiece(self, table, dbname):
+		with self.conn.get_connection() as conn:											# Connects to the server
+			with conn.cursor() as cursor:
+				sql = "USE {}".format(dbname)
+				cursor.execute(sql)
+				sql = "SELECT workpiece, SUM(quantity) FROM {}_orders WHERE ID IN (SELECT * FROM {}) GROUP BY workpiece;".format(dbname, table)
+				cursor.execute(sql)
+				return cursor.fetchall()
 	
-	def countWare(self, warenum):
-		sql = "SELECT workpiece, COUNT(*) as count FROM {}_ware{} GROUP BY workpiece".format(self.conn.database, warenum)
-		return self.conn.execute_query(sql)
-	
-
-	# Coppied that just for testing, but it already exists in ERP Main.py
-# class Order:
-#     def __init__(self, number, workpiece, quantity, due_date, late_pen, early_pen):
-#         self.number = number
-#         self.workpiece = workpiece
-#         self.quantity = quantity
-#         self.due_date = due_date
-#         self.late_pen = late_pen
-#         self.early_pen = early_pen
-
-
-
-############# TESTING #############
-
-# db = Database()										#Create a db, get current clients, orders and print them
-
-# order1 = Order(2, "P3", 5, 6, 12, 3)
-# order2 = Order(19, "P6", 1, 4, 10, 10)
-# db.insertOrder("AA", order1)						#Insert order1
-# db.insertOrder("BB", order2)						#Insert order2
-
-# db.processOrderByNum("AA", 2)							#Get order1 and closes it
-# db.processMostUrgentOrder()								#Get most urgent order and closes it
-
-# 	#Get clients, orders after action
-# db.getOrders()
-# db.__printOrders__()
-# db.getOpenOrders()
-# db.__printOpen__()
-
+	def countWare(self, warenum, dbname):
+		with self.conn.get_connection() as conn:											# Connects to the server
+			with conn.cursor() as cursor:
+				sql = "USE {}".format(dbname)
+				cursor.execute(sql)
+				sql = "SELECT workpiece, COUNT(*) as count FROM {}_ware{} GROUP BY workpiece".format(dbname, warenum)
+				cursor.execute(sql)
+				return cursor.fetchall()
 
 
