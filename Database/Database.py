@@ -639,35 +639,45 @@ class Database:
 		List: The order with the correspondent client and order number
 		None: If no order was found
 		'''
+		max_retries = 3
+		retry_delay = 0.1
 		with self.conn.get_connection() as conn:											# Connects to the server
 			with conn.cursor() as cursor:
-				sql = "USE {}".format(dbname)
-				cursor.execute(sql)
-				sql = "SELECT EXISTS(SELECT * FROM {}_orders WHERE client = \"".format(dbname) + client + "\")"		#Check if the client exists
-				cursor.execute(sql)
-				c_exists = cursor.fetchall()
-				if(c_exists[0][0]):
-					sql = "SELECT EXISTS(SELECT * FROM {}_orders WHERE number = ".format(dbname) + str(order_number) + " AND client = \"" + client + "\")"
-					cursor.execute(sql)
-					o_exists = cursor.fetchall()
-					if(o_exists[0][0]):
-						sql = "SELECT * FROM {}_orders WHERE number = ".format(dbname) + str(order_number) + " AND client = \"" + client + "\""
+				for i in range(max_retries):
+					try:
+						sql = "USE {}".format(dbname)
 						cursor.execute(sql)
-						if(dbname == "erp"):
-							self.erp_order = cursor.fetchall()
-						elif(dbname == "mes"):
-							self.mes_order = cursor.fetchall()
-						cursor.execute("SET SQL_SAFE_UPDATES = 0")
-						cursor.execute("DELETE FROM {}_open WHERE id IN (SELECT id FROM {}_orders WHERE number = ".format(dbname, dbname) + str(order_number) + " AND client = \"" + client + "\")")
-						cursor.execute("SET SQL_SAFE_UPDATES = 1")
-						conn.commit()
+						sql = "SELECT EXISTS(SELECT * FROM {}_orders WHERE client = \"".format(dbname) + client + "\" AND done <> 'X')"		#Check if the client exists
+						cursor.execute(sql)
+						c_exists = cursor.fetchall()
+						if(c_exists[0][0]):
+							sql = "SELECT EXISTS(SELECT * FROM {}_orders WHERE number = ".format(dbname) + str(order_number) + " AND client = \"" + client + "\" AND done <> 'X')"
+							cursor.execute(sql)
+							o_exists = cursor.fetchall()
+							if(o_exists[0][0]):
+								sql = "SELECT * FROM {}_orders WHERE number = ".format(dbname) + str(order_number) + " AND client = \"" + client + "\" AND done <> 'X'"
+								cursor.execute(sql)
+								if(dbname == "erp"):
+									self.erp_order = cursor.fetchall()
+								elif(dbname == "mes"):
+									self.mes_order = cursor.fetchall()
+								cursor.execute("SET SQL_SAFE_UPDATES = 0")
+								cursor.execute("DELETE FROM {}_open WHERE id IN (SELECT id FROM {}_orders WHERE number = ".format(dbname, dbname) + str(order_number) + " AND client = \"" + client + "\" AND done <> 'X')")
+								cursor.execute("SET SQL_SAFE_UPDATES = 1")
+								conn.commit()
 
-					else:
-						print("Order doesn't exist")
-						return None
-				else:
-					print("Client doesn't exist")
-					return None
+							else:
+								print("Order doesn't exist")
+								return None
+						else:
+							print("Client doesn't exist")
+							return None
+						break
+					except Exception as e:
+						if i == max_retries - 1:
+							raise Exception("Failed to connect to the database after {} retries".format(max_retries))
+						print("Failed to connect to the database. Retrying in {} seconds...".format(retry_delay))
+						time.sleep(retry_delay)
 		
 		self.__fetchOpen__(dbname)
 		if(dbname == "erp"):
@@ -686,36 +696,47 @@ class Database:
 		List: The most urgent order
 		None: If no order was found
 		'''
+		max_retries = 3
+		retry_delay = 0.1
 		with self.conn.get_connection() as conn:											# Connects to the server
 			with conn.cursor() as cursor:
-				sql = "USE {}".format(dbname)
-				cursor.execute(sql)
+				for i in range(max_retries):
+					try:
+						sql = "USE {}".format(dbname)
+						cursor.execute(sql)
 
-				sql = "SELECT EXISTS(SELECT * FROM {}_orders WHERE id IN (SELECT id FROM {}_open))".format(dbname, dbname)		#Check if any order exists
-				cursor.execute(sql)
-				exists = cursor.fetchall()
-				if(exists[0][0]):
-					cursor.execute("CREATE TEMPORARY TABLE temp SELECT * FROM {}_orders WHERE id IN (SELECT id FROM {}_open)".format(dbname, dbname))
-					cursor.execute("SELECT MIN(due_date) FROM temp")
-					min_due_date = cursor.fetchall()
-					cursor.execute("SET SQL_SAFE_UPDATES = 0")
-					cursor.execute("DELETE FROM temp WHERE due_date <> " + str(min_due_date[0][0]))
-					conn.commit()
-					cursor.execute("DELETE FROM {}_open WHERE id IN (SELECT MIN(id) FROM temp)".format(dbname))
-					cursor.execute("SET SQL_SAFE_UPDATES = 1")
-					cursor.execute("ALTER TABLE temp DROP COLUMN id")
-					cursor.execute("ALTER TABLE temp DROP COLUMN done")
-					cursor.execute("SELECT * FROM temp")
-					if(dbname == "erp"):
-						self.erp_order = cursor.fetchall()
-					elif(dbname == "mes"):
-						self.mes_order = cursor.fetchall()
-					cursor.execute("DROP TABLE temp")
-					conn.commit()
+						sql = "SELECT EXISTS(SELECT * FROM {}_orders WHERE id IN (SELECT id FROM {}_open))".format(dbname, dbname)		#Check if any order exists
+						cursor.execute(sql)
+						exists = cursor.fetchall()
+						if(exists[0][0]):
+							cursor.execute("CREATE TEMPORARY TABLE temp SELECT * FROM {}_orders WHERE id IN (SELECT id FROM {}_open)".format(dbname, dbname))
+							cursor.execute("SELECT MIN(due_date) FROM temp")
+							min_due_date = cursor.fetchall()
+							cursor.execute("SET SQL_SAFE_UPDATES = 0")
+							cursor.execute("DELETE FROM temp WHERE due_date <> " + str(min_due_date[0][0]))
+							conn.commit()
+							cursor.execute("DELETE FROM {}_open WHERE id IN (SELECT MIN(id) FROM temp)".format(dbname))
+							cursor.execute("SET SQL_SAFE_UPDATES = 1")
+							cursor.execute("ALTER TABLE temp DROP COLUMN id")
+							cursor.execute("ALTER TABLE temp DROP COLUMN done")
+							cursor.execute("SELECT * FROM temp")
+							if(dbname == "erp"):
+								self.erp_order = cursor.fetchall()
+							elif(dbname == "mes"):
+								self.mes_order = cursor.fetchall()
+							cursor.execute("DROP TABLE temp")
+							conn.commit()
 
-				else:
-					# print("[Database] No order being processed in mySQL database")
-					return None
+						else:
+							# print("[Database] No order being processed in mySQL database")
+							return None
+						
+						break
+					except Exception as e:
+						if i == max_retries - 1:
+							raise Exception("Failed to connect to the database after {} retries".format(max_retries))
+						print("Failed to connect to the database. Retrying in {} seconds...".format(retry_delay))
+						time.sleep(retry_delay)
 		
 		self.__fetchOpen__(dbname)
 
@@ -736,33 +757,44 @@ class Database:
 		List: The most urgent order
 		None: If no order was found
 		'''
+		max_retries = 3
+		retry_delay = 0.1
 		with self.conn.get_connection() as conn:											# Connects to the server
 			with conn.cursor() as cursor:
-				sql = "USE {}".format(dbname)
-				cursor.execute(sql)
+				for i in range(max_retries):
+					try:
+						sql = "USE {}".format(dbname)
+						cursor.execute(sql)
 
-				sql = "SELECT EXISTS(SELECT * FROM {}_orders WHERE id IN (SELECT id FROM {}_open))".format(dbname, dbname)		#Check if any order exists
-				cursor.execute(sql)
-				exists = cursor.fetchall()
-				if(exists[0][0]):
-					cursor.execute("CREATE TEMPORARY TABLE temp SELECT * FROM {}_orders WHERE id IN (SELECT id FROM {}_open)".format(dbname, dbname))
-					cursor.execute("SELECT MIN(id) FROM temp")
-					min_id = cursor.fetchall()
-					cursor.execute("SET SQL_SAFE_UPDATES = 0")
-					cursor.execute("DELETE FROM temp WHERE id <> " + str(min_id[0][0]))
-					conn.commit()
-					cursor.execute("DELETE FROM {}_open WHERE id IN (SELECT MIN(id) FROM temp)".format(dbname))
-					cursor.execute("SET SQL_SAFE_UPDATES = 1")
-					cursor.execute("ALTER TABLE temp DROP COLUMN id")
-					cursor.execute("ALTER TABLE temp DROP COLUMN done")
-					cursor.execute("SELECT * FROM temp")
-					self.requests_order = cursor.fetchall()
-					cursor.execute("DROP TABLE temp")
-					conn.commit()
+						sql = "SELECT EXISTS(SELECT * FROM {}_orders WHERE id IN (SELECT id FROM {}_open))".format(dbname, dbname)		#Check if any order exists
+						cursor.execute(sql)
+						exists = cursor.fetchall()
+						if(exists[0][0]):
+							cursor.execute("CREATE TEMPORARY TABLE temp SELECT * FROM {}_orders WHERE id IN (SELECT id FROM {}_open)".format(dbname, dbname))
+							cursor.execute("SELECT MIN(id) FROM temp")
+							min_id = cursor.fetchall()
+							cursor.execute("SET SQL_SAFE_UPDATES = 0")
+							cursor.execute("DELETE FROM temp WHERE id <> " + str(min_id[0][0]))
+							conn.commit()
+							cursor.execute("DELETE FROM {}_open WHERE id IN (SELECT MIN(id) FROM temp)".format(dbname))
+							cursor.execute("SET SQL_SAFE_UPDATES = 1")
+							cursor.execute("ALTER TABLE temp DROP COLUMN id")
+							cursor.execute("ALTER TABLE temp DROP COLUMN done")
+							cursor.execute("SELECT * FROM temp")
+							self.requests_order = cursor.fetchall()
+							cursor.execute("DROP TABLE temp")
+							conn.commit()
 
-				else:
-					# print("[Database] No order being processed in mySQL database")
-					return None
+						else:
+							# print("[Database] No order being processed in mySQL database")
+							return None
+						
+						break
+					except Exception as e:
+						if i == max_retries - 1:
+							raise Exception("Failed to connect to the database after {} retries".format(max_retries))
+						print("Failed to connect to the database. Retrying in {} seconds...".format(retry_delay))
+						time.sleep(retry_delay)
 		
 		self.__fetchOpen__(dbname)
 		return self.requests_order
@@ -778,33 +810,44 @@ class Database:
 		List: The most urgent order
 		None: If no order was found
 		'''
+		max_retries = 3
+		retry_delay = 0.1
 		with self.conn.get_connection() as conn:											# Connects to the server
 			with conn.cursor() as cursor:
-				sql = "USE {}".format(dbname)
-				cursor.execute(sql)
+				for i in range(max_retries):
+					try:
+						sql = "USE {}".format(dbname)
+						cursor.execute(sql)
 
-				sql = "SELECT EXISTS(SELECT * FROM {}_orders WHERE workpiece = '{}' AND id IN (SELECT id FROM {}_open))".format(dbname, workpiece, dbname)		#Check if any order exists
-				cursor.execute(sql)
-				exists = cursor.fetchall()
-				if(exists[0][0]):
-					cursor.execute("CREATE TEMPORARY TABLE temp SELECT * FROM {}_orders WHERE workpiece = '{}' AND id IN (SELECT id FROM {}_open)".format(dbname, workpiece, dbname))
-					cursor.execute("SELECT MIN(id) FROM temp")
-					min_id = cursor.fetchall()
-					cursor.execute("SET SQL_SAFE_UPDATES = 0")
-					cursor.execute("DELETE FROM temp WHERE id <> " + str(min_id[0][0]))
-					conn.commit()
-					cursor.execute("DELETE FROM {}_open WHERE id IN (SELECT MIN(id) FROM temp)".format(dbname))
-					cursor.execute("SET SQL_SAFE_UPDATES = 1")
-					cursor.execute("ALTER TABLE temp DROP COLUMN id")
-					cursor.execute("ALTER TABLE temp DROP COLUMN done")
-					cursor.execute("SELECT * FROM temp")
-					self.requests_order = cursor.fetchall()
-					cursor.execute("DROP TABLE temp")
-					conn.commit()
+						sql = "SELECT EXISTS(SELECT * FROM {}_orders WHERE workpiece = '{}' AND id IN (SELECT id FROM {}_open))".format(dbname, workpiece, dbname)		#Check if any order exists
+						cursor.execute(sql)
+						exists = cursor.fetchall()
+						if(exists[0][0]):
+							cursor.execute("CREATE TEMPORARY TABLE temp SELECT * FROM {}_orders WHERE workpiece = '{}' AND id IN (SELECT id FROM {}_open)".format(dbname, workpiece, dbname))
+							cursor.execute("SELECT MIN(id) FROM temp")
+							min_id = cursor.fetchall()
+							cursor.execute("SET SQL_SAFE_UPDATES = 0")
+							cursor.execute("DELETE FROM temp WHERE id <> " + str(min_id[0][0]))
+							conn.commit()
+							cursor.execute("DELETE FROM {}_open WHERE id IN (SELECT MIN(id) FROM temp)".format(dbname))
+							cursor.execute("SET SQL_SAFE_UPDATES = 1")
+							cursor.execute("ALTER TABLE temp DROP COLUMN id")
+							cursor.execute("ALTER TABLE temp DROP COLUMN done")
+							cursor.execute("SELECT * FROM temp")
+							self.requests_order = cursor.fetchall()
+							cursor.execute("DROP TABLE temp")
+							conn.commit()
 
-				else:
-					# print("[Database] No order being processed in mySQL database")
-					return None
+						else:
+							# print("[Database] No order being processed in mySQL database")
+							return None
+						
+						break
+					except Exception as e:
+						if i == max_retries - 1:
+							raise Exception("Failed to connect to the database after {} retries".format(max_retries))
+						print("Failed to connect to the database. Retrying in {} seconds...".format(retry_delay))
+						time.sleep(retry_delay)
 		
 		self.__fetchOpen__(dbname)
 		return self.requests_order
@@ -821,40 +864,51 @@ class Database:
 		List: The most urgent order
 		None: If no order was found
 		'''
+		max_retries = 3
+		retry_delay = 0.1
 		with self.conn.get_connection() as conn:											# Connects to the server
 			with conn.cursor() as cursor:
-				sql = "USE {}".format(dbname)
-				cursor.execute(sql)
+				for i in range(max_retries):
+					try:
+						sql = "USE {}".format(dbname)
+						cursor.execute(sql)
 
-				sql = "SELECT EXISTS(SELECT * FROM {}_orders WHERE workpiece = '{}' AND id IN (SELECT id FROM {}_processing))".format(dbname, workpiece, dbname)		#Check if any order exists
-				cursor.execute(sql)
-				exists = cursor.fetchall()
-				if(exists[0][0]):
-					cursor.execute("CREATE TEMPORARY TABLE temp SELECT * FROM {}_orders WHERE workpiece = '{}' AND id IN (SELECT id FROM {}_processing)".format(dbname, workpiece, dbname))
-					cursor.execute("SELECT MAX(id) FROM temp")
-					max_id = cursor.fetchall()
-					
-					cursor.execute("SET SQL_SAFE_UPDATES = 0")
-					if(max_id[0][0] != None):
-						cursor.execute("DELETE FROM temp WHERE id <> " + max_id[0][0])
-					if(max_id[0][0] != None):
-						cursor.execute("DELETE FROM {}_processing WHERE id = {}".format(dbname, max_id[0][0]))
-					if(max_id[0][0] != None):
-						cursor.execute("INSERT INTO {}_open(id) VALUES ({})".format(dbname, max_id[0][0]))
-					cursor.execute("SET SQL_SAFE_UPDATES = 1")
-					conn.commit()
-					if(max_id[0][0] == None):
-						return None
-					cursor.execute("ALTER TABLE temp DROP COLUMN id")
-					cursor.execute("ALTER TABLE temp DROP COLUMN done")
-					cursor.execute("SELECT * FROM temp")
-					self.requests_order = cursor.fetchall()
-					cursor.execute("DROP TABLE temp")
-					conn.commit()
+						sql = "SELECT EXISTS(SELECT * FROM {}_orders WHERE workpiece = '{}' AND id IN (SELECT id FROM {}_processing))".format(dbname, workpiece, dbname)		#Check if any order exists
+						cursor.execute(sql)
+						exists = cursor.fetchall()
+						if(exists[0][0]):
+							cursor.execute("CREATE TEMPORARY TABLE temp SELECT * FROM {}_orders WHERE workpiece = '{}' AND id IN (SELECT id FROM {}_processing)".format(dbname, workpiece, dbname))
+							cursor.execute("SELECT MAX(id) FROM temp")
+							max_id = cursor.fetchall()
+							
+							cursor.execute("SET SQL_SAFE_UPDATES = 0")
+							if(max_id[0][0] != None):
+								cursor.execute("DELETE FROM temp WHERE id <> {}".format(max_id[0][0]))
+							if(max_id[0][0] != None):
+								cursor.execute("DELETE FROM {}_processing WHERE id = {}".format(dbname, max_id[0][0]))
+							if(max_id[0][0] != None):
+								cursor.execute("INSERT INTO {}_open(id) VALUES ({})".format(dbname, max_id[0][0]))
+							cursor.execute("SET SQL_SAFE_UPDATES = 1")
+							conn.commit()
+							if(max_id[0][0] == None):
+								return None
+							cursor.execute("ALTER TABLE temp DROP COLUMN id")
+							cursor.execute("ALTER TABLE temp DROP COLUMN done")
+							cursor.execute("SELECT * FROM temp")
+							self.requests_order = cursor.fetchall()
+							cursor.execute("DROP TABLE temp")
+							conn.commit()
 
-				else:
-					# print("[Database] No order being processed in mySQL database")
-					return None
+						else:
+							# print("[Database] No order being processed in mySQL database")
+							return None
+						
+						break
+					except Exception as e:
+						if i == max_retries - 1:
+							raise Exception("Failed to connect to the database after {} retries".format(max_retries))
+						print("Failed to connect to the database. Retrying in {} seconds...".format(retry_delay))
+						time.sleep(retry_delay)
 		
 		self.__fetchOpen__(dbname)
 		return self.requests_order
@@ -967,7 +1021,7 @@ class Database:
 			with conn.cursor() as cursor:
 				sql = "USE {}".format(dbname)
 				cursor.execute(sql)
-				sql = "UPDATE {}_orders SET done = 'X' WHERE number = ".format(dbname) + str(order_number) + " AND client = \"" + client + "\""
+				sql = "UPDATE {}_orders SET done = 'X' WHERE number = ".format(dbname) + str(order_number) + " AND client = \"" + client + "\" AND done <> 'X'"
 				cursor.execute(sql)
 				conn.commit()
 				sql = "DELETE FROM {}_processing WHERE id IN (SELECT id FROM {}_orders WHERE number = ".format(dbname, dbname) + str(order_number) + " AND client = \"" + client + "\")"

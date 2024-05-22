@@ -53,3 +53,43 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
 
 print('Received from', addr)
 print(minidom.parseString(data).toprettyxml())
+
+input()
+
+file = minidom.parse('II_comands_2023-2024_v1/command5.xml')
+with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+    s.sendto(file.toprettyxml().encode(), (HOST, PORT))
+    data, addr = s.recvfrom(1024)
+
+print('Received from', addr)
+print(minidom.parseString(data).toprettyxml())
+
+input()
+
+file = minidom.parse('II_comands_2023-2024_v1/command3.xml')
+with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+    s.sendto(file.toprettyxml().encode(), (HOST, PORT))
+    data, addr = s.recvfrom(1024)
+
+print('Received from', addr)
+print(minidom.parseString(data).toprettyxml())
+
+input()
+
+file = minidom.parse('II_comands_2023-2024_v1/command5.xml')
+with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+    s.sendto(file.toprettyxml().encode(), (HOST, PORT))
+    data, addr = s.recvfrom(1024)
+
+print('Received from', addr)
+print(minidom.parseString(data).toprettyxml())
+
+input()
+
+file = minidom.parse('II_comands_2023-2024_v1/command2a.xml')
+with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+    s.sendto(file.toprettyxml().encode(), (HOST, PORT))
+    data, addr = s.recvfrom(1024)
+
+print('Received from', addr)
+print(minidom.parseString(data).toprettyxml())
