@@ -2,24 +2,53 @@ from OPCUAClient import OPCUAClient
 import time
 
 class Warehouse:
-    def __init__(self, ID, outputs, opcuaClient):
+    def __init__(self, ID, outputs, opcuaClient, inWHQueue, outWHQueue):
         self.opcuaClient = opcuaClient
         self.ID = ID
-        self.pieces = []
+        self.pieces = [10,0,0,0,0,0,0,0,0]
         self.inputGates = []
 
-    def addPiece(self, Piece):
-        pieces = self.opcuaClient.getWH1Pieces(self.ID)
-        self.pieces.append(Piece)
+        self.inWHQueue = inWHQueue
+        self.outWHQueue = outWHQueue
 
+    #generic functions
+    def getID(self):
+        return self.ID
     def getStock(self):
         return self.pieces
+
+    #in functions
+    def inputPiece(self, piece, conveyour):
+        """
+        Adds a piece to the warehouse and puts a dictionary containing information about the piece and its conveyor into the input queue.
+
+        Parameters:
+            piece (str): The piece to be added to the warehouse.
+            conveyour (str): The conveyor from which the piece was received 0 to 10, consult \MES\Plantfloor\Conveyours.png.
+
+        Returns:
+            None
+        """
+        self.pieces.append(piece.strip('P'))
+        self.inWHQueue.put({'conveyour' : conveyour, 'piece' : piece})
     
-    def Output(self, piece, outputGate):
-        self.opcuaClient
+    #out functions
+    def outputPiece(self, piece, outputGate):
+        """
+        Removes a piece from the warehouse and puts a dictionary containing information about the piece and its output gate into the output queue.
+
+        Parameters:
+            piece (str): The piece to be removed from the warehouse.
+            outputGate (str): The output gate to which the piece is being sent.
+
+        Returns:
+            None
+        """
+        self.pieces.remove(piece.strip('P'))
+        self.outWHQueue.put({'outputGate' : outputGate, 'piece' : piece})
         
 
-class Warehouse1(Warehouse):
+class WarehouseUp(Warehouse):
     def __init__(self, ID, outputs, opcuaClient):
         super().__init__(ID, outputs, opcuaClient)
 

@@ -4,12 +4,15 @@ import time
 import threading
 
 class OPCUAClient:
-    def __init__(self, host = "opc.tcp://localhost:4840/freeopcua/server/"):
+    def __init__(self, host = "opc.tcp://localhost:4840/freeopcua/server/", inWHQueue, outWHQueue, machineUpdateQueue):
         try:
             self.client = Client(host)
             self.client.connect()
-            #self.machineUpdateQueue = machineUpdateQueue
-            print("Connected")
+
+            self.inWHQueue = inWHQueue
+            self.outWHQueue = outWHQueue
+            self.machineUpdateQueue = machineUpdateQueue
+            print("Opcua Connected")
         except Exception as err:
             print(err)
             sys.exit(1)
@@ -20,8 +23,8 @@ class OPCUAClient:
         self.MES_spawner_pieceNode = self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.GVL.MES_spawn_piece")
 
         self.machinesStatusNodes = []
-        self.machinesStatusNodes.append(self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M1.work"))
-        self.machinesStatusNodes.append(self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M7.work"))
+        self.machinesStatusNodes.append(self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M1.available"))
+        self.machinesStatusNodes.append(self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M7.available"))
         #self.updateNodesAndVars(self)
 
     def __kill__(self):
@@ -82,13 +85,25 @@ class OPCUAClient:
         self.updateNodesAndVars()
         return self.MES_spawn_piece
 
-    def run(self):
+    def opcManager(self):
         threading.Thread(target=self.__opcManager__, daemon=True).start()
-
 
     def __opcManager__(self):
         while True:
-            time.sleep(1)
+            time.sleep(0.5)
+            #update machines and warehouses
+            if self.inWHQueue.qsize() > 0 and self.getWarehouseInUpdate()[0] == 0:
+                update = self.inWHQueue.get()
+                self.setWarehouseInUpdate(1, update['conveyour'], update['piece'])
+
+            if self.outWHQueue.qsize() > 0 and self.getWarehouseOutUpdate()[0] == 0:
+                update = self.outWHQueue.get()
+                self.setWarehouseOutUpdate(1, update['conveyour'], update['piece'])
+
+            if self.machineUpdateQueue.qsize() > 0 and self.getMachineUpdate()[0] == 0:
+                update = self.machineUpdateQueue.get()
+                self.setMachineUpdate(1, update['machine'], update['tool'], update['time'])
+
 
 # i = 0
 # while True:

@@ -29,7 +29,7 @@ class Cell:
 
         self.__allTools__ = []
 
-        #self.run()
+        self.run()
         #self.printStatus()#TODO remove all functions related to printStatus ([]function, []thread)
 
     def addMachine(self, machine):
@@ -65,23 +65,23 @@ class Cell:
             print('[Cell ', self.ID,' Cycle] Machines improperly allocated to cell (machines:', len(self.machines), ')')
         
         while True:
-            time.sleep(1)
-            
+             
             #self.machines[0].waitForMachineDone(self.ID)
             #self.machines[1].waitForMacihneDone(self.ID)
+            #TODO continue Testing Here
             request, recipe = self.getRequest()
             if request is None or recipe is None:
-                print('req dropped')
+                time.sleep(3)
                 continue
             self.setBusy()
-            self.print('The game has begun!')
+            print('The game has begun!')
             self.setsLists.insert(0, self.__arrangeSteps__(recipe))
             print(self.setsLists)
-            onePieceSteps = self.setsLists.pop()
-            print('É aqui oh mano:', onePieceSteps)
+            print('É aqui oh mano:', self.setsLists[0])
             #onePieceSteps[0][0]
             #self.machines[onePieceSteps[0][0]].updateToolAndTime(self.ID, onePieceSteps[0][1],onePieceSteps[0][2])
-            #self.__removeDoneSteps__(onePieceSteps[0][0], self.setsLists)
+            self.__removeDoneSteps__(self.setsLists[0][0][0], self.setsLists)
+            print('after removal',self.setsLists)
             
             #self.machines[1].waitForMachineDone()
             #self.machines[1].updateToolAndTime(self.ID, onePieceSteps[1][1],onePieceSteps[1][2])
@@ -125,9 +125,8 @@ class Cell:
         
         return (None, None)
 
-    def getRecipe(self, request):#TODO restructure this
-        
-
+    def getRecipe(self, request):
+    
         for recipe in self.recipes:
             valid = []
             if recipe['Piece'] == request['Piece']:
