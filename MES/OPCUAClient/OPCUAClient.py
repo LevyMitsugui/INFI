@@ -24,6 +24,8 @@ class OPCUAClient:
         self.machinesStatusNodes.append(self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M7.work"))
         #self.updateNodesAndVars(self)
 
+    def __kill__(self):
+        self.client.disconnect()
 
     def updateNodesAndVars(self):
         self.MES_machine_update = self.MES_machine_updateNode.get_value()
