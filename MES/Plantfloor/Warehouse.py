@@ -1,8 +1,11 @@
-from OPCUAClient import OPCUAClient
+import sys
+sys.path.append('C:\\Users\\Levy\\Documents\\GitHub\\INFI\\MES\\OPCUAClient')  # Add the path to the customQueue directory  # Add the path to the customQueue directory
+import OPCUAClient
+from math import floor
 import time
 
 class Warehouse:
-    def __init__(self, ID, outputs, opcuaClient, inWHQueue, outWHQueue):
+    def __init__(self, ID, opcuaClient, inWHQueue, outWHQueue):
         self.opcuaClient = opcuaClient
         self.ID = ID
         self.pieces = [10,0,0,0,0,0,0,0,0]
@@ -29,32 +32,36 @@ class Warehouse:
         Returns:
             None
         """
-        self.pieces.append(piece.strip('P'))
-        self.inWHQueue.put({'conveyour' : conveyour, 'piece' : piece})
+        self.pieces[int(piece.strip('P'))-1] += 1
+        piece = int(piece.strip('P'))
+        update = {'conveyour' : conveyour, 'piece' : piece}
+        self.inWHQueue.put(update)
     
     #out functions
-    def outputPiece(self, piece, outputGate):
+    def outputPiece(self, piece, conveyour):
         """
         Removes a piece from the warehouse and puts a dictionary containing information about the piece and its output gate into the output queue.
 
         Parameters:
             piece (str): The piece to be removed from the warehouse.
-            outputGate (str): The output gate to which the piece is being sent.
+            conveyour (str): The output gate to which the piece is being sent.
 
         Returns:
             None
         """
-        self.pieces.remove(piece.strip('P'))
-        self.outWHQueue.put({'outputGate' : outputGate, 'piece' : piece})
+        self.pieces[int(piece.strip('P'))-1] -= 1
+        piece = int(piece.strip('P'))
+        self.outWHQueue.put({'conveyour' : conveyour, 'piece' : piece})
         
 
 class WarehouseUp(Warehouse):
-    def __init__(self, ID, outputs, opcuaClient):
-        super().__init__(ID, outputs, opcuaClient)
+    def __init__(self, ID, opcuaClient):
+        super().__init__(ID, opcuaClient)
 
     def spawnPieces(self, pieceType, quantity, gates = [1,2,3,4]):
-        piecesByGate = quantity/len(gates)
-        self.opcuaClient.spawn(pieceType, piecesByGate, gates)
+        piecesByGate = floor(quantity/len(gates))
+        remainder = quantity%len(gates)
+        self.opcuaClient.setPieceSpawn(1, 1, pieceType.strip('P'), gates)
 
         spawnGatesStatus = [False]
         

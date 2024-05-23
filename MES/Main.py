@@ -156,13 +156,21 @@ orderQueue = customQueue.customQueue()
 requestQueue = customQueue.customQueue()
 doneRequestQueue = customQueue.customQueue()
 
+inWHQueue = customQueue.customQueue()
+outWHQueue = customQueue.customQueue()
+machineUpdateQueue = customQueue.customQueue()
+gateUpdateQueue = customQueue.customQueue()
+
+
 SQLManager = SQLManager(orderQueue)
 SQLManager.getOrder()
 
-OPCUAClient = OPCUAClient()
+OPCUAClient = OPCUAClient(inWHQueue, outWHQueue, machineUpdateQueue)
+OPCUAClient.opcManager()
 
 manager = Manager(orderQueue, requestQueue, doneRequestQueue, OPCUAClient, './Recipe/Recipes.csv')
 manager.postRequests()
 manager.startWareHouse()
 
 input()
+OPCUAClient.kill()

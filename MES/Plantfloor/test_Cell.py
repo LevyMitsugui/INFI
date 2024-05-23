@@ -12,11 +12,16 @@ sys.path.append('C:\\Users\\Levy\\Documents\\GitHub\\INFI\\MES\\OPCUAClient')  #
 import OPCUAClient
 from customQueue import customQueue
 
+inWHQueue = customQueue()
+outWHQueue = customQueue()
+machineUpdateQueue = customQueue()
+myopcuaclient = OPCUAClient.OPCUAClient(inWHQueue, outWHQueue, machineUpdateQueue)
+
 class testCell(unittest.TestCase):
     def test_addMachine(self):
         requestQueue = customQueue()
         doneRequestQueue = customQueue()
-        myopcuaclient = OPCUAClient.OPCUAClient()
+        
         recipe = __csvReader__('../Recipe/recipes.csv')
         cell = Cell.Cell(1, requestQueue, doneRequestQueue, recipes=recipe)
         
@@ -30,7 +35,7 @@ class testCell(unittest.TestCase):
     def test_getRecipe(self):
         requestQueue = customQueue()
         doneRequestQueue = customQueue()
-        myopcuaclient = OPCUAClient.OPCUAClient()
+        
         recipeList = __csvReader__('../Recipe/recipes.csv')
         cell = Cell.Cell(1, requestQueue, doneRequestQueue, recipes=recipeList)
 
@@ -91,7 +96,7 @@ class testCell(unittest.TestCase):
     def test_getRequest(self): 
         requestQueue = customQueue()
         doneRequestQueue = customQueue()
-        myopcuaclient = OPCUAClient.OPCUAClient()
+        
         recipeList = __csvReader__('../Recipe/recipes.csv')
         cell = Cell.Cell(1, requestQueue, doneRequestQueue, recipes=recipeList)
 
@@ -123,7 +128,7 @@ class testCell(unittest.TestCase):
     def test_arrangeSteps(self):
         requestQueue = customQueue()
         doneRequestQueue = customQueue()
-        myopcuaclient = OPCUAClient.OPCUAClient()
+        
         recipe = __csvReader__('../Recipe/recipes.csv')
         cell = Cell.Cell(1, requestQueue, doneRequestQueue, recipes=recipe)
 
@@ -154,7 +159,7 @@ class testCell(unittest.TestCase):
     def test_removeDoneSteps(self):
         requestQueue = customQueue()
         doneRequestQueue = customQueue()
-        myopcuaclient = OPCUAClient.OPCUAClient()
+        
         recipe = __csvReader__('../Recipe/recipes.csv')
         cell = Cell.Cell(1, requestQueue, doneRequestQueue, recipes=recipe)
 
@@ -188,6 +193,7 @@ class testCell(unittest.TestCase):
         self.assertEqual(stepsList[0], [(1,2,15), (1,2,25)])
         self.assertNotEqual(stepsList[1], [(0,1,45), (1,2,15), (1,3,15)])
         self.assertEqual(stepsList[1], [(1,2,15), (1,3,15)])
+        myopcuaclient.kill()
 
 def __csvReader__(filename):
     # Get the current directory
@@ -199,6 +205,7 @@ def __csvReader__(filename):
     with open(file_path, newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         return [row for row in reader]
-    
+
 if __name__ == '__main__':
     unittest.main()
+    
