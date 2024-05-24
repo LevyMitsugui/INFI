@@ -16,7 +16,8 @@ class Gates:
         pType = int(pieceType.strip('P'))
 
         self.gateUpdateQueue.put({'gate': 1, 'piece': pType, 'quantity': piecesByGate + remainder})
-        self.gateUpdateQueue.put({'gate': 2, 'piece': pType, 'quantity': piecesByGate})
-        self.gateUpdateQueue.put({'gate': 3, 'piece': pType, 'quantity': piecesByGate})
-        self.gateUpdateQueue.put({'gate': 4, 'piece': pType, 'quantity': piecesByGate})
+        if piecesByGate > 0:
+            self.gateUpdateQueue.put({'gate': 2, 'piece': pType, 'quantity': piecesByGate})
+            self.gateUpdateQueue.put({'gate': 3, 'piece': pType, 'quantity': piecesByGate})
+            self.gateUpdateQueue.put({'gate': 4, 'piece': pType, 'quantity': piecesByGate})
 

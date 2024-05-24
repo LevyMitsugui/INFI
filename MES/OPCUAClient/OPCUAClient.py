@@ -24,8 +24,18 @@ class OPCUAClient:
         self.MES_spawner_pieceNode = self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.GVL.MES_piece_spawn_update")
 
         self.machinesStatusNodes = []
-        self.machinesStatusNodes.append(self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M1.available"))
-        self.machinesStatusNodes.append(self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M7.available"))
+        self.machinesStatusNodes.insert(0,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M1.available"))
+        self.machinesStatusNodes.insert(1,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M1.available"))
+        self.machinesStatusNodes.insert(2,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M1.available"))
+        self.machinesStatusNodes.insert(3,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M1.available"))
+        self.machinesStatusNodes.insert(4,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M1.available"))
+        self.machinesStatusNodes.insert(5,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M1.available"))
+        self.machinesStatusNodes.insert(6,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M7.available"))
+        self.machinesStatusNodes.insert(7,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M7.available"))
+        self.machinesStatusNodes.insert(8,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M7.available"))
+        self.machinesStatusNodes.insert(9,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M7.available"))
+        self.machinesStatusNodes.insert(10,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M7.available"))
+        self.machinesStatusNodes.insert(11,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M7.available"))
         #self.updateNodesAndVars(self)
 
     def kill(self):
@@ -108,24 +118,24 @@ class OPCUAClient:
             self.updateNodesAndVars()
             #update machines and warehouses
             if self.inWHQueue.qsize() > 0 and self.getWarehouseInUpdate()[0] == 0:
-                print('[OPC Client] updating warehouse in')
                 update = self.inWHQueue.get()
+                print('[OPC Client] updating warehouse in. Values: ', update)
                 self.setWarehouseInUpdate(1, update['conveyour'], update['piece'])
 
             if self.outWHQueue.qsize() > 0 and self.getWarehouseOutUpdate()[0] == 0:
-                print('[OPC Client] updating warehouse out')
                 update = self.outWHQueue.get()
+                print('[OPC Client] updating warehouse out. Values: ', update)
                 self.setWarehouseOutUpdate(1, update['conveyour'], update['piece'])
 
             if self.machineUpdateQueue.qsize() > 0 and self.getMachineUpdate()[0] == 0:
-                print('[OPC Client] updating machine')
                 update = self.machineUpdateQueue.get()
+                print('[OPC Client] updating machine. Values: ', update)
                 self.setMachineUpdate(1, update['machine'], update['tool'], update['time'])
 
-            if self.gateUpdateQueue.qsize() > 0 and self.getGateUpdate()[0] == 0:
-                print('[OPC Client] updating gate')
+            if self.gateUpdateQueue.qsize() > 0 and self.getPieceSpawn()[0] == 0:
                 update = self.gateUpdateQueue.get()
-                self.setGateUpdate(1, update['gate'], update['piece'])
+                print('[OPC Client] updating gate. Values: ', update)
+                self.setPieceSpawn(1, update['gate'], update['piece'], update['quantity'])
 # i = 0
 # while True:
 #     try:

@@ -45,7 +45,7 @@ class Manager():
 
         self.recipes = self.__csvReader__(recipesFile)
         self.cells = self.__initCells__() #hardcoded
-        self.__configMachines__() #hardcoded
+        #self.__configMachines__() #hardcoded
 
         self.piecesProcessed = []
 
@@ -58,10 +58,12 @@ class Manager():
         return cells
     
 
-    def __configMachines__(self): #hardcoded
+    def configMachines(self, machineUpdateQueue): #hardcoded
         print('[Manager] Configuring Machines')
-        self.cells[0].addMachine(Machine(0, 'M1', self.OPCUAClient))
-        self.cells[0].addMachine(Machine(1, 'M2', self.OPCUAClient))
+        success = []
+
+        success.append(self.cells[0].addMachine(Machine(0, 'M1', self.OPCUAClient, machineUpdateQueue)))
+        success.append(self.cells[0].addMachine(Machine(1, 'M2', self.OPCUAClient, machineUpdateQueue)))
         """ print('[Manager] cell 0 all tools: ', self.cells[0].getAllTools())
         #print('[Manager] Machines Configured')
         self.cells[1].addMachine(Machine(0, 'M1', self.OPCUAClient))
@@ -80,8 +82,25 @@ class Manager():
         self.cells[5].addMachine(Machine(0, 'M3', self.OPCUAClient))
         self.cells[5].addMachine(Machine(1, 'M4', self.OPCUAClient))
         print('[Manager] cell 5 all tools: ', self.cells[5].getAllTools()) """
-        print('[Manager] Machines Configured')
+        
+        if all(success):
+            print('[Manager] Machines Configured')
+            return True
+        else:
+            print('[Manager] Machines not Configured')
+            return False
 
+    def configWareHouse(self, inwhQueue, outwhQueue):
+        success = []
+        for cell in self.cells:
+            success.append(cell.addWarehouse(Warehouse(0, self.OPCUAClient, inwhQueue, outwhQueue)))
+        if all(success):
+            print('[Manager] Warehouse Configured')
+            return True
+        else:
+            print('[Manager] Warehouse not Configured')
+            return False
+        
     def __csvReader__(self, filename):
         with open(filename, newline='') as csvfile:
             reader = csv.DictReader(csvfile)
@@ -165,10 +184,12 @@ gateUpdateQueue = customQueue.customQueue()
 SQLManager = SQLManager(orderQueue)
 SQLManager.getOrder()
 
-OPCUAClient = OPCUAClient(inWHQueue, outWHQueue, machineUpdateQueue)
+OPCUAClient = OPCUAClient(inWHQueue, outWHQueue, machineUpdateQueue, gateUpdateQueue)
 OPCUAClient.opcManager()
 
 manager = Manager(orderQueue, requestQueue, doneRequestQueue, OPCUAClient, './Recipe/Recipes.csv')
+manager.configMachines(machineUpdateQueue)
+manager.configWareHouse(inWHQueue, outWHQueue)
 manager.postRequests()
 manager.startWareHouse()
 

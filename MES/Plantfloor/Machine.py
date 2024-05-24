@@ -3,7 +3,7 @@ import os
 import time
 
 class Machine:
-    def __init__(self, ID, type, opcuaClient):
+    def __init__(self, ID, type, opcuaClient, machineUpdateQueue):
         """
         Initializes a new instance of the class.
 
@@ -18,6 +18,7 @@ class Machine:
         
         self.ID = ID
         self.opcuaClient = opcuaClient
+        self.machineUpdateQueue = machineUpdateQueue
         self.busy = False
         self.type = type
         self.toolSelect = ''
@@ -41,12 +42,6 @@ class Machine:
 
     def setTime(self, time):
         self.time = time#TODO finish integration with OPCUA
-
-    def setToolSelect(self, toolSelect):#TODO finish integration with OPCUA
-        if toolSelect not in self.availableTools:
-            raise ValueError('Invalid tool selection')
-        self.toolSelect = toolSelect
-        #opcuaClient.setTool(2, self.toolSelect)
 
     def getToolSelect(self):
         return self.toolSelect
@@ -81,7 +76,10 @@ class Machine:
         return True
     
     def updateToolAndTime(self, cell, tool, time):
-        self.opcuaClient.setMachineUpdate(1, (cell + (self.ID - 1)*6), tool, time)
+        machine = cell + self.ID*6
+
+        #self.opcuaClient.setMachineUpdate(1, (cell + (self.ID - 1)*6), tool, time)
+        self.machineUpdateQueue.put({'machine': machine, 'tool': tool, 'time': time})
 
     def canUpdateTool(self):#TODO finish integration with OPCUA
         return True

@@ -22,6 +22,7 @@ class Cell:
         self.requestQueue = requestQueue
         self.doneRequestQueue = doneRequestQueue
         self.machines = []
+        self.warehouses = []
         self.processedRequests = 0
         self.recipes = recipes
 
@@ -34,8 +35,21 @@ class Cell:
 
     def addMachine(self, machine):
         #print('[Cell ', self.ID,' Cycle] Adding machine', machine.getID(), 'to cell', self.ID)
-        self.machines.append(machine)
-        self.updateCellTools()
+        try:
+            self.machines.append(machine)
+            self.updateCellTools()
+            return True
+        except:
+            print('[Cell ', self.ID,' Cycle] Failed to add machine', machine.getID(), 'to cell', self.ID)
+            return False
+        
+    def addWarehouse(self, warehouse):
+        try:
+            self.warehouses.append(warehouse)
+            return True
+        except:
+            print('[Cell ', self.ID,' Cycle] Failed to add warehouse', warehouse.getID(), 'to cell', self.ID)
+            return False
 
     
     def setBusy(self):
@@ -60,16 +74,21 @@ class Cell:
 
     def __cycle__(self):
         #TODO implement this: while ocpcua Connected, because, for now, the code will run even if there is no connection
+        
+
         while len(self.machines) != 2:
             time.sleep(1)
             print('[Cell ', self.ID,' Cycle] Machines improperly allocated to cell (machines:', len(self.machines), ')')
+                   
         
+        print('[Cell ', self.ID,' Cycle] Machines allocated to cell (machines:', len(self.machines), ')')
+
         while True:
              
-            #self.machines[0].waitForMachineDone(self.ID)
-            #self.machines[1].waitForMacihneDone(self.ID)
+            self.machines[0].waitForMachineDone(self.ID)
+            self.machines[1].waitForMachineDone(self.ID)
             #TODO continue Testing Here
-            request, recipe = self.getRequest()
+            request, recipe = self.getRequest() 
             if request is None or recipe is None:
                 time.sleep(3)
                 continue
@@ -78,9 +97,15 @@ class Cell:
             self.setsLists.insert(0, self.__arrangeSteps__(recipe))
             print(self.setsLists)
             print('É aqui oh mano:', self.setsLists[0])
+            
+            self.warehouses[0].outputPiece(recipe['Material'], self.ID)
+            print(self.setsLists[0][0])
+            step = self.setsLists[0].pop(0)
+            self.machines[0].updateToolAndTime(self.ID, step[1],step[2])
             #onePieceSteps[0][0]
             #self.machines[onePieceSteps[0][0]].updateToolAndTime(self.ID, onePieceSteps[0][1],onePieceSteps[0][2])
-            self.__removeDoneSteps__(self.setsLists[0][0][0], self.setsLists)
+            
+            self.__removeDoneSteps__(self.setsLists[0][0][0], self.setsLists)# remove the first step from the first step set of the first list
             print('after removal',self.setsLists)
             
             #self.machines[1].waitForMachineDone()
@@ -104,6 +129,7 @@ class Cell:
             if self.machines[1].machineDone() and self.machines[0].canUpdateTool():
                 stepsM1 = self.setsLists.pop()
                 self.machines[0].updateTool(stepsM1[1]) """
+            
 
     def getRequest(self):
         for iterator in range(self.requestQueue.qsize()):
