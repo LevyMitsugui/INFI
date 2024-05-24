@@ -99,36 +99,16 @@ class Cell:
             print('É aqui oh mano:', self.setsLists[0])
             
             self.warehouses[0].outputPiece(recipe['Material'], self.ID)
+            
             print(self.setsLists[0][0])
             step = self.setsLists[0].pop(0)
+
             self.machines[0].updateToolAndTime(self.ID, step[1],step[2])
-            #onePieceSteps[0][0]
-            #self.machines[onePieceSteps[0][0]].updateToolAndTime(self.ID, onePieceSteps[0][1],onePieceSteps[0][2])
-            
+
             self.__removeDoneSteps__(self.setsLists[0][0][0], self.setsLists)# remove the first step from the first step set of the first list
             print('after removal',self.setsLists)
             
-            #self.machines[1].waitForMachineDone()
-            #self.machines[1].updateToolAndTime(self.ID, onePieceSteps[1][1],onePieceSteps[1][2])
-
-
-            """ if self.machines[0].machineDone():
-                request, recipe = self.getRequest()
-                if request is None or recipe is None:
-                    continue
-                self.setBusy()
-
-                self.setsLists.insert(0, self.__arrangeSteps__(recipe))
-                #SET VARIABLES THROUGH OPCUA
-
-                
-                
-                self.setFree()
-                self.doneRequestQueue.put(request['Piece'])
-
-            if self.machines[1].machineDone() and self.machines[0].canUpdateTool():
-                stepsM1 = self.setsLists.pop()
-                self.machines[0].updateTool(stepsM1[1]) """
+            
             
 
     def getRequest(self):

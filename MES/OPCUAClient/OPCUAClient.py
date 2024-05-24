@@ -130,7 +130,7 @@ class OPCUAClient:
             if self.machineUpdateQueue.qsize() > 0 and self.getMachineUpdate()[0] == 0:
                 update = self.machineUpdateQueue.get()
                 print('[OPC Client] updating machine. Values: ', update)
-                self.setMachineUpdate(1, update['machine'], update['tool'], update['time'])
+                self.setMachineUpdate(1, update['machine'], update['tool'],  update['time'])
 
             if self.gateUpdateQueue.qsize() > 0 and self.getPieceSpawn()[0] == 0:
                 update = self.gateUpdateQueue.get()
