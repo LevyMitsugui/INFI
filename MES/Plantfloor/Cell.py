@@ -67,7 +67,7 @@ class Cell:
         #TODO implement this: while ocpcua Connected, because, for now, the code will run even if there is no connection
         
         while True:
-            time.sleep(1)
+            time.sleep(0.3)
 
             if len(self.machines) < 2 or len(self.machines) > 2:
                 print('[Cell ', self.ID,' Cycle] Machines improperly allocated to cell (machines:', len(self.machines), ')')
@@ -83,9 +83,6 @@ class Cell:
             
             self.setFree()
             self.doneRequestQueue.put(request['Piece'])
-            if request['Piece'] == "P5":
-                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!P5, WTF?!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            self.db.processRequestByPiece(request['Piece'], "requests")
 
     def getRequest(self):
         for iterator in range(self.requestQueue.qsize()):
@@ -111,7 +108,6 @@ class Cell:
                 
             else: #There is no recipe for this request
                 request = None
-        
         return (None, None)
 
     def getRecipe(self, request):#TODO restructure this
