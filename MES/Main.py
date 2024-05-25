@@ -93,24 +93,6 @@ class SQLManager():
         else:
             print('                 Posted 0 lost requests at RequestQueue')
 
-        ordersTup = self.db.getProcessingOrders("requests")
-        if(ordersTup is not None and len(ordersTup) > 0):
-            quantities = []
-            pieces = []
-            print('[Database] Exist requests in process at MES database, requests added to MES doneRequestQueue')
-            for order in ordersTup:
-                piece = order[0]
-                if(piece not in pieces):        
-                    pieces.append(piece)
-                    quantities.append(1)
-                else:
-                    quantities[pieces.index(piece)] += 1
-                self.DoneRequestQueue.put(piece)
-            for c in pieces:
-                print('                 Posted', quantities[pieces.index(c)], 'requests for', c, 'at doneRequestQueue')
-        else:
-            print('                 Posted 0 requests at doneRequestQueue')
-
         print('[Database] Initializing OPC-UA Queues')
         inTup = self.db.getWareQueue("in")
         if(inTup is not None):
@@ -359,16 +341,29 @@ orderQueue = customQueue.customQueue()
 requestQueue = customQueue.customQueue()
 doneRequestQueue = customQueue.customQueue()
 
+inWHQueue = customQueue.customQueue()
+outWHQueue = customQueue.customQueue()
+machineUpdateQueue = customQueue.customQueue()
+gateUpdateQueue = customQueue.customQueue()
+
 SQLManager = SQLManager(orderQueue, requestQueue, doneRequestQueue, './Recipe/Recipes.csv')
 SQLManager.getData()
-
 SQLManager.getOrder()
-manager = Manager(orderQueue, requestQueue, doneRequestQueue, './Recipe/Recipes.csv')
+
+
+manager = Manager(orderQueue, requestQueue, doneRequestQueue, OPCUAClient, './Recipe/Recipes.csv')
+manager.configMachines(machineUpdateQueue)
+manager.configWareHouse(inWHQueue, outWHQueue)
 manager.postRequests()
 manager.startWareHouse()
-manager.postDoneOrders()
+
+
+OPCUAClient = OPCUAClient(inWHQueue, outWHQueue, machineUpdateQueue, gateUpdateQueue)
+OPCUAClient.opcManager()
+
 
 input()
+OPCUAClient.kill()
 count = {}
 print(len(orderQueue.queue), "orders pendent in orderQueue")
 for x in orderQueue.queue:
