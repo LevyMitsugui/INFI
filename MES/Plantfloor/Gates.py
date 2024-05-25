@@ -11,7 +11,10 @@ class Gates:
         self.nGates = 4
 
     def spawnPieces(self, pieceType, quantity):
-        piecesByGate = floor(quantity/self.nGates)
+        pType = int(pieceType.strip('P'))
+        self.gateUpdateQueue.put({'gate': 1, 'piece': pType, 'quantity': quantity})
+
+        """ piecesByGate = floor(quantity/self.nGates)
         remainder = quantity%self.nGates
         pType = int(pieceType.strip('P'))
 
@@ -19,5 +22,5 @@ class Gates:
         if piecesByGate > 0:
             self.gateUpdateQueue.put({'gate': 2, 'piece': pType, 'quantity': piecesByGate})
             self.gateUpdateQueue.put({'gate': 3, 'piece': pType, 'quantity': piecesByGate})
-            self.gateUpdateQueue.put({'gate': 4, 'piece': pType, 'quantity': piecesByGate})
+            self.gateUpdateQueue.put({'gate': 4, 'piece': pType, 'quantity': piecesByGate}) """
 

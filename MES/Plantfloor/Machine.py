@@ -75,11 +75,16 @@ class Machine:
             time.sleep(1)
         return True
     
-    def updateToolAndTime(self, cell, tool, time):
+    def waitForMachineNotDone(self, cell):
+        while(self.opcuaClient.getMachineStatus(cell, self.ID)):
+            time.sleep(1)
+        return True
+    
+    def updateToolAndTime(self, cell, tool, time, secondTime = 0):
         machine = cell + self.ID*6
 
         #self.opcuaClient.setMachineUpdate(1, (cell + (self.ID - 1)*6), tool, time)
-        self.machineUpdateQueue.put({'machine': machine, 'tool': tool, 'time': time})
+        self.machineUpdateQueue.put({'machine': machine, 'tool': tool, 'time': time, 'secondTime': secondTime})
 
     def canUpdateTool(self):#TODO finish integration with OPCUA
         return True

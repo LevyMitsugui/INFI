@@ -1,5 +1,6 @@
 from Plantfloor import *
-from Recipe.Recipe import *
+#from Recipe.Recipe import *
+import csv
 import threading
 import time
 import customQueue
@@ -34,7 +35,7 @@ class SQLManager():
 
 class Manager():
 
-    def __init__(self, orderQueue, requestQueue, doneRequestQueue, OPCUAClient,recipesFile):
+    def __init__(self, orderQueue, requestQueue, doneRequestQueue, OPCUAClient,recipesFile, transformsFile):
         self.OrderQueue = orderQueue
         self.RequestQueue = requestQueue
         self.DoneRequestQueue = doneRequestQueue
@@ -44,6 +45,7 @@ class Manager():
         self.shutdown = False
 
         self.recipes = self.__csvReader__(recipesFile)
+        self.transforms = self.__csvReader__(transformsFile)
         self.cells = self.__initCells__() #hardcoded
         #self.__configMachines__() #hardcoded
 
@@ -54,7 +56,7 @@ class Manager():
     def __initCells__(self,): #hardcoded
         cells = []
         for i in range(1):
-            cells.append(Cell(i+1, self.RequestQueue, self.DoneRequestQueue, recipes=self.recipes))
+            cells.append(Cell(i+1, self.RequestQueue, self.DoneRequestQueue, recipes=self.recipes, transformations=self.transforms))
         return cells
     
 
@@ -94,6 +96,7 @@ class Manager():
         success = []
         for cell in self.cells:
             success.append(cell.addWarehouse(Warehouse(0, self.OPCUAClient, inwhQueue, outwhQueue)))
+            success.append(cell.addWarehouse(Warehouse(1, self.OPCUAClient, inwhQueue, outwhQueue)))
         if all(success):
             print('[Manager] Warehouse Configured')
             return True
@@ -187,7 +190,7 @@ SQLManager.getOrder()
 OPCUAClient = OPCUAClient(inWHQueue, outWHQueue, machineUpdateQueue, gateUpdateQueue)
 OPCUAClient.opcManager()
 
-manager = Manager(orderQueue, requestQueue, doneRequestQueue, OPCUAClient, './Recipe/Recipes.csv')
+manager = Manager(orderQueue, requestQueue, doneRequestQueue, OPCUAClient, './Recipe/Recipes.csv', './Recipe/WorkPieceTransform.csv')
 manager.configMachines(machineUpdateQueue)
 manager.configWareHouse(inWHQueue, outWHQueue)
 manager.postRequests()

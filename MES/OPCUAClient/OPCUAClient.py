@@ -47,12 +47,13 @@ class OPCUAClient:
         self.MES_warehouse_out_update = self.MES_warehouse_out_updateNode.get_value()
         self.MES_spawn_piece = self.MES_spawner_pieceNode.get_value()
 
-    def setMachineUpdate(self, change, machine, tool, time):
+    def setMachineUpdate(self, change, machine, tool, time, secondTime = 0):
         self.updateNodesAndVars()
         self.MES_machine_update[0] = change
         self.MES_machine_update[1] = machine
         self.MES_machine_update[2] = tool
         self.MES_machine_update[3] = time
+        self.MES_machine_update[4] = secondTime
         self.MES_machine_updateNode.set_value(self.MES_machine_update, ua.VariantType.Int16)
 
     def getMachineUpdate(self):
@@ -130,7 +131,7 @@ class OPCUAClient:
             if self.machineUpdateQueue.qsize() > 0 and self.getMachineUpdate()[0] == 0:
                 update = self.machineUpdateQueue.get()
                 print('[OPC Client] updating machine. Values: ', update)
-                self.setMachineUpdate(1, update['machine'], update['tool'],  update['time'])
+                self.setMachineUpdate(1, update['machine'], update['tool'],  update['time'], update['secondTime'])
 
             if self.gateUpdateQueue.qsize() > 0 and self.getPieceSpawn()[0] == 0:
                 update = self.gateUpdateQueue.get()

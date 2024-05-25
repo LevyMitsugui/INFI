@@ -3,7 +3,7 @@ import csv
 import threading
 
 class Cell:
-    def __init__(self, ID, requestQueue, doneRequestQueue, recipes):
+    def __init__(self, ID, requestQueue, doneRequestQueue, recipes, transformations):
         """
         Initializes an instance of the class with the given ID.
 
@@ -25,6 +25,7 @@ class Cell:
         self.warehouses = []
         self.processedRequests = 0
         self.recipes = recipes
+        self.transformations = transformations
 
         self.setsLists = []
 
@@ -94,19 +95,35 @@ class Cell:
                 continue
             self.setBusy()
             print('The game has begun!')
-            self.setsLists.insert(0, self.__arrangeSteps__(recipe))
-            print(self.setsLists)
-            print('É aqui oh mano:', self.setsLists[0])
-            
-            self.warehouses[0].outputPiece(recipe['Material'], self.ID)
-            
-            print(self.setsLists[0][0])
-            step = self.setsLists[0].pop(0)
+            #self.setsLists.insert(0, self.__arrangeSteps__(recipe))
+            #print(self.setsLists)
+            #print('É aqui oh mano:', self.setsLists[0])
 
-            self.machines[0].updateToolAndTime(self.ID, step[1],step[2])
+            self.warehouses[0].outputPiece(self.__getPrimaryMaterial__(recipe), self.ID)
+            steps = self.__arrangeSteps__(recipe)
+            
+            step = steps.pop(0)
+            waitingTime = step['Time']
+            self.machines[0].updateToolAndTime(self.ID, step['Tool'],step['Time'])
+            
+            step = steps.pop(0)
+            waitingTime += step['Time']
+            if 'SecondTime' in  step.keys():
+                self.machines[1].updateToolAndTime(self.ID, step['Tool'],step['Time'], step['SecondTime'])
+            else:
+                self.machines[1].updateToolAndTime(self.ID, step['Tool'],step['Time'])
 
-            self.__removeDoneSteps__(self.setsLists[0][0][0], self.setsLists)# remove the first step from the first step set of the first list
-            print('after removal',self.setsLists)
+            #self.verifyUnfinished(recipe, steps)
+
+            #time.sleep(waitingTime)
+            self.machines[1].waitForMachineNotDone(self.ID)
+            self.machines[1].waitForMachineDone(self.ID)
+            print('warehouse in, piece: ', recipe['Piece'])	
+            self.warehouses[1].inputPiece(recipe['Piece'] , 4 + self.ID)#ha de ser alterado
+
+            #print(self.setsLists[0][0])
+            #step = self.setsLists[0].pop(0)
+            #self.__removeDoneSteps__(self.setsLists[0][0][0], self.setsLists)# remove the first step from the first step set of the first list
             
             
             
@@ -188,16 +205,56 @@ class Cell:
         #set steps of second machine first
         changes = 0
         for iterator in range(len(tools)-1, 0, -1):
-            steps.insert(0, (1,tools[iterator], times[iterator]))
+            steps.insert(0, {'Machine': 1, 'Tool':tools[iterator], 'Time': times[iterator]})
+            
             changes += 1
             if changes == maxToolChange:
                 break
-
+            
         if len(tools) >= 2:
-            steps.insert(0, (0,tools[0], times[0]))
+            steps.insert(0, {'Machine': 0,'Tool':tools[0],'Time': times[0]})
 
-        
+        if(steps[1]['Tool'] == steps[2]['Tool'] and len(steps) >= 2): #if the tools are the same
+            removed = steps.pop()
+            steps[1]['SecondTime'] = removed['Time'] #add the time of the removed step to the second step
+
         return steps
+    
+    def verifyUnfinished(self, recipe, steps):
+        if len(steps)>0:
+            self.requestQueue.put({'Piece':recipe['Piece']})
+            return True
+
+        else:
+            return False
+
+    def getMaterial(self, recipe):
+        if ';' in recipe['Material']:
+            return recipe['Material'].split(';')
+        else:
+            return [recipe['Material']]
+    
+    def __getPrimaryMaterial__(self,recipe):
+        if ';' in recipe['Material']:
+            return recipe['Material'].split(';')[0]
+        else:
+            return recipe['Material']
+
+    def __midPieces__(self, recipe):
+        midPieces = []
+        material = recipe['Material']
+        tools = recipe['Tools'].split(';')
+        midPieces.append(material)
+        for t in tools:
+            for transformation in self.transformations:
+                if transformation['Tool'] == t and transformation['Material'] == material:
+                    if transformation['Piece'] == recipe['Piece']:
+                        break
+                    midPieces.append(transformation['Piece'])
+                    material = transformation['Piece']
+                    break
+        
+        return midPieces
     
 
     def printStatus(self):

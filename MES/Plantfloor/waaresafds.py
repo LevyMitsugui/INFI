@@ -16,12 +16,14 @@ OPCUAClient = OPCUAClient(inWHqueue, outWHqueue, machineUpdateQueue, gateUpdateQ
 OPCUAClient.opcManager()
 
 
-wh = Warehouse.Warehouse(1, OPCUAClient, inWHqueue, outWHqueue)
-#gt = Gates.Gates(gateUpdateQueue, OPCUAClient)
+#wh  = Warehouse.Warehouse(1, OPCUAClient, inWHqueue, outWHqueue)
+gt = Gates.Gates(gateUpdateQueue, OPCUAClient)
 
 #wh.inputPiece('P1', 5)
-wh.outputPiece('P1', 1)
-#gt.spawnPieces('P1', 1)
+#wh.outputPiece('P1', 1)
+gt.spawnPieces('P1', 2)
+#input()
+#gt.spawnPieces('P1', 2)
 
 
 
