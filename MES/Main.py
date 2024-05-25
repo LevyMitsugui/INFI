@@ -47,82 +47,72 @@ class SQLManager():
 
 
     def getData(self):
+        print('[Database] Initialing MES Queues')
         ordersTup = self.db.getMostUrgentOrder("erp")
-        if(ordersTup is not None):
-            if len(ordersTup) > 0:
-                print('[Database] Exist orders in process at ERP database, orders added to MES orderQueue')
-                for x in ordersTup:
-                    order = {'clientID' : x[0] , 'Order Number' : x[1], 'WorkPiece' : x[2], 'Quantity' : x[3], 'DueDate' : x[4], 'LatePen' : x[5], 'EarlyPen' : x[6]}
-                    self.OrderQueue.put(order)
-                print('                 Posted', len(ordersTup), 'orders at RequestQueue')
-            else:
-                print('[Database] No orders to add to MES orderQueue')
+        if(ordersTup is not None and len(ordersTup) > 0):
+            for x in ordersTup:
+                order = {'clientID' : x[0] , 'Order Number' : x[1], 'WorkPiece' : x[2], 'Quantity' : x[3], 'DueDate' : x[4], 'LatePen' : x[5], 'EarlyPen' : x[6]}
+                self.OrderQueue.put(order)
+            print('                 Posted', len(ordersTup), 'orders at RequestQueue')
         else:
-            print('[Database] No orders to add to MES orderQueue')
+            print('                 Posted 0 orders at RequestQueue')
 
         ordersTup = self.db.getOpenOrders("requests")
-        if(ordersTup is not None):                                  #Calculate open requests and lost requests
-            if len(ordersTup) > 0:
-                print('[Database] Exist open requests at MES database, requests added to MES requestQueue')
-                pieces_req = []
-                quantities_req = []
-                for order in ordersTup:
-                    piece = order[0]
-                    if(piece not in pieces_req):        
-                        pieces_req.append(piece)
-                        quantities_req.append(1)
-                    else:
-                        quantities_req[pieces_req.index(piece)] += 1
-                        
-                    for row in self.recipes:
-                        if row['Piece'] == piece:
-                            request = row
-                            break
-                    self.RequestQueue.put(request)
-                for c in pieces_req:
-                    print('                 Posted', quantities_req[pieces_req.index(c)], 'requests for', c, 'at RequestQueue')
-                mesProcessingTup = self.db.countAllPieces("processing", "mes", done = True)
-                mesRequestsTup = self.db.countAllPieces("", "requests")
-                pieces_requests, quantities_requests = self.__countPieces(mesRequestsTup)
-                pieces_processing, quantities_processing = self.__countPieces(mesProcessingTup)
-                if(pieces_processing is not None and quantities_processing is not None and pieces_requests is not None and quantities_requests is not None):
-                    for piece in pieces_processing:
-                        request = self.__getRequest(piece)
-                        lost_requests = quantities_processing[pieces_processing.index(piece)] - quantities_requests[pieces_requests.index(piece)]
-                        if(lost_requests > 0):
-                            for i in range(lost_requests):
-                                self.db.insertRequestOrder(request, "requests")
-                                self.RequestQueue.put(request)
-                            print('                 Posted', lost_requests, 'lost requests for', piece, 'at RequestQueue')
+        if(ordersTup is not None and len(ordersTup) > 0):                                  #Calculate open requests and lost requests
+            pieces_req = []
+            quantities_req = []
+            for order in ordersTup:
+                piece = order[0]
+                if(piece not in pieces_req):        
+                    pieces_req.append(piece)
+                    quantities_req.append(1)
+                else:
+                    quantities_req[pieces_req.index(piece)] += 1
+                    
+                for row in self.recipes:
+                    if row['Piece'] == piece:
+                        request = row
+                        break
+                self.RequestQueue.put(request)
+            for c in pieces_req:
+                print('                 Posted', quantities_req[pieces_req.index(c)], 'requests for', c, 'at RequestQueue')
+            mesProcessingTup = self.db.countAllPieces("processing", "mes", done = True)
+            mesRequestsTup = self.db.countAllPieces("", "requests")
+            pieces_requests, quantities_requests = self.__countPieces(mesRequestsTup)
+            pieces_processing, quantities_processing = self.__countPieces(mesProcessingTup)
+            if(pieces_processing is not None and quantities_processing is not None and pieces_requests is not None and quantities_requests is not None):
+                for piece in pieces_processing:
+                    request = self.__getRequest(piece)
+                    lost_requests = quantities_processing[pieces_processing.index(piece)] - quantities_requests[pieces_requests.index(piece)]
+                    if(lost_requests > 0):
+                        for i in range(lost_requests):
+                            self.db.insertRequestOrder(request, "requests")
+                            self.RequestQueue.put(request)
+                        print('                 Posted', lost_requests, 'lost requests for', piece, 'at RequestQueue')
 
-            else:
-                print('[Database] No orders to add to MES RequestQueue')
         else:
-            print('[Database] No orders to add to MES RequestQueue')
+            print('                 Posted 0 lost requests at RequestQueue')
 
         ordersTup = self.db.getProcessingOrders("requests")
-        if(ordersTup is not None):
-            if len(ordersTup) > 0:
-                quantities = []
-                pieces = []
-                print('[Database] Exist requests in process at MES database, requests added to MES doneRequestQueue')
-                for order in ordersTup:
-                    piece = order[0]
-                    if(piece not in pieces):        
-                        pieces.append(piece)
-                        quantities.append(1)
-                    else:
-                        quantities[pieces.index(piece)] += 1
-                    self.DoneRequestQueue.put(piece)
-                for c in pieces:
-                    print('                 Posted', quantities[pieces.index(c)], 'requests for', c, 'at doneRequestQueue')
-            else:
-                print('[Database] No orders to add to MES doneRequestQueue')
+        if(ordersTup is not None and len(ordersTup) > 0):
+            quantities = []
+            pieces = []
+            print('[Database] Exist requests in process at MES database, requests added to MES doneRequestQueue')
+            for order in ordersTup:
+                piece = order[0]
+                if(piece not in pieces):        
+                    pieces.append(piece)
+                    quantities.append(1)
+                else:
+                    quantities[pieces.index(piece)] += 1
+                self.DoneRequestQueue.put(piece)
+            for c in pieces:
+                print('                 Posted', quantities[pieces.index(c)], 'requests for', c, 'at doneRequestQueue')
         else:
-            print('[Database] No orders to add to MES doneRequestQueue')
+            print('                 Posted 0 requests at doneRequestQueue')
 
         print('[Database] Initializing OPC-UA Queues')
-        inTup = self.db.getInWareQueue("in")
+        inTup = self.db.getWareQueue("in")
         if(inTup is not None):
             if len(inTup) > 0:
                 for inReq in inTup:
@@ -131,33 +121,32 @@ class SQLManager():
                 print('                 Posted', len(inTup), 'pieces at inWHQueue')
             else:
                 print('                 Posted 0 pieces at inWHQueue')
-        outTup = self.db.getOutWareQueue("out")
-        if(outTup is not None):
-            if len(outTup) > 0:
-                for inReq in outTup:
-                    inPiece = {'conveyour': inReq[0], 'piece': inReq[1]}
-                    self.outWHQueue.put(inPiece)
-                print('                 Posted', len(outTup), 'pieces at outWHQueue')
-            else:
-                print('                 Posted 0 pieces at outWHQueue')
-        machineTup = self.db.getMachineQueue()
-        if(machineTup is not None):
-            if len(machineTup) > 0:
-                for machineReq in machineTup:
-                    machineUpdate = {'machine': machineReq[0], 'tool': machineReq[1], 'time': machineReq[2]}
-                    self.machineQueue.put(machineUpdate)
-                print('                 Posted', len(machineTup), 'pieces at machineQueue')
-            else:
-                print('                 Posted 0 pieces at machineQueue')
-        gateTup = self.db.getGateQueue()
-        if(gateTup is not None):
-            if len(gateTup) > 0:
-                for gateReq in gateTup:
-                    gateUpdate = {'gate': gateReq[0], 'piece': gateReq[1], 'quantity': gateReq[2]}
-                    self.gateQueue.put(gateUpdate)
-                print('                 Posted', len(gateTup), 'pieces at gateQueue')
-            else:
-                print('                 Posted 0 pieces at gateQueue')
+        outTup = self.db.getWareQueue("out")
+        if(outTup is not None and len(outTup) > 0):
+            for inReq in outTup:
+                inPiece = {'conveyour': inReq[0], 'piece': inReq[1]}
+                self.outWHQueue.put(inPiece)
+            print('                 Posted', len(outTup), 'pieces at outWHQueue')
+        else:
+            print('                 Posted 0 pieces at outWHQueue')
+
+        machineTup = self.db.getMachineUpdQueue()
+        if(machineTup is not None and len(machineTup) > 0):
+            for machineReq in machineTup:
+                machineUpdate = {'machine': machineReq[0], 'tool': machineReq[1], 'time': machineReq[2]}
+                self.machineQueue.put(machineUpdate)
+            print('                 Posted', len(machineTup), 'pieces at machineQueue')
+        else:
+            print('                 Posted 0 pieces at machineQueue')
+
+        gateTup = self.db.getGateUpdQueue()
+        if(gateTup is not None and len(gateTup) > 0):
+            for gateReq in gateTup:
+                gateUpdate = {'gate': gateReq[0], 'piece': gateReq[1], 'quantity': gateReq[2]}
+                self.gateQueue.put(gateUpdate)
+            print('                 Posted', len(gateTup), 'pieces at gateQueue')
+        else:
+            print('                 Posted 0 pieces at gateQueue')
         
 
     def __countPieces(self, taple, unitary = False):

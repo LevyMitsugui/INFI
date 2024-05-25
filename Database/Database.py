@@ -572,7 +572,7 @@ class Database:
 			with conn.cursor() as cursor:
 				sql = "USE mes"
 				cursor.execute(sql)
-				sql = "SELECT * FROM mes_machine_update_queue"
+				sql = "SELECT * FROM mes_machine_upd_queue"
 				cursor.execute(sql)
 				return cursor.fetchall()
 	
@@ -591,7 +591,7 @@ class Database:
 			with conn.cursor() as cursor:
 				sql = "USE mes"
 				cursor.execute(sql)
-				sql = "SELECT * FROM mes_gate_update_queue"
+				sql = "SELECT * FROM mes_gate_upd_queue"
 				cursor.execute(sql)
 				return cursor.fetchall()
 
