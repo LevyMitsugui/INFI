@@ -210,7 +210,6 @@ class Manager():
                 print('[Manager, postRequests] P1 & P2 are not processable, order will not be posted and will be removed from queue')
                 continue
 
-            # mesOrder = self.db.processMostUrgentOrder("mes")
             mesOrder = self.db.processOrderByNum(currOrder['clientID'] , currOrder['Order Number'] , "mes")
             if mesOrder is None:    # Order not found at database open orders
                 print('[Manager, postRequests] Order not found at MES database, it will not be posted and will be removed from queue')
@@ -226,17 +225,9 @@ class Manager():
 
             for counter in range(quantity):
                 self.RequestQueue.put(request)
-                
                 self.db.insertRequestOrder(request, "requests")
         
             print('[Manager, postRequests] Posted ', quantity, ' requests for ', currOrder['WorkPiece'])
-            req_queue = 0
-            for x in self.RequestQueue.queue:
-                if x['Piece'] == request['Piece']:
-                    req_queue += 1
-            req_db = self.db.countPiece(request['Piece'], "open", "requests")
-            if(req_queue != req_db[0][1]):
-                print("                                 [Manager, postRequests] ERROR: RequestQueue and RequestDatabase differ!", req_db[0][0],":",  req_queue,"/", req_db[0][1])
     def __wareHouse(self):
         while True:
             time.sleep(0.2)
@@ -309,6 +300,7 @@ class Manager():
                     self.piecesProcessed.remove(request_workpiece)
                     if self.db.updateWare(request_workpiece, -1, "mes", 2):
                         self.db.updateDeliveredPieces(request_client, request_number, 1, "mes")
+                        self.db.__fetchWare__(2)
                     else:
                         print('                                             [Manager, postDoneOrders] Could not update warehouse')
                         DoneOrders = None

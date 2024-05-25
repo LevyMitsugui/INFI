@@ -98,8 +98,8 @@ class Cell:
                 
                 if requestGotten['Piece'] != request['Piece']:
                     self.requestQueue.put(requestGotten)
-                    if(reqGotTup != None):
-                        self.db.returnRequestByPiece(reqGot['Piece'], "requests")
+                    # if(reqGotTup != None):
+                    #     self.db.returnRequestByPiece(reqGot['Piece'], "requests")
                     print('!![Cell ', self.ID, ' getRequest]!! Failded to get right request')
                     return (None, None)
                 
