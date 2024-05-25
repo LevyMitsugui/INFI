@@ -1,7 +1,10 @@
 import csv
+import os
+import time
 
 class Machine:
-    def __init__(self, ID, type):
+    
+    def __init__(self, ID, type, opcuaClient, machineUpdateQueue):
         """
         Initializes a new instance of the class.
 
@@ -12,14 +15,17 @@ class Machine:
         Returns:
             None
         """
-        self.__verifyType(type)
+        self.__verifyType__(type)
         
         self.ID = ID
+        self.opcuaClient = opcuaClient
+        self.machineUpdateQueue = machineUpdateQueue
         self.busy = False
         self.type = type
         self.toolSelect = ''
         self.time = 0
-        self.availableTools = self.__retrieveToolList()
+        self.availableTools = self.__retrieveToolList__()
+        
 
     def setBusy(self):
         self.busy = True
@@ -50,9 +56,11 @@ class Machine:
     
     def getAvailableTools(self):
         return self.availableTools
-    
-    def __retrieveToolList(self):
-        with open('Plantfloor/Tools.csv', newline='') as csvfile:
+        
+    def __retrieveToolList__(self):
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(current_dir, 'Tools.csv')
+        with open(file_path, newline='') as csvfile:
             reader = csv.DictReader(csvfile)
             tools = []
             for row in reader:
@@ -65,5 +73,21 @@ class Machine:
             raise ValueError('Invalid machine type')
         
     #mock functions #TODO should be removed when system is operating
-    def machineDone(self):#TODO finish integration with OPCUA   
+    def machineDone(self, cell):
+        if(self.opcuaClient.getMachineStatus(cell, self.ID)):
+            return True
+        return False
+        
+    def waitForMachineDone(self, cell):
+        while(not self.opcuaClient.getMachineStatus(cell, self.ID)):
+            time.sleep(1)
+        return True
+    
+    def updateToolAndTime(self, cell, tool, time):
+        machine = cell + self.ID*6
+
+        #self.opcuaClient.setMachineUpdate(1, (cell + (self.ID - 1)*6), tool, time)
+        self.machineUpdateQueue.put({'machine': machine, 'tool': tool, 'time': time})
+
+    def canUpdateTool(self):#TODO finish integration with OPCUA
         return True
