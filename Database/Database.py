@@ -185,6 +185,18 @@ class Database:
 							sql = "CREATE TABLE IF NOT EXISTS {}_ware2(workpiece VARCHAR(2) NOT NULL);".format(dbname)
 							cursor.execute(sql)
 
+							sql = "CREATE TABLE IF NOT EXISTS {}_in_ware_queue(conveyor INT NOT NULL, piece INT NOT NULL);".format(dbname)
+							cursor.execute(sql)
+
+							sql = "CREATE TABLE IF NOT EXISTS {}_out_ware_queue(conveyor INT NOT NULL, piece INT NOT NULL);".format(dbname)
+							cursor.execute(sql)
+
+							sql = "CREATE TABLE IF NOT EXISTS {}_machine_upd_queue(machine INT NOT NULL, tool INT NOT NULL, time INT NOT NULL);".format(dbname)
+							cursor.execute(sql)
+
+							sql = "CREATE TABLE IF NOT EXISTS {}_gate_upd_queue(gate INT NOT NULL, piece INT NOT NULL, quantity INT NOT NULL);".format(dbname)
+							cursor.execute(sql)
+
 						conn.commit()
 					
 					if not aux: # If the database doesn't exists it will be shown
@@ -363,6 +375,48 @@ class Database:
 				return openOrders
 
 
+	def getMostUrgentOrder(self, dbname):
+		'''
+		Gets the most urgent processing order from the database (if due_date is the same, the order with the lower number is chosen) and closes it
+
+		Parameters:
+		None
+
+		Returns:
+		List: The most urgent order
+		None: If no order was found
+		'''
+		with self.conn.get_connection() as conn:											# Connects to the server
+			with conn.cursor() as cursor:
+				sql = "USE {}".format(dbname)
+				cursor.execute(sql)
+				sql = "DROP TABLE IF EXISTS temp"
+				cursor.execute(sql)
+				if(dbname == "erp"):
+					sql = "CREATE TEMPORARY TABLE temp SELECT mp.* FROM {}_orders mp WHERE ID in (SELECT * FROM {}_processing) ORDER BY due_date".format(dbname, dbname)
+				elif(dbname == "mes"):
+					sql = "CREATE TEMPORARY TABLE temp SELECT mp.* FROM {}_orders mp LEFT JOIN (SELECT workpiece, COUNT(*) AS ware2_count FROM {}_ware2 GROUP BY workpiece) mw ON mp.workpiece = mw.workpiece WHERE id IN (SELECT * FROM {}_processing) AND ((delivered = quantity AND done <> 'X') OR mw.ware2_count > 0) ORDER BY due_date".format(dbname, dbname, dbname)
+				cursor.execute(sql)
+				cursor.execute("ALTER TABLE temp DROP COLUMN id")
+				cursor.execute("ALTER TABLE temp DROP COLUMN done")
+				cursor.execute("SELECT * FROM temp")
+				if(dbname == "erp"):
+					self.erp_order = cursor.fetchall()
+				elif(dbname == "mes"):
+					self.mes_order = cursor.fetchall()
+				cursor.execute("DROP TABLE temp")
+				conn.commit()
+
+
+		if(dbname == "erp" and self.erp_order):
+			self.__fetchProcessing__(dbname)
+			return self.erp_order
+		elif (dbname == "mes" and self.mes_order):
+			self.__fetchProcessing__(dbname)
+			return self.mes_order
+		else:
+			return None
+
 	def getProcessingOrders(self, dbname):
 		'''
 		Updates all processing orders from the database
@@ -483,6 +537,63 @@ class Database:
 					cursor.execute(sql)
 					self.ware2_qnt = cursor.fetchall()
 				conn.commit()
+
+	def getWareQueue(self, command):
+		'''
+		Get all input requests in the queue
+
+		Parameters:
+		None
+
+		Returns:
+		inputQueue (tuple): (workpiece, quantity)
+		None: If there are no input requests in the queue
+		'''
+		with self.conn.get_connection() as conn:											# Connects to the server
+			with conn.cursor() as cursor:
+				sql = "USE mes"
+				cursor.execute(sql)
+				sql = "SELECT * FROM mes_{}_ware_queue".format(command)
+				cursor.execute(sql)
+				return cursor.fetchall()
+			
+	def getMachineUpdQueue(self):
+		'''
+		Get all machine update requests in the queue
+
+		Parameters:
+		None
+
+		Returns:
+		machineUpdQueue (tuple): (workpiece, quantity)
+		None: If there are no machine update requests in the queue
+		'''
+		with self.conn.get_connection() as conn:											# Connects to the server
+			with conn.cursor() as cursor:
+				sql = "USE mes"
+				cursor.execute(sql)
+				sql = "SELECT * FROM mes_machine_update_queue"
+				cursor.execute(sql)
+				return cursor.fetchall()
+	
+	def getGateUpdQueue(self):
+		'''
+		Get all gate update requests in the queue
+
+		Parameters:
+		None
+
+		Returns:
+		gateUpdQueue (tuple): (workpiece, quantity)
+		None: If there are no gate update requests in the queue
+		'''
+		with self.conn.get_connection() as conn:											# Connects to the server
+			with conn.cursor() as cursor:
+				sql = "USE mes"
+				cursor.execute(sql)
+				sql = "SELECT * FROM mes_gate_update_queue"
+				cursor.execute(sql)
+				return cursor.fetchall()
 
 
 	def __printWare__(self, warenumber):
@@ -988,73 +1099,6 @@ class Database:
 						time.sleep(retry_delay)
 		
 		self.__fetchOrdersDone__(dbname)
-		
-
-	def getMostUrgentOrder(self, dbname):
-		'''
-		Gets the most urgent processing order from the database (if due_date is the same, the order with the lower number is chosen) and closes it
-
-		Parameters:
-		None
-
-		Returns:
-		List: The most urgent order
-		None: If no order was found
-		'''
-		with self.conn.get_connection() as conn:											# Connects to the server
-			with conn.cursor() as cursor:
-				sql = "USE {}".format(dbname)
-				cursor.execute(sql)
-				sql = "DROP TABLE IF EXISTS temp"
-				cursor.execute(sql)
-				if(dbname == "erp"):
-					sql = "CREATE TEMPORARY TABLE temp SELECT mp.* FROM {}_orders mp WHERE ID in (SELECT * FROM {}_processing) ORDER BY due_date".format(dbname, dbname)
-				elif(dbname == "mes"):
-					sql = "CREATE TEMPORARY TABLE temp SELECT mp.* FROM {}_orders mp LEFT JOIN (SELECT workpiece, COUNT(*) AS ware2_count FROM {}_ware2 GROUP BY workpiece) mw ON mp.workpiece = mw.workpiece WHERE id IN (SELECT * FROM {}_processing) AND ((delivered = quantity AND done <> 'X') OR mw.ware2_count > 0) ORDER BY due_date".format(dbname, dbname, dbname)
-				cursor.execute(sql)
-				cursor.execute("ALTER TABLE temp DROP COLUMN id")
-				cursor.execute("ALTER TABLE temp DROP COLUMN done")
-				cursor.execute("SELECT * FROM temp")
-				if(dbname == "erp"):
-					self.erp_order = cursor.fetchall()
-				elif(dbname == "mes"):
-					self.mes_order = cursor.fetchall()
-				cursor.execute("DROP TABLE temp")
-				conn.commit()
-				# sql = "SELECT EXISTS(SELECT * FROM {}_orders WHERE id NOT IN (SELECT id FROM {}_open))".format(dbname, dbname)		#Check if exists any order being processed
-				# cursor.execute(sql)
-				# exists = cursor.fetchall()
-				# if(exists[0][0]):
-				# 	cursor.execute("CREATE TEMPORARY TABLE temp SELECT * FROM {}_orders WHERE id NOT IN (SELECT id FROM {}_open)".format(dbname, dbname))
-				# 	cursor.execute("SELECT MIN(due_date) FROM temp")
-				# 	min_due_date = cursor.fetchall()
-				# 	cursor.execute("SET SQL_SAFE_UPDATES = 0")
-				# 	cursor.execute("DELETE FROM temp WHERE due_date <> " + str(min_due_date[0][0]))
-				# 	conn.commit()
-				# 	cursor.execute("SET SQL_SAFE_UPDATES = 1")
-				# 	cursor.execute("ALTER TABLE temp DROP COLUMN id")
-				# 	cursor.execute("ALTER TABLE temp DROP COLUMN done")
-				# 	cursor.execute("SELECT * FROM temp")
-				# 	if(dbname == "erp"):
-				# 		self.erp_order = cursor.fetchall()
-				# 	elif(dbname == "mes"):
-				# 		self.mes_order = cursor.fetchall()
-				# 	cursor.execute("DROP TABLE temp")
-				# 	conn.commit()
-
-				# else:
-					# print("[Database] No order being processed in MySQL database")
-					# return None			
-
-
-		if(dbname == "erp" and self.erp_order):
-			self.__fetchProcessing__(dbname)
-			return self.erp_order
-		elif (dbname == "mes" and self.mes_order):
-			self.__fetchProcessing__(dbname)
-			return self.mes_order
-		else:
-			return None
 		
 	def setOrderDone(self, client, order_number, dbname):
 		'''
