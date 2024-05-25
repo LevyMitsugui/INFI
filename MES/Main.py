@@ -121,6 +121,45 @@ class SQLManager():
         else:
             print('[Database] No orders to add to MES doneRequestQueue')
 
+        print('[Database] Initializing OPC-UA Queues')
+        inTup = self.db.getInWareQueue("in")
+        if(inTup is not None):
+            if len(inTup) > 0:
+                for inReq in inTup:
+                    inPiece = {'conveyour': inReq[0], 'piece': inReq[1]}
+                    self.inWHQueue.put(inPiece)
+                print('                 Posted', len(inTup), 'pieces at inWHQueue')
+            else:
+                print('                 Posted 0 pieces at inWHQueue')
+        outTup = self.db.getOutWareQueue("out")
+        if(outTup is not None):
+            if len(outTup) > 0:
+                for inReq in outTup:
+                    inPiece = {'conveyour': inReq[0], 'piece': inReq[1]}
+                    self.outWHQueue.put(inPiece)
+                print('                 Posted', len(outTup), 'pieces at outWHQueue')
+            else:
+                print('                 Posted 0 pieces at outWHQueue')
+        machineTup = self.db.getMachineQueue()
+        if(machineTup is not None):
+            if len(machineTup) > 0:
+                for machineReq in machineTup:
+                    machineUpdate = {'machine': machineReq[0], 'tool': machineReq[1], 'time': machineReq[2]}
+                    self.machineQueue.put(machineUpdate)
+                print('                 Posted', len(machineTup), 'pieces at machineQueue')
+            else:
+                print('                 Posted 0 pieces at machineQueue')
+        gateTup = self.db.getGateQueue()
+        if(gateTup is not None):
+            if len(gateTup) > 0:
+                for gateReq in gateTup:
+                    gateUpdate = {'gate': gateReq[0], 'piece': gateReq[1], 'quantity': gateReq[2]}
+                    self.gateQueue.put(gateUpdate)
+                print('                 Posted', len(gateTup), 'pieces at gateQueue')
+            else:
+                print('                 Posted 0 pieces at gateQueue')
+        
+
     def __countPieces(self, taple, unitary = False):
         if(taple is not None):
             if len(taple) > 0:
