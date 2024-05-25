@@ -8,7 +8,6 @@ import sys
 sys.path.append("..")
 from Database import Database         # TO RUN THE CODE YOU MUST GO TO THE PREVIOUS FOLDER OF INFI AND RUN "python -m INFI.4-MES.Main"
 #from ..Database import *
-from OPCUAClient import OPCUAClient
 
 class SQLManager():
     def __init__(self, orderQueue, requestQueue, doneRequestQueue, recipesFile):
@@ -182,14 +181,14 @@ class Manager():
         self.DoneRequestQueue = doneRequestQueue
         self.OPCUAClient = OPCUAClient
         self.piecesProcessed = []
-
-        self.shutdown = False
-
         self.recipes = self.__reader(recipesFile)
         self.cells = self.__initCells() #hardcoded
-        # self.__configMachines() #hardcoded
+        self.__configMachines() #hardcoded
+        self.__configWareHouse() #hardcoded
 
         self.piecesProcessed = []
+
+        self.recipes = self.__reader(recipesFile) #recipes is a reader
 
         self.db = Database("root", "admin")
         self.__initPiecesProcessed()
