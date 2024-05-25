@@ -157,14 +157,16 @@ class SQLManager():
 
 class Manager():
 
-    def __init__(self, orderQueue, requestQueue, doneRequestQueue, recipesFile):
+    def __init__(self, orderQueue, requestQueue, doneRequestQueue, OPCUAClient, recipesFile):
         self.OrderQueue = orderQueue
         self.RequestQueue = requestQueue
         self.DoneRequestQueue = doneRequestQueue
+        self.OPCUAClient = OPCUAClient
         self.piecesProcessed = []
         self.recipes = self.__reader(recipesFile)
         self.cells = self.__initCells() #hardcoded
         self.__configMachines() #hardcoded
+        self.__configWareHouse() #hardcoded
 
         self.piecesProcessed = []
 
@@ -180,29 +182,49 @@ class Manager():
         return cells
     
 
-    def __configMachines(self): #hardcoded
+
+    def configMachines(self, machineUpdateQueue): #hardcoded
         print('[Manager] Configuring Machines')
-        self.cells[0].addMachine(Machine(0, 'M1'))
-        self.cells[0].addMachine(Machine(1, 'M2'))
-        print('[Manager] cell 0 all tools: ', self.cells[0].getAllTools())
+        success = []
+
+        success.append(self.cells[0].addMachine(Machine(0, 'M1', self.OPCUAClient, machineUpdateQueue)))
+        success.append(self.cells[0].addMachine(Machine(1, 'M2', self.OPCUAClient, machineUpdateQueue)))
+        """ print('[Manager] cell 0 all tools: ', self.cells[0].getAllTools())
         #print('[Manager] Machines Configured')
-        self.cells[1].addMachine(Machine(0, 'M1'))
-        self.cells[1].addMachine(Machine(1, 'M2'))
+        self.cells[1].addMachine(Machine(0, 'M1', self.OPCUAClient))
+        self.cells[1].addMachine(Machine(1, 'M2', self.OPCUAClient))
         print('[Manager] cell 1 all tools: ', self.cells[1].getAllTools())
         #print('[Manager] Machines Configured')
-        self.cells[2].addMachine(Machine(0, 'M1'))
-        self.cells[2].addMachine(Machine(1, 'M2'))
+        self.cells[2].addMachine(Machine(0, 'M1', self.OPCUAClient))
+        self.cells[2].addMachine(Machine(1, 'M2', self.OPCUAClient))
         print('[Manager] cell 2 all tools: ', self.cells[2].getAllTools())
-        self.cells[3].addMachine(Machine(0, 'M3'))
-        self.cells[3].addMachine(Machine(1, 'M4'))
+        self.cells[3].addMachine(Machine(0, 'M3', self.OPCUAClient))
+        self.cells[3].addMachine(Machine(1, 'M4', self.OPCUAClient))
         print('[Manager] cell 3 all tools: ', self.cells[3].getAllTools())
-        self.cells[4].addMachine(Machine(0, 'M3'))
-        self.cells[4].addMachine(Machine(1, 'M4'))
+        self.cells[4].addMachine(Machine(0, 'M3', self.OPCUAClient))
+        self.cells[4].addMachine(Machine(1, 'M4', self.OPCUAClient))
         print('[Manager] cell 4 all tools: ', self.cells[4].getAllTools())
-        self.cells[5].addMachine(Machine(0, 'M3'))
-        self.cells[5].addMachine(Machine(1, 'M4'))
-        print('[Manager] cell 5 all tools: ', self.cells[5].getAllTools())
-        print('[Manager] Machines Configured')
+        self.cells[5].addMachine(Machine(0, 'M3', self.OPCUAClient))
+        self.cells[5].addMachine(Machine(1, 'M4', self.OPCUAClient))
+        print('[Manager] cell 5 all tools: ', self.cells[5].getAllTools()) """
+        
+        if all(success):
+            print('[Manager] Machines Configured')
+            return True
+        else:
+            print('[Manager] Machines not Configured')
+            return False
+
+    def configWareHouse(self, inwhQueue, outwhQueue):
+        success = []
+        for cell in self.cells:
+            success.append(cell.addWarehouse(Warehouse(0, self.OPCUAClient, inwhQueue, outwhQueue)))
+        if all(success):
+            print('[Manager] Warehouse Configured')
+            return True
+        else:
+            print('[Manager] Warehouse not Configured')
+            return False
 
     def __reader(self, filename):
         with open(filename, newline='') as csvfile:
