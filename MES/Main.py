@@ -119,7 +119,7 @@ class SQLManager():
         if(inTup is not None):
             if len(inTup) > 0:
                 for inReq in inTup:
-                    inPiece = {'conveyour': inReq[0], 'piece': inReq[1]}
+                    inPiece = {'conveyor': inReq[0], 'piece': inReq[1]}
                     self.inWHQueue.put(inPiece)
                 print('                 Posted', len(inTup), 'pieces at inWHQueue')
             else:
@@ -127,7 +127,7 @@ class SQLManager():
         outTup = self.db.getWareQueue("out")
         if(outTup is not None and len(outTup) > 0):
             for inReq in outTup:
-                inPiece = {'conveyour': inReq[0], 'piece': inReq[1]}
+                inPiece = {'conveyor': inReq[0], 'piece': inReq[1]}
                 self.outWHQueue.put(inPiece)
             print('                 Posted', len(outTup), 'pieces at outWHQueue')
         else:
@@ -183,7 +183,6 @@ class Manager():
         self.RequestQueue = requestQueue
         self.DoneRequestQueue = doneRequestQueue
         self.OPCUAClient = OPCUAClient
-        self.piecesProcessed = []
 
         self.shutdown = False
 
@@ -197,6 +196,7 @@ class Manager():
         self.db = Database("root", "admin")
         self.__initPiecesProcessed()
         self.gates = Gates(gateUpdateQueue, OPCUAClient)
+        self.warehouses = []
 
     def __initCells__(self,): #hardcoded
         cells = []
@@ -241,7 +241,9 @@ class Manager():
     def configWareHouse(self, inwhQueue, outwhQueue):
         success = []
         Warehouse0 = Warehouse(0, self.OPCUAClient, inwhQueue, outwhQueue)
+        self.warehouses.append(Warehouse0)
         Warehouse1 = Warehouse(1, self.OPCUAClient, inwhQueue, outwhQueue)
+        self.warehouses.append(Warehouse1)
         for cell in self.cells:
             success.append(cell.addWarehouse(Warehouse0))#, self.db)))
             success.append(cell.addWarehouse(Warehouse1))#, self.db)))
@@ -262,7 +264,7 @@ class Manager():
         while True:
             time.sleep(0.2)
             currOrder = self.OrderQueue.get()
-            self.db.setOrderDone(currOrder['clientID'], currOrder['Order Number'], "erp")
+            # self.db.setOrderDone(currOrder['clientID'], currOrder['Order Number'], "erp")
 
             if currOrder['WorkPiece'] == 'P1' or currOrder['WorkPiece'] == 'P2':
                 print('[Manager, postRequests] P1 & P2 are not processable, order will not be posted and will be removed from queue')
@@ -327,8 +329,6 @@ class Manager():
                 for count in range(quantity):
                     self.piecesProcessed.append(piece)
 
-
-
     def postDoneOrders(self):
         try:
             threading.Thread(target=self.__postDoneOrders, daemon=True).start()
@@ -337,6 +337,7 @@ class Manager():
             print('[Manager] Could not start PostDoneOrders thread')
 
     def __postDoneOrders(self):
+        lastOutput = 7
         while True:
             time.sleep(0.2)
             DoneOrders = self.db.getMostUrgentOrder("mes")
@@ -360,6 +361,11 @@ class Manager():
                 if request_delivered < request_quantity and manager_quantity > 0:
                     self.piecesProcessed.remove(request_workpiece)
                     if self.db.updateWare(request_workpiece, -1, "mes", 2):
+                        self.warehouses[1].outputPiece(request_workpiece, lastOutput)
+                        if lastOutput == 10:
+                            lastOutput = 7
+                        else:
+                            lastOutput += 1
                         self.db.updateDeliveredPieces(request_client, request_number, 1, "mes")
                         self.db.__fetchWare__(2)
                     else:
@@ -368,11 +374,31 @@ class Manager():
                         continue
                 elif request_delivered == request_quantity:
                     self.db.setOrderDone(request_client, request_number, "mes")
+                    self.db.setOrderDone(request_client, request_number, "erp")
                     self.db.__fetchWare__(2)
                     print('[Manager, postDoneOrders] Order done: ', DoneOrders[0])
             else:
                 print("[Manager, postDoneOrders] !!Disparity between number of pieces", request_workpiece, "in database and Manager!! database:", database_quantity, "Manager:", manager_quantity)
             DoneOrders = None
+
+    def __printRequestQueue__(self):
+        while True:
+            count = {}
+            time.sleep(4)
+            print(len(requestQueue.queue), "requests pendent in requestQueue")
+            for x in requestQueue.queue:
+                if x['Piece'] in count:
+                    count[x['Piece']] += 1
+                else:
+                    count[x['Piece']] = 1
+            print(OrderedDict(sorted(count.items())))
+    
+    def printRequestQueue(self):
+        try:
+            threading.Thread(target=self.__printRequestQueue__, daemon=True).start()
+            print('[Manager] PrintRequestQueue thread started')
+        except:
+            print('[Manager] Could not start PrintRequestQueue thread')
 
 
 class Order:
@@ -414,13 +440,16 @@ OPCUAClient.opcManager()
 
 manager = Manager(orderQueue, requestQueue, doneRequestQueue, OPCUAClient, './Recipe/Recipes.csv', './Recipe/WorkPieceTransform.csv')
 manager.configMachines(machineUpdateQueue)
+print ('hello')
 manager.configWareHouse(inWHQueue, outWHQueue)
 
-manager.gates.spawnPieces('P2', 4)
+print('hello hello')
+manager.gates.spawnPieces('P2', 8)
 
 manager.postRequests()
 manager.startWareHouse()
 manager.postDoneOrders()
+manager.printRequestQueue()
 
 input()
 count = {}

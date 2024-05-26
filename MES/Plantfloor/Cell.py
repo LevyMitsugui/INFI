@@ -166,7 +166,7 @@ class Cell:
                 print('[Cell ', self.ID,' Cycle] steps length: ', len(request['Steps']))
                 self.warehouses[0].outputPiece('P2', self.ID)
                 #piece goes straight to the second machine (skips machine 0)
-                self.machines[0].updateToolAndTime(self.ID, self.machines[0].getToolSelect(),0)
+                self.machines[0].updateToolAndTime(self.ID, self.machines[0].getToolSelect(),0)#TODO update right tool
 
                 steps = request['Steps']
                 print('[Cell ', self.ID,' Cycle] steps: ', steps)
@@ -199,15 +199,34 @@ class Cell:
 
                 self.setFree()
 
+            self.doneRequestQueue.put(request['Piece'])
+
 
 
 
             
 
     def getRequest(self):
+        """ request = self.requestQueue.get()
+        if request['Piece'] == 'P9' and self.ID < 3:
+            self.requestQueue.put(request)
+            return (None, None)
+        recipe = self.getRecipe(request)
+        reqGotTup = self.db.processRequestByPiece(request['Piece'], "requests")
+        if(recipe != None and self.requestQueue.qsize() > 0):
+            if request['Piece'] == 'P9':
+                    print('request ID: ', request['ID'])         
+            if(reqGotTup != None):
+                        self.db.returnRequestByPiece(reqGotTup[0][0], "requests")
+            return (recipe, request)
+        else :
+            self.requestQueue.put(request)
+            return (None, None) """
+
+
         for iterator in range(self.requestQueue.qsize()):
             request = self.requestQueue.peek(block = False, index = iterator)
-            if request is None:
+            if request is None or request['Piece'] == 'P9' or request['Piece'] == 'P5': #TODO if want to implement P5 and P9, need to change this
                 continue #TODO maybe not the solution, perhaps have to rest the hole cycle
             recipe = self.getRecipe(request)
             reqGotTup = self.db.processRequestByPiece(request['Piece'], "requests")

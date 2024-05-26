@@ -22,13 +22,13 @@ class Warehouse:
         return self.pieces
 
     #in functions
-    def inputPiece(self, piece, conveyour):
+    def inputPiece(self, piece, conveyor):
         """
         Adds a piece to the warehouse and puts a dictionary containing information about the piece and its conveyor into the input queue.
 
         Parameters:
             piece (str): The piece to be added to the warehouse.
-            conveyour (str): The conveyor from which the piece was received 0 to 10, consult \MES\Plantfloor\Conveyours.png.
+            conveyor (str): The conveyor from which the piece was received 0 to 10, consult \MES\Plantfloor\conveyors.png.
 
         Returns:
             None
@@ -36,17 +36,17 @@ class Warehouse:
         self.pieces[int(piece.strip('P'))-1] += 1
         #TODO update in database
         piece = int(piece.strip('P'))
-        update = {'conveyour' : conveyour, 'piece' : piece}
+        update = {'conveyor' : conveyor, 'piece' : piece}
         self.inWHQueue.put(update)
     
     #out functions
-    def outputPiece(self, piece, conveyour):
+    def outputPiece(self, piece, conveyor):
         """
         Removes a piece from the warehouse and puts a dictionary containing information about the piece and its output gate into the output queue.
 
         Parameters:
             piece (str): The piece to be removed from the warehouse.
-            conveyour (str): The output gate to which the piece is being sent.
+            conveyor (str): The output gate to which the piece is being sent.
 
         Returns:
             None
@@ -54,7 +54,11 @@ class Warehouse:
         self.pieces[int(piece.strip('P'))-1] -= 1
         #TODO update in database
         piece = int(piece.strip('P'))
-        self.outWHQueue.put({'conveyour' : conveyour, 'piece' : piece})
+        
+        if conveyor >= 7 and self.ID == 1:
+            while self.opcuaClient.getOutputWarehouseStatus(conveyor) == True:
+                time.sleep(0.5)
+        self.outWHQueue.put({'conveyor' : conveyor, 'piece' : piece})
         time.sleep(2)
         
 

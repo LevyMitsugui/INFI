@@ -2,6 +2,7 @@ import sys
 from opcua import ua, Client
 import time
 import threading
+import datetime
 
 class OPCUAClient:
     def __init__(self, inWHQueue, outWHQueue, machineUpdateQueue, gateUpdateQueue, host = "opc.tcp://localhost:4840/freeopcua/server/"):
@@ -45,6 +46,12 @@ class OPCUAClient:
         self.spawnStatusNodes.insert(2,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Input_line_New.LC3.done"))
         self.spawnStatusNodes.insert(3,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Input_line_New.LC4.done"))
 
+        self.outputWarehouseStatusNodes = []
+        self.outputWarehouseStatusNodes.insert(0,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Exit_line.Wout_1.piece_sensor"))
+        self.outputWarehouseStatusNodes.insert(1,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Exit_line.Wout_2.piece_sensor"))
+        self.outputWarehouseStatusNodes.insert(2,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Exit_line.Wout_3.piece_sensor"))
+        self.outputWarehouseStatusNodes.insert(3,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Exit_line.Wout_4.piece_sensor"))
+
         self.Tranfer_cell = self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.Win_going_up.transfer_done")
 
         #self.updateNodesAndVars(self)
@@ -74,11 +81,11 @@ class OPCUAClient:
     def getMachineStatus(self, cell, machine):
         return self.machinesStatusNodes[(cell + (machine) * 6)-1].get_value()
     
-    def setWarehouseInUpdate(self, change, conveyour, piece):
+    def setWarehouseInUpdate(self, change, conveyor, piece):
         print('setWarehouseInUpdate')
         self.updateNodesAndVars()
         self.MES_warehouse_in_update[0] = change
-        self.MES_warehouse_in_update[1] = conveyour
+        self.MES_warehouse_in_update[1] = conveyor
         self.MES_warehouse_in_update[2] = piece
         self.MES_warehouse_in_updateNode.set_value(self.MES_warehouse_in_update, ua.VariantType.Int16)
         print(self.MES_warehouse_in_update)
@@ -87,10 +94,10 @@ class OPCUAClient:
         self.updateNodesAndVars()
         return self.MES_warehouse_in_update
 
-    def setWarehouseOutUpdate(self, change, conveyour, piece):
+    def setWarehouseOutUpdate(self, change, conveyor, piece):
         self.updateNodesAndVars()
         self.MES_warehouse_out_update[0] = change
-        self.MES_warehouse_out_update[1] = conveyour
+        self.MES_warehouse_out_update[1] = conveyor
         self.MES_warehouse_out_update[2] = piece
         self.MES_warehouse_out_updateNode.set_value(self.MES_warehouse_out_update, ua.VariantType.Int16)
 
@@ -98,10 +105,10 @@ class OPCUAClient:
         self.updateNodesAndVars()
         return self.MES_warehouse_out_update
 
-    def setPieceSpawn(self, change, conveyour, pieceType, quantity):
+    def setPieceSpawn(self, change, conveyor, pieceType, quantity):
         self.updateNodesAndVars()
         self.MES_spawn_piece[0] = change
-        self.MES_spawn_piece[1] = conveyour
+        self.MES_spawn_piece[1] = conveyor
         self.MES_spawn_piece[2] = pieceType
         self.MES_spawn_piece[3] = quantity
         self.MES_spawner_pieceNode.set_value(self.MES_spawn_piece, ua.VariantType.Int16)
@@ -110,10 +117,10 @@ class OPCUAClient:
         self.updateNodesAndVars()
         return self.MES_spawn_piece
     
-    def setPieceSpawn(self, change, conveyour, pieceType, quantity):
+    def setPieceSpawn(self, change, conveyor, pieceType, quantity):
         self.updateNodesAndVars()
         self.MES_spawn_piece[0] = change
-        self.MES_spawn_piece[1] = conveyour
+        self.MES_spawn_piece[1] = conveyor
         self.MES_spawn_piece[2] = pieceType
         self.MES_spawn_piece[3] = quantity
         self.MES_spawner_pieceNode.set_value(self.MES_spawn_piece, ua.VariantType.Int16)
@@ -121,7 +128,7 @@ class OPCUAClient:
     def getSpawnStatus(self, gate):
         return self.spawnStatusNodes[gate].get_value()
     
-    def getAllSpawnStattus(self):
+    def getAllSpawnStatus(self):
         valid = []
         for gt in self.spawnStatusNodes:
             valid.append(gt.get_value())
@@ -140,6 +147,17 @@ class OPCUAClient:
             self.prevTransferCellStatus = curr
             return 'None'
     
+    def getOutputWarehouseStatus(self, outputConveyor):
+        return self.outputWarehouseStatusNodes[outputConveyor-7].get_value()
+    
+    def getAllOutputWarehouseStatus(self):
+        valid = []
+        for gt in self.outputWarehouseStatusNodes:
+            valid.append(gt.get_value())
+
+        return all(valid)
+
+
     def opcManager(self):
         try:
             threading.Thread(target=self.__opcManager__, daemon=True).start()
@@ -147,26 +165,52 @@ class OPCUAClient:
             print('[OPC Client] Could not start opcManager thread')
 
     def __opcManager__(self):
+        currTimes = []
+        currTimes.append(datetime.datetime.now())
+        currTimes.append(datetime.datetime.now())
+        currTimes.append(datetime.datetime.now())
+        currTimes.append(datetime.datetime.now())
+        prevTimes = []
+        prevTimes.append(currTimes[0])
+        prevTimes.append(currTimes[1])
+        prevTimes.append(currTimes[2])
+        prevTimes.append(currTimes[3])
+        referenceTimes = []
+        referenceTimes.append(datetime.timedelta(seconds=0.5))  #input warehouse
+        referenceTimes.append(datetime.timedelta(seconds= 1.2))   #output warehouse
+        referenceTimes.append(datetime.timedelta(seconds=0.5))  #update machine
+        referenceTimes.append(datetime.timedelta(seconds=0.5))  #update gate
+        
         while True:
             time.sleep(0.01)
             self.updateNodesAndVars()
+            
+            currTimes[0] = datetime.datetime.now()
+            currTimes[1] = datetime.datetime.now()
+            currTimes[2] = datetime.datetime.now()
+            currTimes[3] = datetime.datetime.now()
+
             #update machines and warehouses
-            if self.inWHQueue.qsize() > 0 and self.getWarehouseInUpdate()[0] == 0:
+            if self.inWHQueue.qsize() > 0 and self.getWarehouseInUpdate()[0] == 0 and (currTimes[0] - prevTimes[0]) > referenceTimes[0]:
+                prevTimes[0] = currTimes[0]
                 update = self.inWHQueue.get()
                 print('[OPC Client] updating warehouse in. Values: ', update)
-                self.setWarehouseInUpdate(1, update['conveyour'], update['piece'])
+                self.setWarehouseInUpdate(1, update['conveyor'], update['piece'])
 
-            if self.outWHQueue.qsize() > 0 and self.getWarehouseOutUpdate()[0] == 0:
+            if self.outWHQueue.qsize() > 0 and self.getWarehouseOutUpdate()[0] == 0 and (currTimes[1] - prevTimes[1]) > referenceTimes[1]:
+                prevTimes[1] = currTimes[1]
                 update = self.outWHQueue.get()
                 print('[OPC Client] updating warehouse out. Values: ', update)
-                self.setWarehouseOutUpdate(1, update['conveyour'], update['piece'])
+                self.setWarehouseOutUpdate(1, update['conveyor'], update['piece'])
 
-            if self.machineUpdateQueue.qsize() > 0 and self.getMachineUpdate()[0] == 0:
+            if self.machineUpdateQueue.qsize() > 0 and self.getMachineUpdate()[0] == 0 and (currTimes[2] - prevTimes[2]) > referenceTimes[2]:
+                prevTimes[2] = currTimes[2]
                 update = self.machineUpdateQueue.get()
                 print('[OPC Client] updating machine. Values: ', update)
                 self.setMachineUpdate(1, update['machine'], update['tool'],  update['time'], update['secondTime'])
 
-            if self.gateUpdateQueue.qsize() > 0 and self.getPieceSpawn()[0] == 0:
+            if self.gateUpdateQueue.qsize() > 0 and self.getPieceSpawn()[0] == 0 and (currTimes[3] - prevTimes[3]) > referenceTimes[3]:
+                prevTimes[3] = currTimes[3]
                 update = self.gateUpdateQueue.get()
                 print('[OPC Client] updating gate. Values: ', update)
                 self.setPieceSpawn(1, update['gate'], update['piece'], update['quantity'])
