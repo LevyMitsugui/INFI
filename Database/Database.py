@@ -1003,6 +1003,139 @@ class Database:
 		return self.requests_order
 	
 	
+	def processWareQueue(self, command, update):
+		'''
+		Remove the ware operation request from the database queue
+
+		Parameters:
+		command (str): The type of operation to be executed (ware in or out)
+		update (dict): A dictionary containing the machine, tool, and time values.
+
+		Returns:
+		List: The request removed
+		None: If no request was found
+		'''
+		max_retries = 5
+		retry_delay = 0.5
+		with self.conn.get_connection() as conn:											# Connects to the server
+			with conn.cursor() as cursor:
+				for i in range(max_retries):
+					try:
+						sql = "USE mes"
+						cursor.execute(sql)
+						
+						sql = "SELECT EXISTS(SELECT * FROM mes_{}_ware_queue WHERE conveyour = {} AND piece = {})".format(command, update['conveyour'], update['piece'])		#Check if any order exists
+						cursor.execute(sql)
+						exists = cursor.fetchall()
+						if(exists[0][0]):
+							cursor.execute("SELECT * FROM mes_{}_ware_queue WHERE conveyour = {} AND piece = {})".format(command, update['conveyour'], update['piece']))		#Check if any order exists
+							updateTup = []
+							updateTup = cursor.fetchall()
+							cursor.execute("SET SQL_SAFE_UPDATES = 0")
+							cursor.execute("DELETE FROM mes_{}_ware_queue WHERE conveyour = {} AND piece = {}".format(command, update['conveyour'], update['piece']))
+							cursor.execute("SET SQL_SAFE_UPDATES = 1")
+							conn.commit()
+							return updateTup
+						
+						else:
+							# print("[Database] No order being processed in mySQL database")
+							return None
+						
+						break
+					except Exception as e:
+						if i == max_retries - 1:
+							raise Exception("Failed to execute queries after",max_retries, "retries")
+						print("Failed to execute queries. Retrying in", retry_delay, "seconds...")
+						time.sleep(retry_delay)
+			
+	def processMachineUpdQueue(self, update):
+		"""
+		Remove the machine update from the database queue.
+
+		Parameters:
+		update (dict): A dictionary containing the machine, tool, and time values.
+
+		Returns:
+		List: The machine update removed
+		None: If no machine update exists in queue.
+		"""
+		max_retries = 5
+		retry_delay = 0.5
+		with self.conn.get_connection() as conn:											# Connects to the server
+			with conn.cursor() as cursor:
+				for i in range(max_retries):
+					try:
+						sql = "USE mes"
+						cursor.execute(sql)
+						
+						sql = "SELECT EXISTS(SELECT * FROM mes_machine_upd_queue WHERE machine = {} AND tool = {} AND time = {})".format(update['machine'], update['tool'], update['time'])		#Check if any order exists
+						cursor.execute(sql)
+						exists = cursor.fetchall()
+						if(exists[0][0]):
+							cursor.execute("SELECT * FROM mes_machine_upd_queue WHERE machine = {} AND tool = {} AND time = {})".format(update['machine'], update['tool'], update['time']))		#Check if any order exists
+							updateTup = []
+							updateTup = cursor.fetchall()
+							cursor.execute("SET SQL_SAFE_UPDATES = 0")
+							cursor.execute("DELETE FROM mes_machine_upd_queue WHERE machine = {} AND tool = {} AND time = {}".format(update['machine'], update['tool'], update['time']))
+							cursor.execute("SET SQL_SAFE_UPDATES = 1")
+							conn.commit()
+							return updateTup
+						
+						else:
+							# print("[Database] No order being processed in mySQL database")
+							return None
+						
+						break
+					except Exception as e:
+						if i == max_retries - 1:
+							raise Exception("Failed to execute queries after",max_retries, "retries")
+						print("Failed to execute queries. Retrying in", retry_delay, "seconds...")
+						time.sleep(retry_delay)
+	
+	def processGateUpdQueue(self, update):
+		"""
+		Get the gate update queue from the database.
+
+		Parameters:
+		update (dict): A dictionary containing the gate, piece, and quantity values.
+
+		Returns:
+		List: The gate update removed
+		None: If no gate update exists in queue.
+		"""
+		max_retries = 5
+		retry_delay = 0.5
+		with self.conn.get_connection() as conn:											# Connects to the server
+			with conn.cursor() as cursor:
+				for i in range(max_retries):
+					try:
+						sql = "USE mes"
+						cursor.execute(sql)
+						
+						sql = "SELECT EXISTS(SELECT * FROM mes_gate_upd_queue WHERE gate = {} AND piece = {} AND quantity = {})".format(update['gate'], update['piece'], update['quantity'])		#Check if any order exists
+						cursor.execute(sql)
+						exists = cursor.fetchall()
+						if(exists[0][0]):
+							cursor.execute("SELECT * FROM mes_gate_upd_queue WHERE gate = {} AND piece = {} AND quantity = {})".format(update['gate'], update['piece'], update['quantity']))		#Check if any order exists
+							updateTup = []
+							updateTup = cursor.fetchall()
+							cursor.execute("SET SQL_SAFE_UPDATES = 0")
+							cursor.execute("DELETE FROM mes_gate_upd_queue WHERE gate = {} AND piece = {} AND quantity = {}".format(update['gate'], update['piece'], update['quantity']))
+							cursor.execute("SET SQL_SAFE_UPDATES = 1")
+							conn.commit()
+							return updateTup
+						
+						else:
+							# print("[Database] No order being processed in mySQL database")
+							return None
+						
+						break
+					except Exception as e:
+						if i == max_retries - 1:
+							raise Exception("Failed to execute queries after",max_retries, "retries")
+						print("Failed to execute queries. Retrying in", retry_delay, "seconds...")
+						time.sleep(retry_delay)
+	
 	def returnRequestByPiece(self, workpiece, dbname):
 		'''
 		Gets the most urgent order from the database (if due_date is the same, the order with the lower number is chosen) and closes it

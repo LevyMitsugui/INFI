@@ -31,6 +31,7 @@ class Cell:
 
         self.db = Database("root", "admin")
 
+        self.count = 0
         
 
         self.__allTools = []#self.__availableTools() 
@@ -86,29 +87,50 @@ class Cell:
 
     def getRequest(self):
         for iterator in range(self.requestQueue.qsize()):
-            request = {}
-            request = self.requestQueue.peek(block = False, index = iterator)
+            request = self.requestQueue.get()
+            reqGotTup = self.db.processRequestByPiece(request['Piece'], "requests")
             recipe = self.getRecipe(request)
 
-            if(recipe != None and self.requestQueue.qsize() > 0):
-                requestGotten = self.requestQueue.get(iterator)
-                reqGotTup = self.db.processRequestByPiece(requestGotten['Piece'], "requests")
+            if(recipe == None):
+                self.requestQueue.put(request)
+                test = self.requestQueue.get()
                 if(reqGotTup != None):
-                    reqGot = {'Piece': reqGotTup[0][0], 'Material': reqGotTup[0][1], 'Time': reqGotTup[0][2], 'Tools': reqGotTup[0][3]}
+                    self.db.returnRequestByPiece(reqGotTup[0][0], "requests")
+                self.count += 1
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Requests: ", request['Piece'], "Iterator: ", iterator, "count:", self.count)
+                print('!![Cell ', self.ID, ' getRequest]!! Failded to get right request')
+                return (None, None)
                 
-                if requestGotten['Piece'] != request['Piece']:
-                    self.requestQueue.put(requestGotten)
-                    # if(reqGotTup != None):
-                    #     self.db.returnRequestByPiece(reqGot['Piece'], "requests")
-                    print('!![Cell ', self.ID, ' getRequest]!! Failded to get right request')
-                    return (None, None)
-                
-                print('**[Cell ', self.ID, ' getRequest]** verified request gave recipe: ', recipe)
-                return (request, recipe)
-                
-            else: #There is no recipe for this request
-                request = None
+            print('**[Cell ', self.ID, ' getRequest]** verified request gave recipe: ', recipe)
+            return (request, recipe)
+
         return (None, None)
+    
+        # for iterator in range(self.requestQueue.qsize()):
+        #     request = {}
+        #     request = self.requestQueue.peek(block = False, index = iterator)
+        #     recipe = self.getRecipe(request)
+
+        #     if(recipe != None and self.requestQueue.qsize() > 0):
+        #         requestGotten = self.requestQueue.get(iterator)
+        #         test = self.requestQueue.get()
+        #         reqGotTup = self.db.processRequestByPiece(requestGotten['Piece'], "requests")
+                
+        #         if requestGotten['Piece'] != request['Piece']:
+        #             self.requestQueue.put(requestGotten)
+        #             self.count += 1
+        #             print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Requests: ", requestGotten['Piece'], "/", request['Piece'], "test:", test['Piece'], "Iterator: ", iterator, "count:", self.count)
+        #             # if(reqGotTup != None):
+        #             #     self.db.returnRequestByPiece(reqGotTup[0][0], "requests")
+        #             print('!![Cell ', self.ID, ' getRequest]!! Failded to get right request')
+        #             return (None, None)
+                
+        #         print('**[Cell ', self.ID, ' getRequest]** verified request gave recipe: ', recipe)
+        #         return (request, recipe)
+                
+        #     else: #There is no recipe for this request
+        #         request = None
+        # return (None, None)
 
     def getRecipe(self, request):#TODO restructure this
         valid = []
