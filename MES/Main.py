@@ -198,6 +198,8 @@ class Manager():
         self.gates = Gates(gateUpdateQueue, OPCUAClient)
         self.warehouses = []
 
+        self.beginningTime = time.time()
+
     def __initCells__(self,): #hardcoded
         cells = []
         for i in range(6):

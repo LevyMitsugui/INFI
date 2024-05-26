@@ -218,7 +218,7 @@ class Cell:
                     print('request ID: ', request['ID'])         
             if(reqGotTup != None):
                         self.db.returnRequestByPiece(reqGotTup[0][0], "requests")
-            return (recipe, request)
+            return (request, recipe)
         else :
             self.requestQueue.put(request)
             return (None, None) """
