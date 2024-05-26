@@ -4,7 +4,7 @@ import threading
 import sys
 sys.path.append("..")
 from Database import Database
-import PlantFloor
+import Plantfloor
 
 class Cell:
     def __init__(self, ID, requestQueue, doneRequestQueue, recipes, transformations):
@@ -158,7 +158,7 @@ class Cell:
 
     def getRequest(self):
         for iterator in range(self.requestQueue.qsize()):
-            request = self.requestQueue.get()
+            request = self.requestQueue.peek(block = False, index = iterator)
             reqGotTup = self.db.processRequestByPiece(request['Piece'], "requests")
             recipe = self.getRecipe(request)
 
@@ -171,12 +171,12 @@ class Cell:
                     self.requestQueue.put(requestGotten)
                     print('!![Cell ', self.ID, ' getRequest]!! Failded to get right request')
                     return (None, None)
-                
-            #print('**[Cell ', self.ID, ' getRequest]** verified request gave recipe: ', recipe)
-            return (request, recipe)
-
-        else: #There is no recipe for this request
-            request = None
+                    
+                #print('**[Cell ', self.ID, ' getRequest]** verified request gave recipe: ', recipe)
+                return (request, recipe)
+            
+            else: #There is no recipe for this request
+                request = None
         
         return (None, None)
 

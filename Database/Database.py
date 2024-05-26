@@ -162,7 +162,7 @@ class Database:
 						elif dbname == "mes":
 							sql = "CREATE TABLE IF NOT EXISTS {}_orders(id INT NOT NULL AUTO_INCREMENT, done VARCHAR(1) NOT NULL DEFAULT '', delivered INT NOT NULL DEFAULT 0, client VARCHAR(30) NOT NULL, number INT NOT NULL, workpiece VARCHAR(2) NOT NULL, quantity INT NOT NULL, due_date INT NOT NULL, late_pen INT NOT NULL, early_pen INT NOT NULL, PRIMARY KEY (id));".format(dbname)
 						else:
-							sql = "CREATE TABLE IF NOT EXISTS {}_orders(id INT NOT NULL AUTO_INCREMENT, done VARCHAR(1) NOT NULL DEFAULT '', workpiece VARCHAR(2) NOT NULL, material VARCHAR(2) NOT NULL, time VARCHAR(8) NOT NULL, tools VARCHAR(8) NOT NULL, PRIMARY KEY (id));".format(dbname)
+							sql = "CREATE TABLE IF NOT EXISTS {}_orders(id INT NOT NULL AUTO_INCREMENT, done VARCHAR(1) NOT NULL DEFAULT '', workpiece VARCHAR(2) NOT NULL, PRIMARY KEY (id));".format(dbname)
 						cursor.execute(sql)
 
 						sql = "CREATE TABLE IF NOT EXISTS {}_open(id INT NOT NULL);".format(dbname)			
@@ -272,7 +272,7 @@ class Database:
 			with conn.cursor() as cursor:
 				sql = "USE {}".format(dbname)
 				cursor.execute(sql)
-				sql = "INSERT INTO {}_orders (workpiece, material, time, tools) VALUES ('{}', '{}', '{}', '{}')".format(dbname, request['Piece'], request['Material'], request['Time'], request['Tools'])
+				sql = "INSERT INTO {}_orders (workpiece) VALUES ('{}')".format(dbname, request['Piece'])
 				# cursor.execute(sql)
 				self.conn.execute_transaction(sql, dbname)
 				conn.commit()
