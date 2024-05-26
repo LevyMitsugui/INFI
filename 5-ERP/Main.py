@@ -11,7 +11,7 @@ from xml.dom import minidom
 class Parser(object):
     def __init__(self, clientList):
         self.clientList = clientList
-        self.db = Database("root", "admin", "erp")                                                                            # initialize database connector
+        self.db = Database("root", "admin")                                                                            # initialize database connector
 
     def insertOrder(self, xml):
         info = minidom.parseString(xml)
@@ -86,11 +86,11 @@ UDPServer(queueFromUDP) # start UDP/IP server thread
 printQueue(queueFromUDP)# start print queue thread
 
 parser = Parser(clientList)
-
 while True:
     if not queueFromUDP.empty():
         parser.insertOrder(queueFromUDP.get())
-        print('Client List: ', clientList)
+        print(clientList)
         for c in clientList.values():
+            print(list(clientList.keys())[list(clientList.values()).index(c)])
             for o in c.orderList:
                 print(o.number, o.workpiece, o.quantity, o.due_date, o.late_pen, o.early_pen)

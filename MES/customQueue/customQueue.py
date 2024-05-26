@@ -29,7 +29,7 @@ class customQueue(queue.Queue):
             if locked == True:
                 self.not_full.notify()
                 locked = False
-            return item
+            return dict(item)
         
     def _peek(self, index=0):
         return self.queue[index]
@@ -44,3 +44,11 @@ class customQueue(queue.Queue):
         else:
             self.queue.append(item)
 
+
+    def remove(self, item):
+        for i in range(len(self.queue)):
+            gotten = self.queue.get()
+            if(item != gotten):
+                self.queue.put(gotten)
+            else:
+                return gotten

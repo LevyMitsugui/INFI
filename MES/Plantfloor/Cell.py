@@ -1,6 +1,10 @@
 import time
 import csv
 import threading
+import sys
+sys.path.append("..")
+from Database import Database
+import PlantFloor
 
 class Cell:
     def __init__(self, ID, requestQueue, doneRequestQueue, recipes, transformations):
@@ -26,8 +30,9 @@ class Cell:
         self.processedRequests = 0
         self.recipes = recipes
         self.transformations = transformations
-
         self.setsLists = []
+        self.db = Database("root", "admin")
+
 
         self.__allTools__ = []
 
@@ -78,7 +83,7 @@ class Cell:
         
 
         while len(self.machines) != 2:
-            time.sleep(1)
+            time.sleep(0.3)
             print('[Cell ', self.ID,' Cycle] Machines improperly allocated to cell (machines:', len(self.machines), ')')
                    
         
@@ -153,21 +158,25 @@ class Cell:
 
     def getRequest(self):
         for iterator in range(self.requestQueue.qsize()):
-            request = self.requestQueue.peek(block = False, index = iterator)
+            request = self.requestQueue.get()
+            reqGotTup = self.db.processRequestByPiece(request['Piece'], "requests")
             recipe = self.getRecipe(request)
+
             if(recipe != None and self.requestQueue.qsize() > 0):
                 requestGotten = self.requestQueue.get(iterator)
-                #print(requestGotten)
+                
                 if requestGotten['Piece'] != request['Piece']:
+                    if(reqGotTup != None):
+                        self.db.returnRequestByPiece(reqGotTup[0][0], "requests")
                     self.requestQueue.put(requestGotten)
-                    #print('!![Cell ', self.ID, ' getRequest]!! Failded to get right request')
+                    print('!![Cell ', self.ID, ' getRequest]!! Failded to get right request')
                     return (None, None)
                 
-                #print('**[Cell ', self.ID, ' getRequest]** verified request gave recipe: ', recipe)
-                return (request, recipe)
-                
-            else: #There is no recipe for this request
-                request = None
+            #print('**[Cell ', self.ID, ' getRequest]** verified request gave recipe: ', recipe)
+            return (request, recipe)
+
+        else: #There is no recipe for this request
+            request = None
         
         return (None, None)
 
