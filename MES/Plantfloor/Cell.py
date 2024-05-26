@@ -88,44 +88,67 @@ class Cell:
              
             self.machines[0].waitForMachineDone(self.ID)
             self.machines[1].waitForMachineDone(self.ID)
-            #TODO continue Testing Here
             request, recipe = self.getRequest() 
             if request is None or recipe is None:
                 time.sleep(3)
                 continue
             self.setBusy()
-            print('The game has begun!')
-            #self.setsLists.insert(0, self.__arrangeSteps__(recipe))
-            #print(self.setsLists)
-            #print('É aqui oh mano:', self.setsLists[0])
 
-            self.warehouses[0].outputPiece(self.__getPrimaryMaterial__(recipe), self.ID)
-            steps = self.__arrangeSteps__(recipe)
+            if not 'Step' in request.keys():
+                self.warehouses[0].outputPiece(self.__getPrimaryMaterial__(recipe), self.ID)
+                steps = self.__arrangeSteps__(recipe)
+                
+                if len(steps) == 1:
+                    self.machines[0].updateToolAndTime(self.ID, self.machines[0].getToolSelect(),0) #pass straight to the second machine
+                    step = steps.pop(0)
+                    waitingTime = step['Time']
+                    self.machines[1].updateToolAndTime(self.ID, step['Tool'],step['Time'])
+
+                    self.machines[1].waitForMachineNotDone(self.ID)
+                    self.machines[1].waitForMachineDone(self.ID)
+
+                    self.warehouses[1].inputPiece(recipe['Piece'] , 4 + self.ID)
+
+
+
+                if len(steps) == 2:
+                    step = steps.pop(0)
+                    waitingTime = step['Time']
+                    self.machines[0].updateToolAndTime(self.ID, step['Tool'],step['Time'])
+                    
+                    step = steps.pop(0)
+                    waitingTime += step['Time']
+                    if 'SecondTime' in  step.keys():
+                        self.machines[1].updateToolAndTime(self.ID, step['Tool'],step['Time'], step['SecondTime'])
+                    else:
+                        self.machines[1].updateToolAndTime(self.ID, step['Tool'],step['Time'])
+
+                    #self.verifyUnfinished(recipe, steps)
+
+                    #time.sleep(waitingTime)
+                    self.machines[1].waitForMachineNotDone(self.ID)
+                    self.machines[1].waitForMachineDone(self.ID)
+
+                    self.warehouses[1].inputPiece(recipe['Piece'] , 4 + self.ID)#ha de ser alterado
+                self.setFree()
             
-            step = steps.pop(0)
-            waitingTime = step['Time']
-            self.machines[0].updateToolAndTime(self.ID, step['Tool'],step['Time'])
-            
-            step = steps.pop(0)
-            waitingTime += step['Time']
-            if 'SecondTime' in  step.keys():
-                self.machines[1].updateToolAndTime(self.ID, step['Tool'],step['Time'], step['SecondTime'])
-            else:
+            elif 'Step' in request.keys():
+                self.warehouses[0].outputPiece('P4', self.ID)
+                self.machines[0].updateToolAndTime(self.ID, self.machines[0].getToolSelect(),0)    
+                
+                step = request['Step']
+                waitingTime = step['Time']
                 self.machines[1].updateToolAndTime(self.ID, step['Tool'],step['Time'])
+                time.sleep(waitingTime)
+                self.machines[1].waitForMachineNotDone(self.ID)
+                self.machines[1].waitForMachineDone(self.ID)
 
-            #self.verifyUnfinished(recipe, steps)
+                self.warehouses[1].inputPiece(recipe['Piece'] , 4 + self.ID)#ha de ser alterado
+                self.setFree()
 
-            #time.sleep(waitingTime)
-            self.machines[1].waitForMachineNotDone(self.ID)
-            self.machines[1].waitForMachineDone(self.ID)
-            print('warehouse in, piece: ', recipe['Piece'])	
-            self.warehouses[1].inputPiece(recipe['Piece'] , 4 + self.ID)#ha de ser alterado
 
-            #print(self.setsLists[0][0])
-            #step = self.setsLists[0].pop(0)
-            #self.__removeDoneSteps__(self.setsLists[0][0][0], self.setsLists)# remove the first step from the first step set of the first list
-            
-            
+
+
             
 
     def getRequest(self):
@@ -204,19 +227,23 @@ class Cell:
         
         #set steps of second machine first
         changes = 0
-        for iterator in range(len(tools)-1, 0, -1):
-            steps.insert(0, {'Machine': 1, 'Tool':tools[iterator], 'Time': times[iterator]})
-            
-            changes += 1
-            if changes == maxToolChange:
-                break
-            
-        if len(tools) >= 2:
+        if len(tools) == 1:
+            steps.insert(0, {'Machine': 1, 'Tool':tools[0], 'Time': times[0]})
+        elif len(tools) == 2:
+            steps.insert(0, {'Machine': 1, 'Tool':tools[1], 'Time': times[1]})
             steps.insert(0, {'Machine': 0,'Tool':tools[0],'Time': times[0]})
-
-        if(steps[1]['Tool'] == steps[2]['Tool'] and len(steps) >= 2): #if the tools are the same
-            removed = steps.pop()
-            steps[1]['SecondTime'] = removed['Time'] #add the time of the removed step to the second step
+        elif len(tools) == 3:
+            for iterator in range(len(tools)-1, 0, -1):
+                steps.insert(0, {'Machine': 1, 'Tool':tools[iterator], 'Time': times[iterator]})
+                
+                changes += 1
+                if changes == maxToolChange:
+                    break
+        
+            steps.insert(0, {'Machine': 0,'Tool':tools[0],'Time': times[0]})
+            if(steps[1]['Tool'] == steps[2]['Tool']): #if the tools are the same
+                removed = steps.pop()
+                steps[1]['SecondTime'] = removed['Time'] #add the time of the removed step to the second step
 
         return steps
     

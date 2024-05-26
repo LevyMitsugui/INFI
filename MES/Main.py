@@ -52,10 +52,11 @@ class Manager():
         self.piecesProcessed = []
 
         self.db = Database("root", "admin", "mes")
+        self.gates = Gates(gateUpdateQueue, OPCUAClient)
 
     def __initCells__(self,): #hardcoded
         cells = []
-        for i in range(1):
+        for i in range(6):
             cells.append(Cell(i+1, self.RequestQueue, self.DoneRequestQueue, recipes=self.recipes, transformations=self.transforms))
         return cells
     
@@ -66,24 +67,24 @@ class Manager():
 
         success.append(self.cells[0].addMachine(Machine(0, 'M1', self.OPCUAClient, machineUpdateQueue)))
         success.append(self.cells[0].addMachine(Machine(1, 'M2', self.OPCUAClient, machineUpdateQueue)))
-        """ print('[Manager] cell 0 all tools: ', self.cells[0].getAllTools())
+        print('[Manager] cell 0 all tools: ', self.cells[0].getAllTools())
         #print('[Manager] Machines Configured')
-        self.cells[1].addMachine(Machine(0, 'M1', self.OPCUAClient))
-        self.cells[1].addMachine(Machine(1, 'M2', self.OPCUAClient))
+        success.append(self.cells[1].addMachine(Machine(0, 'M1', self.OPCUAClient, machineUpdateQueue)))
+        success.append(self.cells[1].addMachine(Machine(1, 'M2', self.OPCUAClient, machineUpdateQueue)))
         print('[Manager] cell 1 all tools: ', self.cells[1].getAllTools())
         #print('[Manager] Machines Configured')
-        self.cells[2].addMachine(Machine(0, 'M1', self.OPCUAClient))
-        self.cells[2].addMachine(Machine(1, 'M2', self.OPCUAClient))
+        success.append(self.cells[2].addMachine(Machine(0, 'M1', self.OPCUAClient, machineUpdateQueue)))
+        success.append(self.cells[2].addMachine(Machine(1, 'M2', self.OPCUAClient, machineUpdateQueue)))
         print('[Manager] cell 2 all tools: ', self.cells[2].getAllTools())
-        self.cells[3].addMachine(Machine(0, 'M3', self.OPCUAClient))
-        self.cells[3].addMachine(Machine(1, 'M4', self.OPCUAClient))
+        success.append(self.cells[3].addMachine(Machine(0, 'M3', self.OPCUAClient, machineUpdateQueue)))
+        success.append(self.cells[3].addMachine(Machine(1, 'M4', self.OPCUAClient, machineUpdateQueue)))
         print('[Manager] cell 3 all tools: ', self.cells[3].getAllTools())
-        self.cells[4].addMachine(Machine(0, 'M3', self.OPCUAClient))
-        self.cells[4].addMachine(Machine(1, 'M4', self.OPCUAClient))
+        success.append(self.cells[4].addMachine(Machine(0, 'M3', self.OPCUAClient, machineUpdateQueue)))
+        success.append(self.cells[4].addMachine(Machine(1, 'M4', self.OPCUAClient, machineUpdateQueue)))
         print('[Manager] cell 4 all tools: ', self.cells[4].getAllTools())
-        self.cells[5].addMachine(Machine(0, 'M3', self.OPCUAClient))
-        self.cells[5].addMachine(Machine(1, 'M4', self.OPCUAClient))
-        print('[Manager] cell 5 all tools: ', self.cells[5].getAllTools()) """
+        success.append(self.cells[5].addMachine(Machine(0, 'M3', self.OPCUAClient, machineUpdateQueue)))
+        success.append(self.cells[5].addMachine(Machine(1, 'M4', self.OPCUAClient, machineUpdateQueue)))
+        print('[Manager] cell 5 all tools: ', self.cells[5].getAllTools())
         
         if all(success):
             print('[Manager] Machines Configured')
@@ -94,15 +95,18 @@ class Manager():
 
     def configWareHouse(self, inwhQueue, outwhQueue):
         success = []
+        Warehouse0 = Warehouse(0, self.OPCUAClient, inwhQueue, outwhQueue)
+        Warehouse1 = Warehouse(1, self.OPCUAClient, inwhQueue, outwhQueue)
         for cell in self.cells:
-            success.append(cell.addWarehouse(Warehouse(0, self.OPCUAClient, inwhQueue, outwhQueue)))
-            success.append(cell.addWarehouse(Warehouse(1, self.OPCUAClient, inwhQueue, outwhQueue)))
+            success.append(cell.addWarehouse(Warehouse0))#, self.db)))
+            success.append(cell.addWarehouse(Warehouse1))#, self.db)))
         if all(success):
             print('[Manager] Warehouse Configured')
             return True
         else:
             print('[Manager] Warehouse not Configured')
             return False
+        
         
     def __csvReader__(self, filename):
         with open(filename, newline='') as csvfile:
@@ -122,10 +126,7 @@ class Manager():
                 print('[Manager, postRequests] P1 & P2 are not processable, order will not be posted and will be removed from queue')
                 continue
 
-            for row in self.recipes:
-                if row['Piece'] == currOrder['WorkPiece']:
-                    request = row
-                    break
+            request = {'Piece':currOrder['WorkPiece']}
             print('[Manager, postRequests] Posting request: ',request)
             
             quantity = int(currOrder['Quantity'])
@@ -160,7 +161,6 @@ class Manager():
     def addProcessedPiece(self, piece):
         self.piecesProcessed.append(piece)
  
-
 class Order:
     def __init__(self, number, workpiece, quantity, due_date, late_pen, early_pen):
         self.number = number
@@ -193,6 +193,9 @@ OPCUAClient.opcManager()
 manager = Manager(orderQueue, requestQueue, doneRequestQueue, OPCUAClient, './Recipe/Recipes.csv', './Recipe/WorkPieceTransform.csv')
 manager.configMachines(machineUpdateQueue)
 manager.configWareHouse(inWHQueue, outWHQueue)
+
+manager.gates.spawnPieces('P2', 8)
+
 manager.postRequests()
 manager.startWareHouse()
 

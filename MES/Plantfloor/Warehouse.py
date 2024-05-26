@@ -5,7 +5,7 @@ from math import floor
 import time
 
 class Warehouse:
-    def __init__(self, ID, opcuaClient, inWHQueue, outWHQueue):
+    def __init__(self, ID, opcuaClient, inWHQueue, outWHQueue): #, database):
         self.opcuaClient = opcuaClient
         self.ID = ID
         self.pieces = [10,0,0,0,0,0,0,0,0]
@@ -13,6 +13,7 @@ class Warehouse:
 
         self.inWHQueue = inWHQueue
         self.outWHQueue = outWHQueue
+        self.db = None #database
 
     #generic functions
     def getID(self):
@@ -33,6 +34,7 @@ class Warehouse:
             None
         """
         self.pieces[int(piece.strip('P'))-1] += 1
+        #TODO update in database
         piece = int(piece.strip('P'))
         update = {'conveyour' : conveyour, 'piece' : piece}
         self.inWHQueue.put(update)
@@ -50,8 +52,10 @@ class Warehouse:
             None
         """
         self.pieces[int(piece.strip('P'))-1] -= 1
+        #TODO update in database
         piece = int(piece.strip('P'))
         self.outWHQueue.put({'conveyour' : conveyour, 'piece' : piece})
+        time.sleep(2)
         
 
 class WarehouseUp(Warehouse):

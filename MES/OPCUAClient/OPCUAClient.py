@@ -13,6 +13,8 @@ class OPCUAClient:
             self.outWHQueue = outWHQueue
             self.machineUpdateQueue = machineUpdateQueue
             self.gateUpdateQueue = gateUpdateQueue
+
+            self.prevTransferCellStatus = False
             print("Opcua Connected")
         except Exception as err:
             print(err)
@@ -36,6 +38,15 @@ class OPCUAClient:
         self.machinesStatusNodes.insert(9,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M7.available"))
         self.machinesStatusNodes.insert(10,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M7.available"))
         self.machinesStatusNodes.insert(11,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M7.available"))
+        
+        self.spawnStatusNodes = []
+        self.spawnStatusNodes.insert(0,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Input_line_New.LC1.done"))
+        self.spawnStatusNodes.insert(1,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Input_line_New.LC2.done"))
+        self.spawnStatusNodes.insert(2,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Input_line_New.LC3.done"))
+        self.spawnStatusNodes.insert(3,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Input_line_New.LC4.done"))
+
+        self.Tranfer_cell = self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.Win_going_up.transfer_done")
+
         #self.updateNodesAndVars(self)
 
     def kill(self):
@@ -45,7 +56,7 @@ class OPCUAClient:
         self.MES_machine_update = self.MES_machine_updateNode.get_value()
         self.MES_warehouse_in_update = self.MES_warehouse_in_updateNode.get_value()
         self.MES_warehouse_out_update = self.MES_warehouse_out_updateNode.get_value()
-        self.MES_spawn_piece = self.MES_spawner_pieceNode.get_value()
+        self.MES_spawn_piece = self.MES_spawner_pieceNode.get_value() 
 
     def setMachineUpdate(self, change, machine, tool, time, secondTime = 0):
         self.updateNodesAndVars()
@@ -107,6 +118,28 @@ class OPCUAClient:
         self.MES_spawn_piece[3] = quantity
         self.MES_spawner_pieceNode.set_value(self.MES_spawn_piece, ua.VariantType.Int16)
 
+    def getSpawnStatus(self, gate):
+        return self.spawnStatusNodes[gate].get_value()
+    
+    def getAllSpawnStattus(self):
+        valid = []
+        for gt in self.spawnStatusNodes:
+            valid.append(gt.get_value())
+
+        return all(valid)
+    
+    def getTransferCellStatusEdge(self):
+        curr = self.Tranfer_cell.get_value()
+        if self.prevTransferCellStatus == False and curr == True:
+            self.prevTransferCellStatus = curr
+            return 'Rise'
+        elif self.prevTransferCellStatus == True and curr == False:
+            self.prevTransferCellStatus = curr
+            return 'Fall'
+        else:
+            self.prevTransferCellStatus = curr
+            return 'None'
+    
     def opcManager(self):
         try:
             threading.Thread(target=self.__opcManager__, daemon=True).start()
@@ -115,7 +148,7 @@ class OPCUAClient:
 
     def __opcManager__(self):
         while True:
-            time.sleep(0.5)
+            time.sleep(0.01)
             self.updateNodesAndVars()
             #update machines and warehouses
             if self.inWHQueue.qsize() > 0 and self.getWarehouseInUpdate()[0] == 0:

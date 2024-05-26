@@ -21,7 +21,7 @@ class Machine:
         self.machineUpdateQueue = machineUpdateQueue
         self.busy = False
         self.type = type
-        self.toolSelect = ''
+        self.__toolSelect__ = 1
         self.time = 0
         self.availableTools = self.__retrieveToolList__()
 
@@ -44,8 +44,16 @@ class Machine:
         self.time = time#TODO finish integration with OPCUA
 
     def getToolSelect(self):
-        return self.toolSelect
-    
+        return self.__toolSelect__
+
+    def setToolSelect(self, toolSelect):
+        if isinstance(toolSelect, int):
+            self.__toolSelect__ = toolSelect
+        elif 'T' in toolSelect:
+            self.__toolSelect__ = int(toolSelect.strip('T'))
+        else:
+            raise ValueError('Invalid tool selection')
+
     def getAvailableTools(self):
         return self.availableTools
     
@@ -82,7 +90,7 @@ class Machine:
     
     def updateToolAndTime(self, cell, tool, time, secondTime = 0):
         machine = cell + self.ID*6
-
+        self.setToolSelect('T'+str(tool))
         #self.opcuaClient.setMachineUpdate(1, (cell + (self.ID - 1)*6), tool, time)
         self.machineUpdateQueue.put({'machine': machine, 'tool': tool, 'time': time, 'secondTime': secondTime})
 
