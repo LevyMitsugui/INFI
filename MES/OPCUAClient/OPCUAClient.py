@@ -27,17 +27,17 @@ class OPCUAClient:
 
         self.machinesStatusNodes = []
         self.machinesStatusNodes.insert(0,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M1.available"))
-        self.machinesStatusNodes.insert(1,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M1.available"))
-        self.machinesStatusNodes.insert(2,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M1.available"))
-        self.machinesStatusNodes.insert(3,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M1.available"))
-        self.machinesStatusNodes.insert(4,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M1.available"))
-        self.machinesStatusNodes.insert(5,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M1.available"))
+        self.machinesStatusNodes.insert(1,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M2.available"))
+        self.machinesStatusNodes.insert(2,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M3.available"))
+        self.machinesStatusNodes.insert(3,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M4.available"))
+        self.machinesStatusNodes.insert(4,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M5.available"))
+        self.machinesStatusNodes.insert(5,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M6.available"))
         self.machinesStatusNodes.insert(6,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M7.available"))
-        self.machinesStatusNodes.insert(7,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M7.available"))
-        self.machinesStatusNodes.insert(8,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M7.available"))
-        self.machinesStatusNodes.insert(9,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M7.available"))
-        self.machinesStatusNodes.insert(10,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M7.available"))
-        self.machinesStatusNodes.insert(11,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M7.available"))
+        self.machinesStatusNodes.insert(7,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M8.available"))
+        self.machinesStatusNodes.insert(8,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M9.available"))
+        self.machinesStatusNodes.insert(9,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M10.available"))
+        self.machinesStatusNodes.insert(10,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M11.available"))
+        self.machinesStatusNodes.insert(11,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Processing_line_New.M12.available"))
         
         self.spawnStatusNodes = []
         self.spawnStatusNodes.insert(0,self.client.get_node("ns=4;s=|var|CODESYS Control Win V3 x64.Application.Input_line_New.LC1.done"))

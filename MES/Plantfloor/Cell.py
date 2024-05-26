@@ -36,6 +36,8 @@ class Cell:
 
         self.__allTools__ = []
 
+        self.time = time.process_time()
+        self.prevTime = self.time
         self.run()
         #self.printStatus()#TODO remove all functions related to printStatus ([]function, []thread)
 
@@ -75,7 +77,9 @@ class Cell:
         return self.machines
     
     def run(self):
-        threading.Thread(target=self.__cycle__, daemon=True).start()
+        newThread = threading.Thread(target=self.__cycle__, daemon=True)
+        newThread.setName('Cell ' + str(self.ID) + ' Cycle')
+        newThread.start()
 
 
     def __cycle__(self):
@@ -90,7 +94,11 @@ class Cell:
         print('[Cell ', self.ID,' Cycle] Machines allocated to cell (machines:', len(self.machines), ')')
 
         while True:
-             
+            self.time = time.process_time()
+            if self.time - self.prevTime > 1:
+                self.prevTime = self.time
+                print('[Cell ', self.ID,' Cycle] Cell ', self.ID, ' running. Time: ', self.time)                
+
             self.machines[0].waitForMachineDone(self.ID)
             self.machines[1].waitForMachineDone(self.ID)
             request, recipe = self.getRequest() 
@@ -98,8 +106,9 @@ class Cell:
                 time.sleep(3)
                 continue
             self.setBusy()
+            print('[Cell ', self.ID,' Cycle] Processing request: ', request)
 
-            if not 'Step' in request.keys():
+            if not 'Step' in request.keys() and request['Piece'] != 'P5' and request['Piece'] != 'P9':
                 self.warehouses[0].outputPiece(self.__getPrimaryMaterial__(recipe), self.ID)
                 steps = self.__arrangeSteps__(recipe)
                 
@@ -151,6 +160,45 @@ class Cell:
                 self.warehouses[1].inputPiece(recipe['Piece'] , 4 + self.ID)#ha de ser alterado
                 self.setFree()
 
+            elif request['Piece']=='P9' and 'Steps' in request.keys():
+                print('[Cell ', self.ID,' Cycle] Processing request: ', request)
+                print('[Cell ', self.ID,' Cycle] Processing steps: ', request['Steps'])
+                print('[Cell ', self.ID,' Cycle] steps length: ', len(request['Steps']))
+                self.warehouses[0].outputPiece('P2', self.ID)
+                #piece goes straight to the second machine (skips machine 0)
+                self.machines[0].updateToolAndTime(self.ID, self.machines[0].getToolSelect(),0)
+
+                steps = request['Steps']
+                print('[Cell ', self.ID,' Cycle] steps: ', steps)
+                step = steps.pop(0)
+                print('[Cell ', self.ID,' Cycle] first step: ', step)
+                print('[Cell ', self.ID,' Cycle] steps after removal: ', steps)
+                print('[Cell ', self.ID,' Cycle] steps length: ', len(steps))	
+                waitingTime = step['Time']
+                #machine 1 is updated to process piece
+                self.machines[1].updateToolAndTime(self.ID, step['Tool'],step['Time'])
+                self.machines[1].waitForMachineNotDone(self.ID)
+                #Waits to piece arive to the second machine and SHOULD wait to the machine start(waits for tool change)
+                
+                #when machine 1 starts, update machine 2
+                step = steps.pop(0)      
+                print('[Cell ', self.ID,' Cycle] second step: ', step)                                        #machine 1 is already processing P2 to P8
+                waitingTime += step['Time']                                                 #machine 1 is processing P2 to P8
+                self.machines[0].updateToolAndTime(self.ID, step['Tool'],step['Time'])      #machine 1 is processing P2 to P8
+                self.warehouses[0].outputPiece('P8', self.ID)#sfs will wait til there's piece     #machine 1 is processing P2 to P8
+                #machine 0 is updated to process piece                                      #machine 1 is processing P2 to P8
+
+                self.machines[1].waitForMachineDone(self.ID)
+                self.machines[1].updateToolAndTime(self.ID, self.machines[1].getToolSelect(), 0) #ignores the piece being processed at machine 0
+                self.warehouses[1].inputPiece('P8' , 4 + self.ID)
+                #Piece P8 is stored
+
+                self.machines[1].waitForMachineDone(self.ID)
+                self.warehouses[1].inputPiece('P9' , 4 + self.ID)
+                #Piece P9 is stored
+
+                self.setFree()
+
 
 
 
@@ -159,17 +207,24 @@ class Cell:
     def getRequest(self):
         for iterator in range(self.requestQueue.qsize()):
             request = self.requestQueue.peek(block = False, index = iterator)
-            reqGotTup = self.db.processRequestByPiece(request['Piece'], "requests")
+            if request is None:
+                continue #TODO maybe not the solution, perhaps have to rest the hole cycle
             recipe = self.getRecipe(request)
+            reqGotTup = self.db.processRequestByPiece(request['Piece'], "requests")
 
             if(recipe != None and self.requestQueue.qsize() > 0):
                 requestGotten = self.requestQueue.get(iterator)
                 
-                if requestGotten['Piece'] != request['Piece']:
+                if request['Piece'] == 'P9':
+                    print('request ID: ', request['ID'])
+                    print('requestGotten ID: ', requestGotten['ID'])
+
+                if requestGotten != request: #TODO maybe revert this requestGotten['Piece'] != request['Piece']:
                     if(reqGotTup != None):
                         self.db.returnRequestByPiece(reqGotTup[0][0], "requests")
+                    
                     self.requestQueue.put(requestGotten)
-                    print('!![Cell ', self.ID, ' getRequest]!! Failded to get right request')
+                    #print('!![Cell ', self.ID, ' getRequest]!! Failded to get right request')
                     return (None, None)
                     
                 #print('**[Cell ', self.ID, ' getRequest]** verified request gave recipe: ', recipe)
@@ -234,7 +289,7 @@ class Cell:
             times = [eval(recipe['Time'])]
         
         
-        #set steps of second machine first
+        
         changes = 0
         if len(tools) == 1:
             steps.insert(0, {'Machine': 1, 'Tool':tools[0], 'Time': times[0]})

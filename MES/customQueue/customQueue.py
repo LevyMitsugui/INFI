@@ -3,8 +3,6 @@ import queue
 import time
 
 class customQueue(queue.Queue):
-    #def peek(self):
-    #    return self.queue[0]
     
     def peek(self, block=True, timeout=None, index=0):
         locked = False
@@ -29,9 +27,14 @@ class customQueue(queue.Queue):
             if locked == True:
                 self.not_full.notify()
                 locked = False
+            if item == None:
+                return None
             return dict(item)
         
     def _peek(self, index=0):
+        #if index is out of bounds
+        if index >= len(self.queue) or index < 0:
+            return None
         return self.queue[index]
 
     def orderedPut(self, item):

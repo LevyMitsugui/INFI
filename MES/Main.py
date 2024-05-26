@@ -6,6 +6,8 @@ import threading
 import time
 import customQueue
 import sys
+from math import floor
+import random
 sys.path.append("..")
 from Database import Database         # TO RUN THE CODE YOU MUST GO TO THE PREVIOUS FOLDER OF INFI AND RUN "python -m INFI.4-MES.Main"
 from OPCUAClient import OPCUAClient
@@ -199,6 +201,7 @@ class Manager():
     def __initCells__(self,): #hardcoded
         cells = []
         for i in range(6):
+            time.sleep(0.1 + 0.017*i)
             cells.append(Cell(i+1, self.RequestQueue, self.DoneRequestQueue, recipes=self.recipes, transformations=self.transforms))
         return cells
     
@@ -271,11 +274,16 @@ class Manager():
                 continue
 
             request = {'Piece':currOrder['WorkPiece']}
+            if currOrder['WorkPiece'] == 'P9':
+                request['Steps'] = [{'Machine': 1, 'Tool':1, 'Time': 45}, {'Machine': 0, 'Tool':5, 'Time': 45}]
             quantity = int(currOrder['Quantity'])
-            print('[Manager, postRequests] Posting', quantity, 'requests for: ',request)
+            print('[Manager, postRequests] Posting', quantity, 'requests for: ',request['Piece'])
             
 
             for counter in range(quantity):
+                if currOrder['WorkPiece'] == 'P9':
+                    timeN = time.process_time()
+                    request['ID'] = random.randint(1,9999)
                 self.RequestQueue.put(request)
                 self.db.insertRequestOrder(request, "requests")
         
@@ -408,7 +416,7 @@ manager = Manager(orderQueue, requestQueue, doneRequestQueue, OPCUAClient, './Re
 manager.configMachines(machineUpdateQueue)
 manager.configWareHouse(inWHQueue, outWHQueue)
 
-manager.gates.spawnPieces('P2', 8)
+manager.gates.spawnPieces('P2', 4)
 
 manager.postRequests()
 manager.startWareHouse()
