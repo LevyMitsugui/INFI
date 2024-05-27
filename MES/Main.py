@@ -11,15 +11,23 @@ import random
 sys.path.append("..")
 from Database import Database         # TO RUN THE CODE YOU MUST GO TO THE PREVIOUS FOLDER OF INFI AND RUN "python -m INFI.4-MES.Main"
 from OPCUAClient import OPCUAClient
+import datetime
+from datetime import timedelta
 
 class SQLManager():
-    def __init__(self, orderQueue, requestQueue, doneRequestQueue, recipesFile):
-        # self.erpDB = Database("root", "admin", "erp")                           # Creates a connector to access the database
-        # self.mesDB = Database("root", "admin", "mes")
-        self.db = Database("root", "admin")
+    def __init__(self, orderQueue, requestQueue, doneRequestQueue, inWHQueue, outWHQueue, machineUpdateQueue, gateUpdateQueue, recipesFile, database):
+        # self.db = Database("root", "admin")
+        self.db = database
         self.OrderQueue = orderQueue
         self.RequestQueue = requestQueue
         self.DoneRequestQueue = doneRequestQueue
+
+        self.inWHQueue = inWHQueue
+        self.outWHQueue = outWHQueue
+        self.machineUpdateQueue = machineUpdateQueue
+        self.gateUpdateQueue = gateUpdateQueue
+
+        self.initialDate = datetime.datetime.now().strftime("%H:%M:%S")
 
         self.recipes = self.__reader(recipesFile)
 
@@ -54,7 +62,7 @@ class SQLManager():
         ordersTup = self.db.getMostUrgentOrder("erp")
         if(ordersTup is not None and len(ordersTup) > 0):
             for x in ordersTup:
-                order = {'clientID' : x[0] , 'Order Number' : x[1], 'WorkPiece' : x[2], 'Quantity' : x[3], 'DueDate' : x[4], 'LatePen' : x[5], 'EarlyPen' : x[6]}
+                order = {'clientID' : x[3] , 'Order Number' : x[4], 'WorkPiece' : x[5], 'Quantity' : x[6], 'DueDate' : x[7], 'LatePen' : x[8], 'EarlyPen' : x[9]}
                 self.OrderQueue.put(order)
             print('                 Posted', len(ordersTup), 'orders at RequestQueue')
         else:
@@ -137,7 +145,7 @@ class SQLManager():
         if(machineTup is not None and len(machineTup) > 0):
             for machineReq in machineTup:
                 machineUpdate = {'machine': machineReq[0], 'tool': machineReq[1], 'time': machineReq[2]}
-                self.machineQueue.put(machineUpdate)
+                self.machineUpdateQueue.put(machineUpdate)
             print('                 Posted', len(machineTup), 'pieces at machineQueue')
         else:
             print('                 Posted 0 pieces at machineQueue')
@@ -146,7 +154,7 @@ class SQLManager():
         if(gateTup is not None and len(gateTup) > 0):
             for gateReq in gateTup:
                 gateUpdate = {'gate': gateReq[0], 'piece': gateReq[1], 'quantity': gateReq[2]}
-                self.gateQueue.put(gateUpdate)
+                self.gateUpdateQueue.put(gateUpdate)
             print('                 Posted', len(gateTup), 'pieces at gateQueue')
         else:
             print('                 Posted 0 pieces at gateQueue')
@@ -178,7 +186,7 @@ class SQLManager():
 
 class Manager():
 
-    def __init__(self, orderQueue, requestQueue, doneRequestQueue, OPCUAClient,recipesFile, transformsFile):
+    def __init__(self, orderQueue, requestQueue, doneRequestQueue, database, OPCUAClient,recipesFile, transformsFile):
         self.OrderQueue = orderQueue
         self.RequestQueue = requestQueue
         self.DoneRequestQueue = doneRequestQueue
@@ -193,9 +201,10 @@ class Manager():
 
         self.piecesProcessed = []
 
-        self.db = Database("root", "admin")
+        # self.db = Database("root", "admin")
+        self.db = database
         self.__initPiecesProcessed()
-        self.gates = Gates(gateUpdateQueue, OPCUAClient)
+        self.gates = Gates(gateUpdateQueue, OPCUAClient, database)
         self.warehouses = []
 
         self.beginningTime = time.time()
@@ -212,25 +221,25 @@ class Manager():
         print('[Manager] Configuring Machines')
         success = []
 
-        success.append(self.cells[0].addMachine(Machine(0, 'M1', self.OPCUAClient, machineUpdateQueue)))
-        success.append(self.cells[0].addMachine(Machine(1, 'M2', self.OPCUAClient, machineUpdateQueue)))
+        success.append(self.cells[0].addMachine(Machine(0, 'M1', self.OPCUAClient, machineUpdateQueue, self.db)))
+        success.append(self.cells[0].addMachine(Machine(1, 'M2', self.OPCUAClient, machineUpdateQueue, self.db)))
         print('[Manager] cell 0 all tools: ', self.cells[0].getAllTools())
         #print('[Manager] Machines Configured')
-        success.append(self.cells[1].addMachine(Machine(0, 'M1', self.OPCUAClient, machineUpdateQueue)))
-        success.append(self.cells[1].addMachine(Machine(1, 'M2', self.OPCUAClient, machineUpdateQueue)))
+        success.append(self.cells[1].addMachine(Machine(0, 'M1', self.OPCUAClient, machineUpdateQueue, self.db)))
+        success.append(self.cells[1].addMachine(Machine(1, 'M2', self.OPCUAClient, machineUpdateQueue, self.db)))
         print('[Manager] cell 1 all tools: ', self.cells[1].getAllTools())
         #print('[Manager] Machines Configured')
-        success.append(self.cells[2].addMachine(Machine(0, 'M1', self.OPCUAClient, machineUpdateQueue)))
-        success.append(self.cells[2].addMachine(Machine(1, 'M2', self.OPCUAClient, machineUpdateQueue)))
+        success.append(self.cells[2].addMachine(Machine(0, 'M1', self.OPCUAClient, machineUpdateQueue, self.db)))
+        success.append(self.cells[2].addMachine(Machine(1, 'M2', self.OPCUAClient, machineUpdateQueue, self.db)))
         print('[Manager] cell 2 all tools: ', self.cells[2].getAllTools())
-        success.append(self.cells[3].addMachine(Machine(0, 'M3', self.OPCUAClient, machineUpdateQueue)))
-        success.append(self.cells[3].addMachine(Machine(1, 'M4', self.OPCUAClient, machineUpdateQueue)))
+        success.append(self.cells[3].addMachine(Machine(0, 'M3', self.OPCUAClient, machineUpdateQueue, self.db)))
+        success.append(self.cells[3].addMachine(Machine(1, 'M4', self.OPCUAClient, machineUpdateQueue, self.db)))
         print('[Manager] cell 3 all tools: ', self.cells[3].getAllTools())
-        success.append(self.cells[4].addMachine(Machine(0, 'M3', self.OPCUAClient, machineUpdateQueue)))
-        success.append(self.cells[4].addMachine(Machine(1, 'M4', self.OPCUAClient, machineUpdateQueue)))
+        success.append(self.cells[4].addMachine(Machine(0, 'M3', self.OPCUAClient, machineUpdateQueue, self.db)))
+        success.append(self.cells[4].addMachine(Machine(1, 'M4', self.OPCUAClient, machineUpdateQueue, self.db)))
         print('[Manager] cell 4 all tools: ', self.cells[4].getAllTools())
-        success.append(self.cells[5].addMachine(Machine(0, 'M3', self.OPCUAClient, machineUpdateQueue)))
-        success.append(self.cells[5].addMachine(Machine(1, 'M4', self.OPCUAClient, machineUpdateQueue)))
+        success.append(self.cells[5].addMachine(Machine(0, 'M3', self.OPCUAClient, machineUpdateQueue, self.db)))
+        success.append(self.cells[5].addMachine(Machine(1, 'M4', self.OPCUAClient, machineUpdateQueue, self.db)))
         print('[Manager] cell 5 all tools: ', self.cells[5].getAllTools())
         
         if all(success):
@@ -242,9 +251,9 @@ class Manager():
 
     def configWareHouse(self, inwhQueue, outwhQueue):
         success = []
-        Warehouse0 = Warehouse(0, self.OPCUAClient, inwhQueue, outwhQueue)
+        Warehouse0 = Warehouse(0, self.OPCUAClient, inwhQueue, outwhQueue, self.db)
         self.warehouses.append(Warehouse0)
-        Warehouse1 = Warehouse(1, self.OPCUAClient, inwhQueue, outwhQueue)
+        Warehouse1 = Warehouse(1, self.OPCUAClient, inwhQueue, outwhQueue, self.db)
         self.warehouses.append(Warehouse1)
         for cell in self.cells:
             success.append(cell.addWarehouse(Warehouse0))#, self.db)))
@@ -301,6 +310,7 @@ class Manager():
                 self.piecesProcessed.append(doneRequest)
                 self.db.updateWare(doneRequest, 1, "mes", 2)
                 self.db.setRequestDone(doneRequest, "requests")
+                self.db.updateStock(doneRequest, 1, "mes")
                 print('[Manager, __wareHouse] WareHouse: ', self.piecesProcessed)
                 self.db.__fetchWare__(2)
 
@@ -342,46 +352,58 @@ class Manager():
         lastOutput = 7
         while True:
             time.sleep(0.2)
-            DoneOrders = self.db.getMostUrgentOrder("mes")
-            if DoneOrders is None:
+            orderReady = self.db.getMostUrgentOrder("mes")
+            if orderReady is None:
                 continue
             
-            request_delivered = DoneOrders[0][0]
-            request_client = DoneOrders[0][1]
-            request_number = DoneOrders[0][2]
-            request_workpiece = DoneOrders[0][3]
-            request_quantity = DoneOrders[0][4]
-            if request_delivered == 0:
-                print('[Manager, postDoneOrders] Order found: ', DoneOrders[0])
-            manager_quantity = self.piecesProcessed.count(request_workpiece)
-            database_quantity = self.db.countWare(2, "mes", request_workpiece)
-            if(database_quantity):
-                database_quantity = int(database_quantity[0][1])
-            else:
-                database_quantity = 0
-            if manager_quantity == database_quantity:
-                if request_delivered < request_quantity and manager_quantity > 0:
-                    self.piecesProcessed.remove(request_workpiece)
-                    if self.db.updateWare(request_workpiece, -1, "mes", 2):
-                        self.warehouses[1].outputPiece(request_workpiece, lastOutput)
-                        if lastOutput == 10:
-                            lastOutput = 7
+            request_stock =     orderReady[0][0]
+            request_admission = orderReady[0][1]
+            request_delivery =  orderReady[0][2]
+            request_client =    orderReady[0][3]
+            request_number =    orderReady[0][4]
+            request_workpiece = orderReady[0][5]
+            request_quantity =  orderReady[0][6]
+            request_duedate =   orderReady[0][7]
+            doneOrder = self.db.getOrderByNum(request_client, request_number, "erp")
+            request_delivered = doneOrder[0][2]
+
+            scheduled_delivery, delivery_limit = self.__scheduleDelivery__(request_admission, request_duedate, request_quantity)
+            print("delivery_limit: ", delivery_limit.time())
+            print("scheduled_delivery: ", scheduled_delivery.time())
+
+            if self.__isPast__(scheduled_delivery):
+                self.db.setOrderDone(request_client, request_number, "mes")
+                if(request_stock == 0):
+                    print('[Manager, postDoneOrders] Order found: ', orderReady[0])
+                manager_quantity = self.piecesProcessed.count(request_workpiece)
+                database_quantity = self.db.countWare(2, "mes", request_workpiece)
+                if(database_quantity):
+                    database_quantity = int(database_quantity[0][1])
+                else:
+                    database_quantity = 0
+                if manager_quantity == database_quantity:
+                    if request_delivered < request_quantity and manager_quantity > 0:
+                        self.piecesProcessed.remove(request_workpiece)
+                        if self.db.updateWare(request_workpiece, -1, "mes", 2):
+                            self.db.updateStock(request_workpiece, -1, "mes")
+                            self.warehouses[1].outputPiece(request_workpiece, lastOutput)
+                            if lastOutput == 10:
+                                lastOutput = 7
+                            else:
+                                lastOutput += 1
+                            self.db.updateDeliveredPieces(request_client, request_number, 1, "erp")
+                            self.db.__fetchWare__(2)
                         else:
-                            lastOutput += 1
-                        self.db.updateDeliveredPieces(request_client, request_number, 1, "mes")
+                            print('                                             [Manager, postDoneOrders] Could not update warehouse')
+                            orderReady = None
+                            continue
+                    elif request_delivered == request_quantity:
+                        diff = self.db.setOrderDone(request_client, request_number, "erp")
                         self.db.__fetchWare__(2)
-                    else:
-                        print('                                             [Manager, postDoneOrders] Could not update warehouse')
-                        DoneOrders = None
-                        continue
-                elif request_delivered == request_quantity:
-                    self.db.setOrderDone(request_client, request_number, "mes")
-                    self.db.setOrderDone(request_client, request_number, "erp")
-                    self.db.__fetchWare__(2)
-                    print('[Manager, postDoneOrders] Order done: ', DoneOrders[0])
-            else:
-                print("[Manager, postDoneOrders] !!Disparity between number of pieces", request_workpiece, "in database and Manager!! database:", database_quantity, "Manager:", manager_quantity)
-            DoneOrders = None
+                        print('[Manager, postDoneOrders] Order done: ', orderReady[0], 'in', diff, 'seconds')
+                else:
+                    print("[Manager, postDoneOrders] !!Disparity between number of pieces", request_workpiece, "in database and Manager!! database:", database_quantity, "Manager:", manager_quantity)
+                orderReady = None
 
     def __printRequestQueue__(self):
         while True:
@@ -401,6 +423,34 @@ class Manager():
             print('[Manager] PrintRequestQueue thread started')
         except:
             print('[Manager] Could not start PrintRequestQueue thread')
+    
+    def __timeSum__(self, timeStr1, timeStr2):
+        time1 = datetime.datetime.strptime(timeStr1, '%H:%M:%S')
+        time2 = datetime.datetime.strptime(timeStr2, '%H:%M:%S')
+        result = datetime.datetime.strptime(time1, '%H:%M:%S') + datetime.datetime.strptime(time2, '%H:%M:%S')
+        return result
+    
+    def __scheduleDelivery__(self, request_admission, request_duedate, request_quantity):
+        dueTime = timedelta(minutes = request_duedate)
+        admission_time = datetime.datetime.strptime(request_admission, '%H:%M:%S')
+        delivery_limit = admission_time + dueTime
+        datetime.datetime.strftime(delivery_limit, '%H:%M:%S')
+
+        deliver_duration = timedelta(seconds = 2*request_quantity)   #in seconds
+        scheduled_delivery = delivery_limit - deliver_duration
+        datetime.datetime.strftime(scheduled_delivery, '%H:%M:%S')
+        
+        return scheduled_delivery, delivery_limit
+    
+    def __isPast__(self, time):
+        timeNow = datetime.datetime.now().strftime("%H:%M:%S")
+        timeTarget = datetime.datetime.strftime(time, '%H:%M:%S')
+        timeDiff = datetime.datetime.strptime(timeNow, '%H:%M:%S') - datetime.datetime.strptime(timeTarget, '%H:%M:%S')
+        if timeDiff.total_seconds() > 0:
+            print(timeDiff.total_seconds())
+            return True
+        else:
+            return False
 
 
 class Order:
@@ -431,16 +481,18 @@ outWHQueue = customQueue.customQueue()
 machineUpdateQueue = customQueue.customQueue()
 gateUpdateQueue = customQueue.customQueue()
 
+database = Database("root", "admin")
 
-SQLManager = SQLManager(orderQueue, requestQueue, doneRequestQueue, './Recipe/Recipes.csv')
+
+SQLManager = SQLManager(orderQueue, requestQueue, doneRequestQueue, inWHQueue, outWHQueue, machineUpdateQueue, gateUpdateQueue, './Recipe/Recipes.csv', database)
 SQLManager.getData()
 
 SQLManager.getOrder()
 
-OPCUAClient = OPCUAClient(inWHQueue, outWHQueue, machineUpdateQueue, gateUpdateQueue)
+OPCUAClient = OPCUAClient(inWHQueue, outWHQueue, machineUpdateQueue, gateUpdateQueue, database)
 OPCUAClient.opcManager()
 
-manager = Manager(orderQueue, requestQueue, doneRequestQueue, OPCUAClient, './Recipe/Recipes.csv', './Recipe/WorkPieceTransform.csv')
+manager = Manager(orderQueue, requestQueue, doneRequestQueue, database, OPCUAClient, './Recipe/Recipes.csv', './Recipe/WorkPieceTransform.csv')
 manager.configMachines(machineUpdateQueue)
 print ('hello')
 manager.configWareHouse(inWHQueue, outWHQueue)

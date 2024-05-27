@@ -3,9 +3,10 @@ from opcua import ua, Client
 import time
 import threading
 import datetime
+import Database
 
 class OPCUAClient:
-    def __init__(self, inWHQueue, outWHQueue, machineUpdateQueue, gateUpdateQueue, host = "opc.tcp://localhost:4840/freeopcua/server/"):
+    def __init__(self, inWHQueue, outWHQueue, machineUpdateQueue, gateUpdateQueue, database, host = "opc.tcp://localhost:4840/freeopcua/server/"):
         try:
             self.client = Client(host)
             self.client.connect()
@@ -14,6 +15,8 @@ class OPCUAClient:
             self.outWHQueue = outWHQueue
             self.machineUpdateQueue = machineUpdateQueue
             self.gateUpdateQueue = gateUpdateQueue
+
+            self.db = database
 
             self.prevTransferCellStatus = False
             print("Opcua Connected")
@@ -194,24 +197,28 @@ class OPCUAClient:
             if self.inWHQueue.qsize() > 0 and self.getWarehouseInUpdate()[0] == 0 and (currTimes[0] - prevTimes[0]) > referenceTimes[0]:
                 prevTimes[0] = currTimes[0]
                 update = self.inWHQueue.get()
+                updateTup = self.db.processWareQueue("in", update)
                 print('[OPC Client] updating warehouse in. Values: ', update)
                 self.setWarehouseInUpdate(1, update['conveyor'], update['piece'])
 
             if self.outWHQueue.qsize() > 0 and self.getWarehouseOutUpdate()[0] == 0 and (currTimes[1] - prevTimes[1]) > referenceTimes[1]:
                 prevTimes[1] = currTimes[1]
                 update = self.outWHQueue.get()
+                updateTup = self.db.processWareQueue("out", update)
                 print('[OPC Client] updating warehouse out. Values: ', update)
                 self.setWarehouseOutUpdate(1, update['conveyor'], update['piece'])
 
             if self.machineUpdateQueue.qsize() > 0 and self.getMachineUpdate()[0] == 0 and (currTimes[2] - prevTimes[2]) > referenceTimes[2]:
                 prevTimes[2] = currTimes[2]
                 update = self.machineUpdateQueue.get()
+                updateTup = self.db.processMachineUpdQueue(update)
                 print('[OPC Client] updating machine. Values: ', update)
                 self.setMachineUpdate(1, update['machine'], update['tool'],  update['time'], update['secondTime'])
 
             if self.gateUpdateQueue.qsize() > 0 and self.getPieceSpawn()[0] == 0 and (currTimes[3] - prevTimes[3]) > referenceTimes[3]:
                 prevTimes[3] = currTimes[3]
                 update = self.gateUpdateQueue.get()
+                updateTup = self.db.processGateUpdQueue(update)
                 print('[OPC Client] updating gate. Values: ', update)
                 self.setPieceSpawn(1, update['gate'], update['piece'], update['quantity'])
 # i = 0

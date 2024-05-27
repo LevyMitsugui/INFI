@@ -1,9 +1,10 @@
 import csv
 import os
 import time
+import Database
 
 class Machine:
-    def __init__(self, ID, type, opcuaClient, machineUpdateQueue):
+    def __init__(self, ID, type, opcuaClient, machineUpdateQueue, database):
         """
         Initializes a new instance of the class.
 
@@ -24,6 +25,7 @@ class Machine:
         self.__toolSelect__ = 1
         self.time = 0
         self.availableTools = self.__retrieveToolList__()
+        self.db = database
 
     def setBusy(self):
         self.busy = True
@@ -92,7 +94,9 @@ class Machine:
         machine = cell + self.ID*6
         self.setToolSelect('T'+str(tool))
         #self.opcuaClient.setMachineUpdate(1, (cell + (self.ID - 1)*6), tool, time)
-        self.machineUpdateQueue.put({'machine': machine, 'tool': tool, 'time': time, 'secondTime': secondTime})
+        update = {'machine': machine, 'tool': tool, 'time': time, 'secondTime': secondTime}
+        self.machineUpdateQueue.put(update)
+        self.db.insertInQueue("machineUpd", update, "mes")
 
     def canUpdateTool(self):#TODO finish integration with OPCUA
         return True
