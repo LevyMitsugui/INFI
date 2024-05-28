@@ -352,6 +352,8 @@ class Manager():
                 decrease = True
 
             lastP1count = p1count
+            if lastP1count == 10:
+                counter1 = 0
 
             if (decrease == True):
                 self.gates.spawnPieces('P1', 10 - p1count)
@@ -364,6 +366,8 @@ class Manager():
                 decrease = True
 
             lastP2count = p2count
+            if lastP2count == 10:
+                counter2 = 0
 
             if (decrease == True):
                 self.gates.spawnPieces('P2', 10 - p2count)
@@ -372,11 +376,11 @@ class Manager():
             elif lastP2count < 10:
                 counter2 += 1
 
-            if counter1 > 5:
+            if counter1 > 3:
                 lastP1count = 10
                 counter1 = 0
 
-            if counter2 > 5:
+            if counter2 > 3:
                 lastP2count = 10
                 counter2 = 0
 
