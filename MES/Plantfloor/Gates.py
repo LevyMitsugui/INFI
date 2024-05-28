@@ -1,5 +1,5 @@
 import sys
-sys.path.append('C:\\Users\\Levy\\Documents\\GitHub\\INFI\\MES\\OPCUAClient')
+sys.path.append('C:\\Users\\Levy\\Documents\\GitHub\\INFI\\MES\\OPCUAClient') # Add the path to the customQueue directory  # Add the path to the customQueue directory
 import OPCUAClient
 from math import floor
 import time
