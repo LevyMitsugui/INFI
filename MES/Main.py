@@ -581,11 +581,11 @@ manager.configMachines(machineUpdateQueue)
 manager.configWareHouse(inWHQueue, outWHQueue)
 
 
-manager.gates.spawnPieces('P2', 8)
+#manager.gates.spawnPieces('P2', 8)
+manager.startRestockWareHouse()
 
 manager.postRequests()
 manager.startWareHouse()
-#manager.startRestockWareHouse()
 manager.postDoneOrders()
 manager.postOrdersReady()
 manager.printRequestQueue()
