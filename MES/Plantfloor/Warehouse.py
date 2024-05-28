@@ -20,6 +20,21 @@ class Warehouse:
         return self.ID
     def getStock(self):
         return self.pieces
+    
+    def setStock(self, pieceType, quantity):
+        """
+        Sets the stock for a specific type of piece in the warehouse.
+
+        Parameters:
+            pieceType (str): The type of piece to be updated.
+            quantity (int): The new quantity for the specified piece type.
+
+        Returns:
+            None
+        """
+        pieceIndex = int(pieceType.strip('P')) - 1
+        if 0 <= pieceIndex < len(self.pieces):
+            self.pieces[pieceIndex] = quantity
 
     #in functions
     def inputPiece(self, piece, conveyor):

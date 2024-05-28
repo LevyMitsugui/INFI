@@ -342,12 +342,16 @@ class Manager():
             time.sleep(1)
             p1count = self.warehouses[0].getStock()[0]
             p2count = self.warehouses[0].getStock()[1]
+            print(self.warehouses[0].getStock())
 
-            if (p1count < 9 and p1count%2 != 0) or p1count < 2:
-                self.gates.spawnPieces('P1', 2)
+            if gateUpdateQueue.qsize() == 0 and p1count < 10:
+                self.gates.spawnPieces('P1', 10 - p1count)
+                self.warehouses[0].setStock('P1', 10)
 
-            if (p2count < 9 and p2count%2 != 0) or p2count < 2:
-                self.gates.spawnPieces('P2', 2)
+            if gateUpdateQueue.qsize() == 0 and p2count < 10:
+                print('RESTOCKED P2')
+                self.gates.spawnPieces('P2', 10 - p2count)
+                self.warehouses[0].setStock('P2', 10)
                 
 
     def addProcessedPiece(self, piece):
