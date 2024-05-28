@@ -335,15 +335,53 @@ class Manager():
             print('[Manager] Could not start StartRestockWareHouse thread')
 
     def __restockWareHouse__(self):
-        while True:
-            time.sleep(0.2)
-            p1count = Warehouse[0].getStock()[0]
-            p2count = Warehouse[0].getStock()[1]
-            if ( p1count < 10):
-                Gates.spawnPieces('P1', 10 - p1count)
+        lastP1count = 10
+        lastP2count = 10
+        decrease = False
+        counter1 = 0
+        counter2 = 0
 
-            if ( p2count < 10):
-                Gates.spawnPieces('P2', 10 - p2count)
+        while True:
+            time.sleep(1)
+            p1count = self.warehouses[0].getStock()[0]
+            p2count = self.warehouses[0].getStock()[1]
+
+            if p1count < lastP1count:
+                decrease = True
+
+            lastP1count = p1count
+            if lastP1count == 10:
+                counter1 = 0
+
+            if (decrease == True):
+                self.gates.spawnPieces('P1', 10 - p1count)
+                decrease = False
+                counter1 = 0 
+            elif lastP1count < 10:
+                counter1 += 1
+
+            if p2count < lastP2count:
+                decrease = True
+
+            lastP2count = p2count
+            if lastP2count == 10:
+                counter2 = 0
+
+            if (decrease == True):
+                self.gates.spawnPieces('P2', 10 - p2count)
+                decrease = False
+                counter2 = 0
+            elif lastP2count < 10:
+                counter2 += 1
+
+            if counter1 > 3:
+                lastP1count = 10
+                counter1 = 0
+
+            if counter2 > 3:
+                lastP2count = 10
+                counter2 = 0
+
                 
 
     def addProcessedPiece(self, piece):
