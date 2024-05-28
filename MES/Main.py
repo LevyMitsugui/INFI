@@ -197,8 +197,7 @@ class Manager():
 
         self.recipes = self.__csvReader__(recipesFile)
         self.transforms = self.__csvReader__(transformsFile)
-        self.cells = self.__initCells__() #hardcoded
-        #self.__configMachines__() #hardcoded
+        self.cells = self.__initCells__()
 
         self.piecesProcessed = []
 
@@ -210,7 +209,7 @@ class Manager():
 
         self.beginningTime = time.time()
 
-    def __initCells__(self,): #hardcoded
+    def __initCells__(self,):
         cells = []
         for i in range(6):
             time.sleep(0.1 + 0.017*i)
@@ -296,8 +295,7 @@ class Manager():
 
             for counter in range(quantity):
                 if currOrder['WorkPiece'] == 'P9':
-                    timeN = time.process_time()
-                    request['ID'] = random.randint(1,9999)
+                    print('bruh')
                 self.RequestQueue.put(request)
                 self.db.insertRequestOrder(request, "requests")
         
@@ -463,17 +461,10 @@ class Manager():
                     print("[Manager, postDoneOrders] !!Disparity between number of pieces", delivery_workpiece, "in database and Manager!! database:", database_quantity, "Manager:", stock_quantity)
                 order = None
 
-    def __printRequestQueue__(self):
+    def __printRequestQueue__(self):        
         while True:
-            count = {}
-            time.sleep(4)
-            print(len(requestQueue.queue), "requests pendent in requestQueue")
-            for x in requestQueue.queue:
-                if x['Piece'] in count:
-                    count[x['Piece']] += 1
-                else:
-                    count[x['Piece']] = 1
-            print(OrderedDict(sorted(count.items())))
+            time.sleep(5) 
+            print('[Manager]: ', self.RequestQueue.qsize(), "requests pendent in requestQueue")
     
     def printRequestQueue(self):
         try:
@@ -508,6 +499,9 @@ class Manager():
             return True
         else:
             return False
+        
+    def fuckGoBakc(self): #TODO implement the piece go back
+        pass
 
 
 class Order:
@@ -518,6 +512,7 @@ class Order:
         self.due_date = due_date
         self.late_pen = late_pen
         self.early_pen = early_pen
+
 
 
 order = {'clientID' : 'Client AA', 'Order Number' : 18, 'WorkPiece' : 'P6', 'Quantity' : 8, 'DueDate' : 7, 'LatePen' : 10, 'EarlyPen' : 5}
@@ -532,14 +527,7 @@ outWHQueue = customQueue.customQueue()
 machineUpdateQueue = customQueue.customQueue()
 gateUpdateQueue = customQueue.customQueue()
 
-
-inWHQueue = customQueue.customQueue()
-outWHQueue = customQueue.customQueue()
-machineUpdateQueue = customQueue.customQueue()
-gateUpdateQueue = customQueue.customQueue()
-
 database = Database("root", "admin")
-
 
 SQLManager = SQLManager(orderQueue, requestQueue, doneRequestQueue, inWHQueue, outWHQueue, machineUpdateQueue, gateUpdateQueue, './Recipe/Recipes.csv', database)
 SQLManager.getData()
@@ -551,15 +539,15 @@ OPCUAClient.opcManager()
 
 manager = Manager(orderQueue, requestQueue, doneRequestQueue, database, OPCUAClient, './Recipe/Recipes.csv', './Recipe/WorkPieceTransform.csv')
 manager.configMachines(machineUpdateQueue)
-print ('hello')
+
 manager.configWareHouse(inWHQueue, outWHQueue)
 
-print('hello hello')
+
 manager.gates.spawnPieces('P2', 8)
 
 manager.postRequests()
 manager.startWareHouse()
-manager.startRestockWareHouse()
+#manager.startRestockWareHouse()
 manager.postDoneOrders()
 manager.postOrdersReady()
 manager.printRequestQueue()

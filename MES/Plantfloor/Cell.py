@@ -82,9 +82,7 @@ class Cell:
         newThread.start()
 
 
-    def __cycle__(self):
-        #TODO implement this: while ocpcua Connected, because, for now, the code will run even if there is no connection
-        
+    def __cycle__(self):  
 
         while len(self.machines) != 2:
             time.sleep(0.3)
@@ -94,11 +92,6 @@ class Cell:
         print('[Cell ', self.ID,' Cycle] Machines allocated to cell (machines:', len(self.machines), ')')
 
         while True:
-            self.time = time.process_time()
-            if self.time - self.prevTime > 1:
-                self.prevTime = self.time
-                print('[Cell ', self.ID,' Cycle] Cell ', self.ID, ' running. Time: ', self.time)                
-
             self.machines[0].waitForMachineDone(self.ID)
             self.machines[1].waitForMachineDone(self.ID)
             request, recipe = self.getRequest() 
@@ -166,11 +159,11 @@ class Cell:
                 print('[Cell ', self.ID,' Cycle] steps length: ', len(request['Steps']))
                 self.warehouses[0].outputPiece('P2', self.ID)
                 #piece goes straight to the second machine (skips machine 0)
-                self.machines[0].updateToolAndTime(self.ID, self.machines[0].getToolSelect(),0)#TODO update right tool
+                self.machines[0].updateToolAndTime(self.ID, request['Steps'][1]['Tool'],0)#TODO update right tool
 
                 steps = request['Steps']
                 print('[Cell ', self.ID,' Cycle] steps: ', steps)
-                step = steps.pop(0)
+                step = steps[0]
                 print('[Cell ', self.ID,' Cycle] first step: ', step)
                 print('[Cell ', self.ID,' Cycle] steps after removal: ', steps)
                 print('[Cell ', self.ID,' Cycle] steps length: ', len(steps))	
@@ -181,7 +174,7 @@ class Cell:
                 #Waits to piece arive to the second machine and SHOULD wait to the machine start(waits for tool change)
                 
                 #when machine 1 starts, update machine 2
-                step = steps.pop(0)      
+                step = steps[1]     
                 print('[Cell ', self.ID,' Cycle] second step: ', step)                                        #machine 1 is already processing P2 to P8
                 waitingTime += step['Time']                                                 #machine 1 is processing P2 to P8
                 self.machines[0].updateToolAndTime(self.ID, step['Tool'],step['Time'])      #machine 1 is processing P2 to P8
@@ -200,34 +193,41 @@ class Cell:
                 self.setFree()
 
             self.doneRequestQueue.put(request['Piece'])
-
-
-
-
             
 
     def getRequest(self):
-        """ request = self.requestQueue.get()
+        if self.requestQueue.qsize() == 0:
+            return (None, None)
+        
+        request = self.requestQueue.get()
+        
         if request['Piece'] == 'P9' and self.ID < 3:
+            print('[Cell ', self.ID,' getRequest] Request not processable: P9')
             self.requestQueue.put(request)
             return (None, None)
+        
         recipe = self.getRecipe(request)
         reqGotTup = self.db.processRequestByPiece(request['Piece'], "requests")
-        if(recipe != None and self.requestQueue.qsize() > 0):
-            if request['Piece'] == 'P9':
-                    print('request ID: ', request['ID'])         
+       
+        if(recipe != None):
+                
             if(reqGotTup != None):
                         self.db.returnRequestByPiece(reqGotTup[0][0], "requests")
+            
+            print('[Cell ', self.ID,' getRequest] Request processable: ', request['Piece'])
             return (request, recipe)
+        
         else :
+            print('O problema é outro fodasse [Cell ', self.ID,' getRequest] Request not processable: ', request['Piece'])
             self.requestQueue.put(request)
-            return (None, None) """
+            return (None, None)
 
-
-        for iterator in range(self.requestQueue.qsize()):
+ 
+        """for iterator in range(self.requestQueue.qsize()):
             request = self.requestQueue.peek(block = False, index = iterator)
-            if request is None or request['Piece'] == 'P9' or request['Piece'] == 'P5': #TODO if want to implement P5 and P9, need to change this
-                continue #TODO maybe not the solution, perhaps have to rest the hole cycle
+            if request is None or request['Piece'] == 'P5': #TODO if want to implement P5, need to change this
+                #continue #TODO maybe not the solution, perhaps have to rest the hole cycle
+                break
             recipe = self.getRecipe(request)
             reqGotTup = self.db.processRequestByPiece(request['Piece'], "requests")
 
@@ -252,7 +252,7 @@ class Cell:
             else: #There is no recipe for this request
                 request = None
         
-        return (None, None)
+        return (None, None) """
 
     def getRecipe(self, request):
     
