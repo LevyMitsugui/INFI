@@ -160,9 +160,9 @@ class Database:
 
 						if dbname == "erp":
 							# sql = "CREATE TABLE IF NOT EXISTS {}_orders(id INT NOT NULL AUTO_INCREMENT, done VARCHAR(1) NOT NULL DEFAULT '', client VARCHAR(30) NOT NULL, number INT NOT NULL, workpiece VARCHAR(2) NOT NULL, quantity INT NOT NULL, due_date INT NOT NULL, late_pen INT NOT NULL, early_pen INT NOT NULL, PRIMARY KEY (id));".format(dbname)
-							sql = "CREATE TABLE IF NOT EXISTS {}_orders(id INT NOT NULL AUTO_INCREMENT, done VARCHAR(1) NOT NULL DEFAULT '', delivered INT NOT NULL DEFAULT 0, admission VARCHAR(8), delivery VARCHAR(8), client VARCHAR(30) NOT NULL, number INT NOT NULL, workpiece VARCHAR(2) NOT NULL, quantity INT NOT NULL, due_date INT NOT NULL, late_pen INT NOT NULL, early_pen INT NOT NULL, PRIMARY KEY (id));".format(dbname)
+							sql = "CREATE TABLE IF NOT EXISTS {}_orders(id INT NOT NULL AUTO_INCREMENT, done VARCHAR(1) NOT NULL DEFAULT '', admission VARCHAR(8), delivery VARCHAR(8), client VARCHAR(30) NOT NULL, number INT NOT NULL, workpiece VARCHAR(2) NOT NULL, quantity INT NOT NULL, due_date INT NOT NULL, late_pen INT NOT NULL, early_pen INT NOT NULL, PRIMARY KEY (id));".format(dbname)
 						elif dbname == "mes":
-							sql = "CREATE TABLE IF NOT EXISTS {}_orders(id INT NOT NULL AUTO_INCREMENT, done VARCHAR(1) NOT NULL DEFAULT '', stock INT NOT NULL DEFAULT 0, admission VARCHAR(8), delivery VARCHAR(8), client VARCHAR(30) NOT NULL, number INT NOT NULL, workpiece VARCHAR(2) NOT NULL, quantity INT NOT NULL, due_date INT NOT NULL, late_pen INT NOT NULL, early_pen INT NOT NULL, PRIMARY KEY (id));".format(dbname)
+							sql = "CREATE TABLE IF NOT EXISTS {}_orders(id INT NOT NULL AUTO_INCREMENT, done VARCHAR(1) NOT NULL DEFAULT '', delivered INT NOT NULL DEFAULT 0, start VARCHAR(8), end VARCHAR(8), client VARCHAR(30) NOT NULL, number INT NOT NULL, workpiece VARCHAR(2) NOT NULL, quantity INT NOT NULL, due_date INT NOT NULL, late_pen INT NOT NULL, early_pen INT NOT NULL, PRIMARY KEY (id));".format(dbname)
 						else:
 							sql = "CREATE TABLE IF NOT EXISTS {}_orders(id INT NOT NULL AUTO_INCREMENT, done VARCHAR(1) NOT NULL DEFAULT '', workpiece VARCHAR(2) NOT NULL, PRIMARY KEY (id));".format(dbname)
 						cursor.execute(sql)
@@ -250,10 +250,13 @@ class Database:
 			with conn.cursor() as cursor:
 				sql = "USE {}".format(dbname)
 				cursor.execute(sql)
-				if dbname != "request":
-					timeNow = datetime.datetime.now().strftime("%H:%M:%S")
+				timeNow = datetime.datetime.now().strftime("%H:%M:%S")
+				if dbname == "erp":
 					print("																					timeAdmission: ", timeNow)
 					sql = "INSERT INTO {}_orders (admission, client, number, workpiece, quantity, due_date, late_pen, early_pen) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)".format(dbname)
+					value = (timeNow, client, order.number, order.workpiece, order.quantity, order.due_date, order.late_pen, order.early_pen)
+				elif dbname == "mes":
+					sql = "INSERT INTO {}_orders (start, client, number, workpiece, quantity, due_date, late_pen, early_pen) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)".format(dbname)
 					value = (timeNow, client, order.number, order.workpiece, order.quantity, order.due_date, order.late_pen, order.early_pen)
 				else:
 					sql = "INSERT INTO {}_orders (client, number, workpiece, quantity, due_date, late_pen, early_pen) VALUES (%s, %s, %s, %s, %s, %s, %s)".format(dbname)
@@ -345,10 +348,10 @@ class Database:
 				sql = "ALTER TABLE temp DROP COLUMN done"
 				cursor.execute(sql)
 				if (dbname == "mes"):
-					cursor.execute("ALTER TABLE temp DROP COLUMN stock")
-				elif (dbname == "erp"):
 					cursor.execute("ALTER TABLE temp DROP COLUMN delivered")
-				if(dbname != "requests"):
+					cursor.execute("ALTER TABLE temp DROP COLUMN start")
+					cursor.execute("ALTER TABLE temp DROP COLUMN end")
+				elif (dbname == "erp"):
 					cursor.execute("ALTER TABLE temp DROP COLUMN admission")
 					cursor.execute("ALTER TABLE temp DROP COLUMN delivery")
 				sql = "SELECT * FROM temp"
@@ -393,10 +396,10 @@ class Database:
 				sql = "ALTER TABLE temp DROP COLUMN done"
 				cursor.execute(sql)
 				if (dbname == "mes"):
-					cursor.execute("ALTER TABLE temp DROP COLUMN stock")
-				elif (dbname == "erp"):
 					cursor.execute("ALTER TABLE temp DROP COLUMN delivered")
-				if(dbname != "requests"):
+					cursor.execute("ALTER TABLE temp DROP COLUMN start")
+					cursor.execute("ALTER TABLE temp DROP COLUMN end")
+				elif (dbname == "erp"):
 					cursor.execute("ALTER TABLE temp DROP COLUMN admission")
 					cursor.execute("ALTER TABLE temp DROP COLUMN delivery")
 				if (dbname != "requests"):
@@ -442,10 +445,9 @@ class Database:
 				if(dbname == "erp"):
 					sql = "CREATE TEMPORARY TABLE temp SELECT mp.* FROM {}_orders mp WHERE ID in (SELECT * FROM {}_processing) ORDER BY due_date".format(dbname, dbname)
 				elif(dbname == "mes"):
-					sql = "CREATE TEMPORARY TABLE temp SELECT mp.* FROM {}_orders mp LEFT JOIN (SELECT workpiece, COUNT(*) AS ware2_count FROM {}_ware2 GROUP BY workpiece) mw ON mp.workpiece = mw.workpiece WHERE id IN (SELECT * FROM {}_processing) AND ((stock = quantity AND done <> 'X') OR mw.ware2_count > 0) ORDER BY due_date".format(dbname, dbname, dbname)
+					sql = "CREATE TEMPORARY TABLE temp SELECT mp.* FROM {}_orders mp LEFT JOIN (SELECT workpiece, COUNT(*) AS ware2_count FROM {}_ware2 GROUP BY workpiece) mw ON mp.workpiece = mw.workpiece WHERE id IN (SELECT id FROM {}_processing) AND mw.ware2_count >= quantity AND done <> 'X' ORDER BY due_date".format(dbname, dbname, dbname)
 				cursor.execute(sql)
 				cursor.execute("ALTER TABLE temp DROP COLUMN id")
-				cursor.execute("ALTER TABLE temp DROP COLUMN done")
 				cursor.execute("SELECT * FROM temp")
 				if(dbname == "erp"):
 					self.erp_order = cursor.fetchall()
@@ -487,12 +489,13 @@ class Database:
 				sql = "ALTER TABLE temp DROP COLUMN done"
 				cursor.execute(sql)
 				if (dbname == "mes"):
-					cursor.execute("ALTER TABLE temp DROP COLUMN stock")
-				elif (dbname == "erp"):
 					cursor.execute("ALTER TABLE temp DROP COLUMN delivered")
-				if (dbname != "requests"):
+					cursor.execute("ALTER TABLE temp DROP COLUMN start")
+					cursor.execute("ALTER TABLE temp DROP COLUMN end")
+				elif (dbname == "erp"):
 					cursor.execute("ALTER TABLE temp DROP COLUMN admission")
 					cursor.execute("ALTER TABLE temp DROP COLUMN delivery")
+				if (dbname != "requests"):
 					sql = "SELECT * FROM temp ORDER BY due_date"
 					cursor.execute(sql)
 				else:
@@ -538,13 +541,6 @@ class Database:
 				cursor.execute(sql)
 				sql = "ALTER TABLE temp DROP COLUMN done"
 				cursor.execute(sql)
-				if (dbname == "mes"):
-					cursor.execute("ALTER TABLE temp DROP COLUMN stock")
-				elif (dbname == "erp"):
-					cursor.execute("ALTER TABLE temp DROP COLUMN delivered")
-				if(dbname != "requests"):
-					cursor.execute("ALTER TABLE temp DROP COLUMN admission")
-					cursor.execute("ALTER TABLE temp DROP COLUMN delivery")
 				sql = "SELECT * FROM temp"
 				cursor.execute(sql)
 
@@ -936,13 +932,12 @@ class Database:
 							cursor.execute("ALTER TABLE temp DROP COLUMN id")
 							cursor.execute("ALTER TABLE temp DROP COLUMN done")
 							if (dbname == "mes"):
-								cursor.execute("ALTER TABLE temp DROP COLUMN stock")
-							elif (dbname == "erp"):
 								cursor.execute("ALTER TABLE temp DROP COLUMN delivered")
-							sql = "ALTER TABLE temp DROP COLUMN admission"
-							cursor.execute(sql)
-							sql = "ALTER TABLE temp DROP COLUMN delivery"
-							cursor.execute(sql)
+								cursor.execute("ALTER TABLE temp DROP COLUMN start")
+								cursor.execute("ALTER TABLE temp DROP COLUMN end")
+							elif (dbname == "erp"):
+								cursor.execute("ALTER TABLE temp DROP COLUMN admission")
+								cursor.execute("ALTER TABLE temp DROP COLUMN delivery")
 							sql = "SELECT * FROM temp"
 							cursor.execute(sql)
 							if(dbname == "erp"):
@@ -1008,10 +1003,6 @@ class Database:
 							cursor.execute("SET SQL_SAFE_UPDATES = 1")
 							cursor.execute("ALTER TABLE temp DROP COLUMN id")
 							cursor.execute("ALTER TABLE temp DROP COLUMN done")
-							sql = "ALTER TABLE temp DROP COLUMN admission"
-							cursor.execute(sql)
-							sql = "ALTER TABLE temp DROP COLUMN delivery"
-							cursor.execute(sql)
 							cursor.execute("SELECT * FROM temp")
 							self.requests_order = cursor.fetchall()
 							cursor.execute("DROP TABLE temp")
@@ -1341,20 +1332,31 @@ class Database:
 						cursor.execute(sql)
 						exists = cursor.fetchall()
 						if(exists[0][0]):
-							# if dbname == "erp":
-							cursor.execute("SELECT admission FROM {}_orders WHERE number = ".format(dbname) + str(order_number) + " AND client = \"" + client + "\"")
-							admissionTime = cursor.fetchall()
-							timeAdmission = datetime.datetime.strptime(admissionTime[0][0], '%H:%M:%S')
-							timeNow = datetime.datetime.now().strftime("%H:%M:%S")
-							print("																					timeDelivery: ", timeNow)
-							print("																					timeDelivery: ", timeAdmission)
-							timeDiff = datetime.datetime.strptime(timeNow, '%H:%M:%S') - datetime.datetime.strptime(admissionTime[0][0], '%H:%M:%S')
-							print("																					timeElapsed: ", timeDiff)
-							sql = "UPDATE {}_orders SET done = 'X', delivery = '{}' WHERE number = ".format(dbname, timeNow) + str(order_number) + " AND client = \"" + client + "\" AND done <> 'X'"
-							cursor.execute(sql)
-							# else:
-							# 	sql = "UPDATE {}_orders SET done = 'X' WHERE number = ".format(dbname) + str(order_number) + " AND client = \"" + client + "\" AND done <> 'X'"
-							# 	cursor.execute(sql)
+							if dbname == "erp":
+								cursor.execute("SELECT admission FROM {}_orders WHERE number = ".format(dbname) + str(order_number) + " AND client = \"" + client + "\"")
+								admissionTime = cursor.fetchall()
+								timeAdmission = datetime.datetime.strptime(admissionTime[0][0], '%H:%M:%S')
+								timeNow = datetime.datetime.now().strftime("%H:%M:%S")
+								print("																					timeAdmission: ", timeAdmission)
+								print("																					timeNow: ", timeNow)
+								timeDiff = datetime.datetime.strptime(timeNow, '%H:%M:%S') - datetime.datetime.strptime(admissionTime[0][0], '%H:%M:%S')
+								print("																					timeElapsed: ", timeDiff)
+								sql = "UPDATE {}_orders SET done = 'X', delivery = '{}' WHERE number = ".format(dbname, timeNow) + str(order_number) + " AND client = \"" + client + "\" AND done <> 'X'"
+								cursor.execute(sql)
+							elif dbname == "mes":
+								cursor.execute("SELECT start FROM {}_orders WHERE number = ".format(dbname) + str(order_number) + " AND client = \"" + client + "\"")
+								admissionTime = cursor.fetchall()
+								timeAdmission = datetime.datetime.strptime(admissionTime[0][0], '%H:%M:%S')
+								timeNow = datetime.datetime.now().strftime("%H:%M:%S")
+								print("																					timeAdmission: ", timeAdmission)
+								print("																					timeNow: ", timeNow)
+								timeDiff = datetime.datetime.strptime(timeNow, '%H:%M:%S') - datetime.datetime.strptime(admissionTime[0][0], '%H:%M:%S')
+								print("																					timeElapsed: ", timeDiff)
+								sql = "UPDATE {}_orders SET done = 'X', end = '{}' WHERE number = ".format(dbname, timeNow) + str(order_number) + " AND client = \"" + client + "\" AND done <> 'X'"
+								cursor.execute(sql)
+							else:
+								sql = "UPDATE {}_orders SET done = 'X' WHERE number = ".format(dbname) + str(order_number) + " AND client = \"" + client + "\" AND done <> 'X'"
+								cursor.execute(sql)
 							conn.commit()
 							sql = "DELETE FROM {}_processing WHERE id IN (SELECT id FROM {}_orders WHERE number = ".format(dbname, dbname) + str(order_number) + " AND client = \"" + client + "\")"
 							cursor.execute(sql)
@@ -1411,16 +1413,7 @@ class Database:
 			with conn.cursor() as cursor:
 				sql = "USE {}".format(dbname)
 				cursor.execute(sql)
-				sql = "UPDATE {}_orders SET delivered = (delivered + {}) WHERE number = ".format(dbname, quantity) + str(order_number) + " AND client = \"" + client + "\" AND done <> 'X'"
-				cursor.execute(sql)
-				conn.commit()
-
-	def updateStock(self, piece, quantity, dbname):
-		with self.conn.get_connection() as conn:											# Connects to the server
-			with conn.cursor() as cursor:
-				sql = "USE {}".format(dbname)
-				cursor.execute(sql)
-				sql = "UPDATE {}_orders SET stock = (stock + {}) WHERE workpiece = '{}'".format(dbname, quantity, piece)
+				sql = "UPDATE {}_orders SET delivered = (delivered + {}) WHERE number = ".format(dbname, quantity) + str(order_number) + " AND client = \"" + client + "\""
 				cursor.execute(sql)
 				conn.commit()
 
