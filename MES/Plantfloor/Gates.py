@@ -1,5 +1,5 @@
 import sys
-sys.path.append('C:\\Users\\Levy\\Documents\\GitHub\\INFI\\MES\\OPCUAClient')  # Add the path to the customQueue directory  # Add the path to the customQueue directory
+sys.path.append('C:\\Users\\Levy\\Documents\\GitHub\\INFI\\MES\\OPCUAClient')
 import OPCUAClient
 from math import floor
 import time
@@ -10,34 +10,35 @@ class Gates:
         self.opcuaClient = opcuaClient
         self.nGates = 4
         self.db = database
+        self.lastGate = 1  # Track the last gate used
 
     def spawnPieces(self, pieceType, quantity):
-        """ pType = int(pieceType.strip('P'))
-        self.gateUpdateQueue.put({'gate': 1, 'piece': pType, 'quantity': quantity}) """
-
-        piecesByGate = floor(quantity/self.nGates)
-        print(piecesByGate)
-        remainder = quantity%self.nGates
+        piecesByGate = floor(quantity / self.nGates)
+        remainder = quantity % self.nGates
         pType = int(pieceType.strip('P'))
 
-        updateGate1 = {'gate': 1, 'piece': pType, 'quantity': piecesByGate + remainder}
-        updateGate2 = {'gate': 2, 'piece': pType, 'quantity': piecesByGate}
-        updateGate3 = {'gate': 3, 'piece': pType, 'quantity': piecesByGate}
-        updateGate4 = {'gate': 4, 'piece': pType, 'quantity': piecesByGate}
-        self.gateUpdateQueue.put(updateGate1)
-        self.db.insertInQueue("gateUpd", updateGate1, "mes")
-        if piecesByGate > 0:
-            self.gateUpdateQueue.put(updateGate2)
-            self.db.insertInQueue("gateUpd", updateGate2, "mes")
-            self.gateUpdateQueue.put(updateGate3)
-            self.db.insertInQueue("gateUpd", updateGate3, "mes")
-            self.gateUpdateQueue.put(updateGate4)
-            self.db.insertInQueue("gateUpd", updateGate4, "mes")
+        # Start distributing from the next gate after the last one used
+        gate = self.lastGate
+
+        for _ in range(self.nGates):
+            quantityForGate = piecesByGate
+            if remainder > 0:
+                quantityForGate += 1
+                remainder -= 1
+            
+            updateGate = {'gate': gate, 'piece': pType, 'quantity': quantityForGate}
+            self.gateUpdateQueue.put(updateGate)
+            self.db.insertInQueue("gateUpd", updateGate, "mes")
+
+            # Move to the next gate in sequence
+            gate = (gate % self.nGates) + 1
+
+        # Remember the last gate used
+        self.lastGate = gate
 
     def waitGateDone(self, gate):
         time.sleep(1)
-        while not self.opcuaClient.getSpawnStatus(gate-1):
-            #print(self.opcuaClient.getSpawnStatus(gate-1))
+        while not self.opcuaClient.getSpawnStatus(gate - 1):
             time.sleep(0.5)
         return True
     
