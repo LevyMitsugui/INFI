@@ -344,7 +344,7 @@ class Manager():
         counter2 = 0
 
         while True:
-            time.sleep(0.5)
+            time.sleep(1)
             p1count = self.warehouses[0].getStock()[0]
             p2count = self.warehouses[0].getStock()[1]
 
