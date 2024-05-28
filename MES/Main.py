@@ -329,6 +329,25 @@ class Manager():
         except:
             print('[Manager] Could not start StartWareHouse thread')
 
+    def startRestockWareHouse(self):
+        try:
+            threading.Thread(target=self.__restockWareHouse__, daemon=True).start()
+            print('[Manager] StartRestockWareHouse thread started')
+        except:
+            print('[Manager] Could not start StartRestockWareHouse thread')
+
+    def __restockWareHouse__(self):
+        while True:
+            time.sleep(0.2)
+            p1count = Warehouse[0].getStock()[0]
+            p2count = Warehouse[0].getStock()[1]
+            if ( p1count < 10):
+                Gates.spawnPieces('P1', 10 - p1count)
+
+            if ( p2count < 10):
+                Gates.spawnPieces('P2', 10 - p2count)
+                
+
     def addProcessedPiece(self, piece):
         self.piecesProcessed.append(piece)
 
@@ -540,6 +559,7 @@ manager.gates.spawnPieces('P2', 8)
 
 manager.postRequests()
 manager.startWareHouse()
+manager.startRestockWareHouse()
 manager.postDoneOrders()
 manager.postOrdersReady()
 manager.printRequestQueue()
