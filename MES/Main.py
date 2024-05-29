@@ -335,6 +335,12 @@ class Manager():
             print('[Manager] Could not start StartRestockWareHouse thread')
 
     def __restockWareHouse__(self):
+        supplier = 'C'
+        restockThreshold = 40
+        setOrderP1 = False
+        startTimeP1 = 0
+        setOrderP2 = False
+        startTimeP2 = 0
 
         while True:
             time.sleep(10)
@@ -344,15 +350,41 @@ class Manager():
             p2count = self.warehouses[0].getStock()[1]
             print(self.warehouses[0].getStock())
 
-            if gateUpdateQueue.qsize() == 0 and p1count < 10:
-                self.gates.spawnPieces('P1', 10 - p1count)
-                self.warehouses[0].setStock('P1', 10)
 
-            if gateUpdateQueue.qsize() == 0 and p2count < 10:
-                print('RESTOCKED P2')
-                self.gates.spawnPieces('P2', 10 - p2count)
-                self.warehouses[0].setStock('P2', 10)
-                
+            if gateUpdateQueue.qsize() == 0 and p1count < restockThreshold and setOrderP1 == False:
+                missing1 = restockThreshold - p1count
+                if missing1 > 16:
+                    print('[Manager] Ordering P1 from supplier A')
+                    setOrderP1 = True
+                    startTimeP1 = time.time() + self.__solveRestockColision__(setOrderP2, startTimeP2, missing2+16)
+                    
+            elif gateUpdateQueue.qsize() == 0 and p2count < restockThreshold and setOrderP2 == False:
+                missing2 = restockThreshold - p2count
+                if missing2 > 16:
+                    print('[Manager] Ordering P2 from supplier A')
+                    setOrderP2 = True
+                    startTimeP2 = time.time() + self.__solveRestockColision__(setOrderP1, startTimeP1, missing1+16)
+
+
+            if setOrderP1 and time.time() - startTimeP1 > 4*60:
+                self.gates.spawnPieces('P1', missing1 + 16)
+                self.warehouses[0].setStock('P1', missing1 + 16)
+                time.sleep(1.03*missing1)
+                setOrderP1 = False
+            
+            elif setOrderP2 and time.time() - startTimeP2 > 4*60:
+                self.gates.spawnPieces('P2', missing2 + 16)
+                self.warehouses[0].setStock('P2', missing2 + 16)
+                time.sleep(1.03*missing2)
+                setOrderP2 = False
+
+    def __solveRestockColision__(self, setOther, startTimeOther, missingOther):
+        now = time.time()
+        dif =startTimeOther + 4*60 + missingOther*1.03 - now+ 4*60
+        if dif > 0 and setOther == True:
+            return dif
+        else:
+            return 0
 
     def addProcessedPiece(self, piece):
         self.piecesProcessed.append(piece)
@@ -553,9 +585,9 @@ manager.configMachines(machineUpdateQueue)
 
 manager.configWareHouse(inWHQueue, outWHQueue)
 
-
-#manager.gates.spawnPieces('P2', 8)
-manager.startRestockWareHouse()
+print('### ORDERING###')
+manager.gates.spawnPieces('P2', 100)
+#manager.startRestockWareHouse()
 
 manager.postRequests()
 manager.startWareHouse()
