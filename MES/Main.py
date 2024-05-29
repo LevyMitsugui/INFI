@@ -337,7 +337,9 @@ class Manager():
     def __restockWareHouse__(self):
 
         while True:
-            time.sleep(1)
+            time.sleep(10)
+            print('WHAREHOUSE 0', self.warehouses[0].getStock())
+            print('WHAREHOUSE 1', self.warehouses[1].getStock())
             p1count = self.warehouses[0].getStock()[0]
             p2count = self.warehouses[0].getStock()[1]
 
@@ -345,7 +347,7 @@ class Manager():
                 self.gates.spawnPieces('P1', 2)
 
             if (p2count < 9 and p2count%2 != 0) or p2count < 2:
-                self.gates.spawnPieces('P2', 2)
+                self.gates.spawnPieces('P2', 6)
                 
 
     def addProcessedPiece(self, piece):
@@ -502,8 +504,11 @@ class Manager():
         else:
             return False
         
-    def fuckGoBakc(self): #TODO implement the piece go back
-        pass
+    def transferPiece(self, piece): #TODO implement the piece go back
+        self.warehouses[1].outputPiece(piece, 0)
+        while OPCUAClient.getTransferCellStatusEdge() in ['None', 'Fall']:
+            time.sleep(1)
+        self.warehouses[0].inputPiece(piece, 0)
 
 
 class Order:
