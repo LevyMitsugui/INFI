@@ -32,6 +32,7 @@ class Cell:
         self.transformations = transformations
         self.setsLists = []
         self.db = Database("root", "admin")
+        self.penaltyTime = 0
 
 
         self.__allTools__ = []
@@ -96,9 +97,13 @@ class Cell:
             self.machines[1].waitForMachineDone(self.ID)
             request, recipe = self.getRequest() 
             if request is None or recipe is None:
-                time.sleep(3)
+                self.penaltyTime += self.ID*0.1
+                if self.penaltyTime > 5:
+                    self.penaltyTime = 0
+                time.sleep(3+self.penaltyTime)
                 continue
             self.setBusy()
+            self.penaltyTime = 0
             print('[Cell ', self.ID,' Cycle] Processing request: ', request)
 
             if not 'Step' in request.keys() and request['Piece'] != 'P5' and request['Piece'] != 'P9':
@@ -139,9 +144,9 @@ class Cell:
                     self.warehouses[1].inputPiece(recipe['Piece'] , 4 + self.ID)#ha de ser alterado
                 self.setFree()
             
-            elif 'Step' in request.keys():
+            elif request['Piece']=='P5' and 'Step' in request.keys():
                 self.warehouses[0].outputPiece('P4', self.ID)
-                self.machines[0].updateToolAndTime(self.ID, self.machines[0].getToolSelect(),0)    
+                self.machines[0].updateToolAndTime(self.ID, self.machines[0].getToolSelect(),0) #skip ahead    
                 
                 step = request['Step']
                 waitingTime = step['Time']
@@ -150,7 +155,7 @@ class Cell:
                 self.machines[1].waitForMachineNotDone(self.ID)
                 self.machines[1].waitForMachineDone(self.ID)
 
-                self.warehouses[1].inputPiece(recipe['Piece'] , 4 + self.ID)#ha de ser alterado
+                self.warehouses[1].inputPiece(recipe['Piece'] , 4 + self.ID)
                 self.setFree()
 
             elif request['Piece']=='P9' and 'Steps' in request.keys():
@@ -159,7 +164,7 @@ class Cell:
                 print('[Cell ', self.ID,' Cycle] steps length: ', len(request['Steps']))
                 self.warehouses[0].outputPiece('P2', self.ID)
                 #piece goes straight to the second machine (skips machine 0)
-                self.machines[0].updateToolAndTime(self.ID, request['Steps'][1]['Tool'],0)#TODO update right tool
+                self.machines[0].updateToolAndTime(self.ID, request['Steps'][1]['Tool'],0)#TODO update right tool with precedence
 
                 steps = request['Steps']
                 print('[Cell ', self.ID,' Cycle] steps: ', steps)

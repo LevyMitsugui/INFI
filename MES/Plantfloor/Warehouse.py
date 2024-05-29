@@ -8,7 +8,7 @@ class Warehouse:
     def __init__(self, ID, opcuaClient, inWHQueue, outWHQueue, database):
         self.opcuaClient = opcuaClient
         self.ID = ID
-        self.pieces = [10,0,0,0,0,0,0,0,0]
+        self.pieces = self.__getInitialWHState__()
         self.inputGates = []
 
         self.inWHQueue = inWHQueue
@@ -78,6 +78,14 @@ class Warehouse:
         self.outWHQueue.put(update)
         self.db.insertInQueue("outWH", update, "mes")
         time.sleep(2)
+
+    def __getInitialWHState__(self):
+        if self.getID() == 0:
+            return [20,0,0,0,0,0,0,0,0]
+        elif self.getID() == 1:
+            return [0,0,0,0,0,0,0,0,10]
+        else:
+            raise ValueError("Invalid warehouse ID")
         
 
 class WarehouseUp(Warehouse):

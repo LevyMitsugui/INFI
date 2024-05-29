@@ -209,6 +209,7 @@ class Manager():
 
         self.beginningTime = time.time()
 
+
     def __initCells__(self,):
         cells = []
         for i in range(6):
@@ -335,52 +336,120 @@ class Manager():
             print('[Manager] Could not start StartRestockWareHouse thread')
 
     def __restockWareHouse__(self):
-        supplier = 'C'
+        time4min = 240
+        time2min = 120
+        time1min = 10 #ARRUMAR!!!!!!!!!!!!!!
+        time30sec = 30
+        waitTime = time30sec
+
         restockThreshold = 40
         setOrderP1 = False
         startTimeP1 = 0
         setOrderP2 = False
         startTimeP2 = 0
+        priceP1 = 0
+        priceP2 = 0
 
+        missing1 = 0
+        missing2 = 0
+
+        firstRun = 2
+
+        print('time to restock supplier C: ', time1min, 'min')
+        print('time to restock supplier A: ', time4min, 'min')
         while True:
-            time.sleep(10)
+            time.sleep(2)
             print('WHAREHOUSE 0', self.warehouses[0].getStock())
             print('WHAREHOUSE 1', self.warehouses[1].getStock())
             p1count = self.warehouses[0].getStock()[0]
             p2count = self.warehouses[0].getStock()[1]
-            print(self.warehouses[0].getStock())
 
-
-            if gateUpdateQueue.qsize() == 0 and p1count < restockThreshold and setOrderP1 == False:
-                missing1 = restockThreshold - p1count
-                if missing1 > 16:
-                    print('[Manager] Ordering P1 from supplier A')
-                    setOrderP1 = True
-                    startTimeP1 = time.time() + self.__solveRestockColision__(setOrderP2, startTimeP2, missing2+16)
+            if firstRun != 0:
+                print('Running first run')
+                if gateUpdateQueue.qsize() == 0 and p2count < restockThreshold and setOrderP2 == False and firstRun == 2:
+                    print('Order P2?')
+                    missing2 = restockThreshold - p2count
+                    if missing2 > 16:
+                        print('[Manager] Ordering P2 from supplier C')
+                        setOrderP2 = True
+                        startTimeP2 = time.time() + self.__solveRestockColision__(setOrderP1, startTimeP1, missing1+16, time1min)
+                    firstRun = 1
                     
-            elif gateUpdateQueue.qsize() == 0 and p2count < restockThreshold and setOrderP2 == False:
-                missing2 = restockThreshold - p2count
-                if missing2 > 16:
-                    print('[Manager] Ordering P2 from supplier A')
-                    setOrderP2 = True
-                    startTimeP2 = time.time() + self.__solveRestockColision__(setOrderP1, startTimeP1, missing1+16)
+                        
+                elif gateUpdateQueue.qsize() == 0 and p1count < restockThreshold and setOrderP1 == False and firstRun == 1:
+                    print('Order P1?')
+                    missing1 = restockThreshold - p1count
+                    if missing1 > 16:
+                        print('[Manager] Ordering P1 from supplier C')
+                        setOrderP1 = True
+                        startTimeP1 = time.time() + self.__solveRestockColision__(setOrderP2, startTimeP2, missing2+16, time1min)
+                    
 
+                if setOrderP2:
+                    print('Time since order P2: ', time.time() - startTimeP2)
+                if setOrderP1:
+                    print('Time since order P1: ', time.time() - startTimeP1)
 
-            if setOrderP1 and time.time() - startTimeP1 > 4*60:
-                self.gates.spawnPieces('P1', missing1 + 16)
-                self.warehouses[0].setStock('P1', missing1 + 16)
-                time.sleep(1.03*missing1)
-                setOrderP1 = False
-            
-            elif setOrderP2 and time.time() - startTimeP2 > 4*60:
-                self.gates.spawnPieces('P2', missing2 + 16)
-                self.warehouses[0].setStock('P2', missing2 + 16)
-                time.sleep(1.03*missing2)
-                setOrderP2 = False
+                if setOrderP2 and time.time() - startTimeP2 > time1min:
+                    priceP2 = 18 #Price by piece
+                    #TODO inserir na DATABASE
+                    self.gates.spawnPieces('P2', missing2 + 16)       #SPAWN de Facto
+                    self.warehouses[0].setStock('P2', p2count + missing2 + 16)
+                    time.sleep(1.03*(missing2+16))
+                    setOrderP2 = False
+                    
+                
+                elif setOrderP1 and time.time() - startTimeP1 > time1min:
+                    priceP1 = 55 #Price by piece
+                    #TODO inserir na DATABASE
+                    self.gates.spawnPieces('P1', missing1 + 16)       #SPAWN de Facto
+                    self.warehouses[0].setStock('P1', p1count + missing1 + 16)
+                    time.sleep(1.03*(missing1+16))
+                    setOrderP1 = False
+                    firstRun = 0
 
-    def __solveRestockColision__(self, setOther, startTimeOther, missingOther):
+            elif firstRun == 0:
+                print('Running second run')
+                if gateUpdateQueue.qsize() == 0 and p2count < restockThreshold and setOrderP2 == False:
+                    missing2 = restockThreshold - p2count
+                    if missing2 > 16:
+                        print('[Manager] Ordering P2 from supplier A')
+                        setOrderP2 = True
+                        startTimeP2 = time.time() + self.__solveRestockColision__(setOrderP1, startTimeP1, missing1+16, waitTime)
+                        
+                elif gateUpdateQueue.qsize() == 0 and p1count < restockThreshold and setOrderP1 == False:
+                    missing1 = restockThreshold - p1count
+                    if missing1 > 16:
+                        print('[Manager] Ordering P1 from supplier A')
+                        setOrderP1 = True
+                        startTimeP1 = time.time() + self.__solveRestockColision__(setOrderP2, startTimeP2, missing2+16, waitTime)
+
+                if setOrderP2:
+                    print('Time since order P2: ', time.time() - startTimeP2)
+                if setOrderP1:
+                    print('Time since order P1: ', time.time() - startTimeP1)
+
+                if setOrderP2 and time.time() - startTimeP2 > waitTime:
+                    if waitTime == time4min:
+                        priceP2 = 10 #Price by piece
+                    #TODO inserir na DATABASE
+                    self.gates.spawnPieces('P2', missing2 + 16)       #SPAWN de Facto
+                    self.warehouses[0].setStock('P2', p2count + missing2 + 16)
+                    time.sleep(1.03*(missing2+16))
+                    setOrderP2 = False
+                
+                elif setOrderP1 and time.time() - startTimeP1 > waitTime:
+                    if waitTime == time4min:
+                        priceP1 = 30 #Price by piece
+                    #TODO inserir na DATABASE
+                    self.gates.spawnPieces('P1', missing1 + 16)       #SPAWN de Facto
+                    self.warehouses[0].setStock('P1', p1count + missing1 + 16)
+                    time.sleep(1.03*(missing1+16))
+                    setOrderP1 = False
+
+    def __solveRestockColision__(self, setOther, startTimeOther, missingOther, waitTime):
         now = time.time()
-        dif =startTimeOther + 4*60 + missingOther*1.03 - now+ 4*60
+        dif =startTimeOther + waitTime + missingOther*1.03 - (now+ waitTime+(now-startTimeOther))
         if dif > 0 and setOther == True:
             return dif
         else:
@@ -540,12 +609,25 @@ class Manager():
         else:
             return False
         
-    def transferPiece(self, piece): #TODO implement the piece go back
-        self.warehouses[1].outputPiece(piece, 0)
-        while OPCUAClient.getTransferCellStatusEdge() in ['None', 'Fall']:
+    def __transferPiece__(self): #TODO implement the piece go back
+        while True:
             time.sleep(1)
-        self.warehouses[0].inputPiece(piece, 0)
-
+            if self.warehouses[0].getStock()[7] < 3 and self.warehouses[1].getStock()[7] > 0: #To produce P9 from P8
+                self.warehouses[1].outputPiece('P8', 0)
+                while OPCUAClient.getTransferCellStatusEdge() in ['None', 'Fall']:
+                    time.sleep(1)
+                self.warehouses[0].inputPiece('P8', 0)
+            elif self.warehouses[0].getStock()[3] < 3 and self.warehouses[1].getStock()[3] > 0: #To produce P5 from P4
+                self.warehouses[1].outputPiece('P4', 0)
+                while OPCUAClient.getTransferCellStatusEdge() in ['None', 'Fall']:
+                    time.sleep(1)
+                self.warehouses[0].inputPiece('P4', 0)
+    def trasnferPiece(self):
+        try:
+            threading.Thread(target=self.__transferPiece__, daemon=True).start()
+            print('[Manager] TransferPiece thread started')
+        except:
+            print('[Manager] Could not start TransferPiece thread')
 
 class Order:
     def __init__(self, number, workpiece, quantity, due_date, late_pen, early_pen):
@@ -558,8 +640,6 @@ class Order:
 
 
 
-order = {'clientID' : 'Client AA', 'Order Number' : 18, 'WorkPiece' : 'P6', 'Quantity' : 8, 'DueDate' : 7, 'LatePen' : 10, 'EarlyPen' : 5}
-order1 = {'clientID' : 'Client AA', 'Order Number' : 19, 'WorkPiece' : 'P7', 'Quantity' : 12, 'DueDate' : 7, 'LatePen' : 10, 'EarlyPen' : 5}
 
 orderQueue = customQueue.customQueue()
 requestQueue = customQueue.customQueue()
@@ -586,14 +666,25 @@ manager.configMachines(machineUpdateQueue)
 manager.configWareHouse(inWHQueue, outWHQueue)
 
 print('### ORDERING###')
-manager.gates.spawnPieces('P2', 100)
-#manager.startRestockWareHouse()
+#manager.gates.spawnPieces('P2', 100)
+manager.startRestockWareHouse()
 
 manager.postRequests()
 manager.startWareHouse()
 manager.postDoneOrders()
 manager.postOrdersReady()
 manager.printRequestQueue()
+manager.trasnferPiece()
+
+
+requestQueue.put({'Piece': 'P8'})
+requestQueue.put({'Piece': 'P8'})
+requestQueue.put({'Piece': 'P8'})
+    #manager.db.insertRequestOrder('P8', "requests") #TODO Enable this
+requestQueue.put({'Piece': 'P4'})
+requestQueue.put({'Piece': 'P4'})
+requestQueue.put({'Piece': 'P4'})
+    #manager.db.insertRequestOrder('P4', "requests") #TODO Enable this
 
 input()
 count = {}
