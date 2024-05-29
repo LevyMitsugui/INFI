@@ -393,8 +393,10 @@ class Manager():
 
                 if setOrderP2 and time.time() - startTimeP2 > time1min:
                     priceP2 = 18 #Price by piece
-                    #TODO inserir na DATABASE
                     self.gates.spawnPieces('P2', missing2 + 16)       #SPAWN de Facto
+                    # for i in range(missing2+16):
+                    #     self.db.insertInTable("supplier", "workpiece, arrival, raw_cost", "{}, {}, {}".format("P2", "CURRENT_TIME()", priceP2))
+                    
                     self.warehouses[0].setStock('P2', p2count + missing2 + 16)
                     time.sleep(1.03*(missing2+16))
                     setOrderP2 = False
@@ -402,7 +404,9 @@ class Manager():
                 
                 elif setOrderP1 and time.time() - startTimeP1 > time1min:
                     priceP1 = 55 #Price by piece
-                    #TODO inserir na DATABASE
+                    # for i in range(missing1+16):
+                    #     self.db.insertInTable("supplier", "workpiece, arrival, raw_cost", "{}, {}, {}".format("P1", "CURRENT_TIME()", priceP1))
+                    
                     self.gates.spawnPieces('P1', missing1 + 16)       #SPAWN de Facto
                     self.warehouses[0].setStock('P1', p1count + missing1 + 16)
                     time.sleep(1.03*(missing1+16))
@@ -433,7 +437,9 @@ class Manager():
                 if setOrderP2 and time.time() - startTimeP2 > waitTime:
                     if waitTime == time4min:
                         priceP2 = 10 #Price by piece
-                    #TODO inserir na DATABASE
+                    
+                    # for i in range(missing2+16):
+                    #     self.db.insertInTable("supplier", "workpiece, arrival, raw_cost", "{}, {}, {}".format("P2", "CURRENT_TIME()", priceP2))
                     self.gates.spawnPieces('P2', missing2 + 16)       #SPAWN de Facto
                     self.warehouses[0].setStock('P2', p2count + missing2 + 16)
                     time.sleep(1.03*(missing2+16))
@@ -442,7 +448,9 @@ class Manager():
                 elif setOrderP1 and time.time() - startTimeP1 > waitTime:
                     if waitTime == time4min:
                         priceP1 = 30 #Price by piece
-                    #TODO inserir na DATABASE
+                    
+                    # for i in range(missing1+16):
+                    #     self.db.insertInTable("supplier", "workpiece, arrival, raw_cost", "{}, {}, {}".format("P1", "CURRENT_TIME()", priceP1))
                     self.gates.spawnPieces('P1', missing1 + 16)       #SPAWN de Facto
                     self.warehouses[0].setStock('P1', p1count + missing1 + 16)
                     time.sleep(1.03*(missing1+16))
@@ -640,14 +648,28 @@ class Manager():
             time.sleep(1)
             if self.warehouses[0].getStock()[7] < 3 and self.warehouses[1].getStock()[7] > 0: #To produce P9 from P8
                 self.warehouses[1].outputPiece('P8', 0)
+                
+                self.db.insertInQueue("outWH", {'conveyor' : 0, 'piece' : 8}, "mes")
+                self.db.updateWare('P'+str(8), -1, "mes", 2)
+                
                 while OPCUAClient.getTransferCellStatusEdge() in ['None', 'Fall']:
                     time.sleep(1)
                 self.warehouses[0].inputPiece('P8', 0)
-            elif self.warehouses[0].getStock()[3] < 3 and self.warehouses[1].getStock()[3] > 0: #To produce P5 from P4
+                self.db.insertInQueue("inWH", {'conveyor' : 0, 'piece' : 8}, "mes")
+                self.db.updateWare('P'+str(8), 1, "mes", 1)
+            
+            
+            elif self.warehouses[0].getStock()[3] < 3 and self.warehouses[1].getStock()[3] > 0: #To produce P5 from P4              
                 self.warehouses[1].outputPiece('P4', 0)
+                
+                self.db.insertInQueue("outWH", {'conveyor' : 0, 'piece' : 4}, "mes")
+                self.db.updateWare('P'+str(4), -1, "mes", 2)
+
                 while OPCUAClient.getTransferCellStatusEdge() in ['None', 'Fall']:
                     time.sleep(1)
                 self.warehouses[0].inputPiece('P4', 0)
+                self.db.insertInQueue("inWH", {'conveyor' : 0, 'piece' : 4}, "mes")
+                self.db.updateWare('P'+str(4), 1, "mes", 1)
     def trasnferPiece(self):
         try:
             threading.Thread(target=self.__transferPiece__, daemon=True).start()
@@ -711,6 +733,7 @@ for i in range(3):
 for i in range(3):
     requestQueue.put(request)
     manager.db.insertRequestOrder(request, "requests")
+
 input()
 count = {}
 print(len(orderQueue.queue), "orders pendent in orderQueue")

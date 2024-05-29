@@ -199,7 +199,7 @@ class Database:
 							sql = "CREATE TABLE IF NOT EXISTS {}_gate_upd_queue(gate INT NOT NULL, piece INT NOT NULL, quantity INT NOT NULL);".format(dbname)
 							cursor.execute(sql)
 						elif (dbname == "requests"):
-							cursor.execute("CREATE TABLE IF NOT EXISTS {}_suplier(workpiece VARCHAR(2) NOT NULL, raw_cost INT NOT NULL DEFAULT 0);".format(dbname))
+							cursor.execute("CREATE TABLE IF NOT EXISTS {}_suplier(workpiece VARCHAR(2) NOT NULL, arrival TIME, raw_cost INT NOT NULL DEFAULT 0);".format(dbname))
 
 						conn.commit()
 					

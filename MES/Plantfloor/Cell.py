@@ -33,6 +33,7 @@ class Cell:
         self.recipes = recipes
         self.transformations = transformations
         self.setsLists = []
+        self.startup = True
         self.db = Database("root", "admin")
 
 
@@ -87,7 +88,7 @@ class Cell:
     def __cycle__(self):  
 
         while len(self.machines) != 2:
-            time.sleep(0.3)
+            time.sleep(2)
             print('[Cell ', self.ID,' Cycle] Machines improperly allocated to cell (machines:', len(self.machines), ')')
                    
         
@@ -99,7 +100,7 @@ class Cell:
             self.machines[1].waitForMachineDone(self.ID)
             print('[Cell ', self.ID,' Cycle] Cell operating')
             with self.thread_lock:
-                request, recipe = self.getRequest() 
+                request, recipe = self.getRequest(self.startup) 
             if request is None or recipe is None:
                 continue
             self.setBusy()
@@ -196,17 +197,18 @@ class Cell:
                 #Piece P9 is stored
 
                 self.setFree()
-
-            self.doneRequestQueue.put(request['Piece'])
+            if self.startup == True:
+                self.doneRequestQueue.put(request['Piece'])
+            self.startup = False
             
 
-    def getRequest(self):
+    def getRequest(self, startup):
         if self.requestQueue.qsize() == 0:
             return (None, None)
         
         request = self.requestQueue.get()
         
-        if request['Piece'] == 'P9' and self.ID < 3:
+        if request['Piece'] == 'P9' and self.ID < 3 or (request['Piece'] == 'P8' and self.startup and self.ID < 3): 
             print('[Cell ', self.ID,' getRequest] Request not processable: P9')
             self.requestQueue.put(request)
             return (None, None)
@@ -214,12 +216,18 @@ class Cell:
         recipe = self.getRecipe(request)
         reqGotTup = self.db.processRequestByPiece(request['Piece'], "requests")
        
-        if(recipe != None):
+        if(recipe != None): #TODO AQUIIIIIIIIIII
                 
             if(reqGotTup != None):
                         self.db.returnRequestByPiece(reqGotTup[0][0], "requests")
             
             print('[Cell ', self.ID,' getRequest] Request processable: ', request['Piece'])
+            #tup = self.db.getTable("suplier", "requests")
+            #if(tup != None)
+            #   self.db.updateColumn("orders", "arrival", "CURRENT_TIME()", "requests", None, "workpiece = {}".format(request['Piece']))
+            #
+            #
+            #
             return (request, recipe)
         
         else :
