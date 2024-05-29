@@ -3,7 +3,7 @@ from opcua import ua, Client
 import time
 import threading
 import datetime
-import Database
+#import Database
 
 class OPCUAClient:
     def __init__(self, inWHQueue, outWHQueue, machineUpdateQueue, gateUpdateQueue, database, host = "opc.tcp://localhost:4840/freeopcua/server/"):
@@ -180,8 +180,8 @@ class OPCUAClient:
         prevTimes.append(currTimes[3])
         referenceTimes = []
         referenceTimes.append(datetime.timedelta(seconds=0.5))  #input warehouse
-        referenceTimes.append(datetime.timedelta(seconds= 1.2))   #output warehouse
-        referenceTimes.append(datetime.timedelta(seconds=0.5))  #update machine
+        referenceTimes.append(datetime.timedelta(seconds= 1.4))   #output warehouse
+        referenceTimes.append(datetime.timedelta(seconds=0.2))  #update machine
         referenceTimes.append(datetime.timedelta(seconds=0.5))  #update gate
         
         while True:
