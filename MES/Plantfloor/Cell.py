@@ -7,7 +7,7 @@ from Database import Database
 import Plantfloor
 
 class Cell:
-    def __init__(self, ID, requestQueue, doneRequestQueue, recipes, transformations):
+    def __init__(self, ID, thread_lock, requestQueue, doneRequestQueue, recipes, transformations):
         """
         Initializes an instance of the class with the given ID.
 
@@ -22,6 +22,7 @@ class Cell:
         :return: None
         """
         self.ID = ID
+        self.thread_lock = thread_lock
         self.busy = False
         self.requestQueue = requestQueue
         self.doneRequestQueue = doneRequestQueue
@@ -32,7 +33,6 @@ class Cell:
         self.transformations = transformations
         self.setsLists = []
         self.db = Database("root", "admin")
-        self.penaltyTime = 0
 
 
         self.__allTools__ = []
@@ -93,14 +93,13 @@ class Cell:
         print('[Cell ', self.ID,' Cycle] Machines allocated to cell (machines:', len(self.machines), ')')
 
         while True:
+            time.sleep(1)
             self.machines[0].waitForMachineDone(self.ID)
             self.machines[1].waitForMachineDone(self.ID)
-            request, recipe = self.getRequest() 
+            print('[Cell ', self.ID,' Cycle] Cell operating')
+            with self.thread_lock:
+                request, recipe = self.getRequest() 
             if request is None or recipe is None:
-                self.penaltyTime += self.ID*0.1
-                if self.penaltyTime > 5:
-                    self.penaltyTime = 0
-                time.sleep(3+self.penaltyTime)
                 continue
             self.setBusy()
             self.penaltyTime = 0

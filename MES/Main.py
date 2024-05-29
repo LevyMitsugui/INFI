@@ -187,7 +187,7 @@ class SQLManager():
 
 class Manager():
 
-    def __init__(self, orderQueue, requestQueue, doneRequestQueue, database, OPCUAClient,recipesFile, transformsFile):
+    def __init__(self, orderQueue, requestQueue, doneRequestQueue, database, OPCUAClient,recipesFile, transformsFile, thread_lock):
         self.OrderQueue = orderQueue
         self.RequestQueue = requestQueue
         self.DoneRequestQueue = doneRequestQueue
@@ -197,7 +197,7 @@ class Manager():
 
         self.recipes = self.__csvReader__(recipesFile)
         self.transforms = self.__csvReader__(transformsFile)
-        self.cells = self.__initCells__()
+        self.cells = self.__initCells__(thread_lock)
 
         self.piecesProcessed = []
 
@@ -210,11 +210,11 @@ class Manager():
         self.beginningTime = time.time()
 
 
-    def __initCells__(self,):
+    def __initCells__(self, thread_lock):
         cells = []
         for i in range(6):
             time.sleep(0.1 + 0.017*i)
-            cells.append(Cell(i+1, self.RequestQueue, self.DoneRequestQueue, recipes=self.recipes, transformations=self.transforms))
+            cells.append(Cell(i+1, thread_lock, self.RequestQueue, self.DoneRequestQueue, recipes=self.recipes, transformations=self.transforms))
         return cells
     
 
@@ -638,7 +638,7 @@ class Order:
         self.late_pen = late_pen
         self.early_pen = early_pen
 
-
+thread_lock = threading.Lock()
 
 
 orderQueue = customQueue.customQueue()
@@ -660,7 +660,7 @@ SQLManager.getOrder()
 OPCUAClient = OPCUAClient(inWHQueue, outWHQueue, machineUpdateQueue, gateUpdateQueue, database)
 OPCUAClient.opcManager()
 
-manager = Manager(orderQueue, requestQueue, doneRequestQueue, database, OPCUAClient, './Recipe/Recipes.csv', './Recipe/WorkPieceTransform.csv')
+manager = Manager(orderQueue, requestQueue, doneRequestQueue, database, OPCUAClient, './Recipe/Recipes.csv', './Recipe/WorkPieceTransform.csv', thread_lock)
 manager.configMachines(machineUpdateQueue)
 
 manager.configWareHouse(inWHQueue, outWHQueue)
@@ -676,16 +676,15 @@ manager.postOrdersReady()
 manager.printRequestQueue()
 manager.trasnferPiece()
 
+request = {'Piece': 'P8'}
+request2 = {'Piece': 'P4'}
+for i in range(3): 
+    requestQueue.put(request2)
+    manager.db.insertRequestOrder(request2, "requests")
 
-requestQueue.put({'Piece': 'P8'})
-requestQueue.put({'Piece': 'P8'})
-requestQueue.put({'Piece': 'P8'})
-    #manager.db.insertRequestOrder('P8', "requests") #TODO Enable this
-requestQueue.put({'Piece': 'P4'})
-requestQueue.put({'Piece': 'P4'})
-requestQueue.put({'Piece': 'P4'})
-    #manager.db.insertRequestOrder('P4', "requests") #TODO Enable this
-
+for i in range(3):
+    requestQueue.put(request)
+    manager.db.insertRequestOrder(request, "requests")
 input()
 count = {}
 print(len(orderQueue.queue), "orders pendent in orderQueue")
