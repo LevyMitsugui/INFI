@@ -200,6 +200,10 @@ class OPCUAClient:
                 updateTup = self.db.processWareQueue("in", update)
                 print('[OPC Client] updating warehouse in. Values: ', update)
                 self.setWarehouseInUpdate(1, update['conveyor'], update['piece'])
+                if(update['conveyor'] >= 1 and update['conveyor'] <= 4):
+                    self.db.updateWare('P'+str(update['piece']), 1, "mes", 1)
+                elif(update['conveyor'] >= 5 and update['conveyor'] <= 10):
+                    self.db.updateWare('P'+str(update['piece']), 1, "mes", 2)
 
             if self.outWHQueue.qsize() > 0 and self.getWarehouseOutUpdate()[0] == 0 and (currTimes[1] - prevTimes[1]) > referenceTimes[1]:
                 prevTimes[1] = currTimes[1]
@@ -207,7 +211,11 @@ class OPCUAClient:
                 updateTup = self.db.processWareQueue("out", update)
                 print('[OPC Client] updating warehouse out. Values: ', update)
                 self.setWarehouseOutUpdate(1, update['conveyor'], update['piece'])
-
+                if(update['conveyor'] >= 1 and update['conveyor'] <= 6):
+                    self.db.updateColumn("orders", "start", "CURRENT_TIME()", "requests", None, "id IN (SELECT id FROM requests_processing) AND start IS NULL")
+                    self.db.updateWare('P'+str(update['piece']), -1, "mes", 1)
+                elif(update['conveyor'] >= 7 and update['conveyor'] <= 10):
+                    self.db.updateWare('P'+str(update['piece']), -1, "mes", 2)
             if self.machineUpdateQueue.qsize() > 0 and self.getMachineUpdate()[0] == 0 and (currTimes[2] - prevTimes[2]) > referenceTimes[2]:
                 prevTimes[2] = currTimes[2]
                 update = self.machineUpdateQueue.get()

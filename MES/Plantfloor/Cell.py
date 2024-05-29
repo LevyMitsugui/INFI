@@ -5,6 +5,7 @@ import sys
 sys.path.append("..")
 from Database import Database
 import Plantfloor
+import datetime
 
 class Cell:
     def __init__(self, ID, thread_lock, requestQueue, doneRequestQueue, recipes, transformations):
@@ -234,22 +235,29 @@ class Cell:
                 break
             recipe = self.getRecipe(request)
             reqGotTup = self.db.processRequestByPiece(request['Piece'], "requests")
+            if(reqGotTup != None):
+                reqTup_workpiece = reqGotTup[0][5]
+                reqTup_id = reqGotTup[0][0]
+                print("DB ID is:", reqTup_id)
+            else:
+                reqTup_id = None
 
             if(recipe != None and self.requestQueue.qsize() > 0):
                 requestGotten = self.requestQueue.get(iterator)
-                
+            
                 if request['Piece'] == 'P9':
                     print('request ID: ', request['ID'])
                     print('requestGotten ID: ', requestGotten['ID'])
 
                 if requestGotten != request: #TODO maybe revert this requestGotten['Piece'] != request['Piece']:
                     if(reqGotTup != None):
-                        self.db.returnRequestByPiece(reqGotTup[0][0], "requests")
+                        self.db.returnRequestByPiece(reqTup_workpiece, "requests")
+                    print("HERE")
                     
                     self.requestQueue.put(requestGotten)
                     #print('!![Cell ', self.ID, ' getRequest]!! Failded to get right request')
                     return (None, None)
-                    
+                
                 #print('**[Cell ', self.ID, ' getRequest]** verified request gave recipe: ', recipe)
                 return (request, recipe)
             

@@ -308,8 +308,9 @@ class Manager():
             if self.DoneRequestQueue.qsize() > 0:
                 doneRequest = self.DoneRequestQueue.get()
                 self.piecesProcessed.append(doneRequest)
-                self.db.updateWare(doneRequest, 1, "mes", 2)
-                self.db.setRequestDone(doneRequest, "requests")
+                self.db.setRequestReady(doneRequest, "requests")
+
+                self.db.updateColumn("orders", "end", "CURRENT_TIME()", "requests", None, "start = (SELECT MIN(start) FROM requests_orders WHERE workpiece = '{}' AND end IS NULL)".format(doneRequest))
                 print('[Manager, __wareHouse] WareHouse: ', self.piecesProcessed)
                 self.db.__fetchWare__(2)
 
@@ -482,30 +483,30 @@ class Manager():
             if ordersReady is None:
                 continue
             
-            request_done        = ordersReady[0][0]
-            request_delivered   = ordersReady[0][1]
-            request_start       = ordersReady[0][2]     #We can try to use this variable to calculate the production cost
-            request_end         = ordersReady[0][3]     #It should be the time since production of this order started until enough pieces in stock to delivery
-            request_client      = ordersReady[0][4]
-            request_number      = ordersReady[0][5]
-            request_workpiece   = ordersReady[0][6]
-            request_quantity    = ordersReady[0][7]
-            request_duedate     = ordersReady[0][8]
+            i = 2
+            request_delivered   = ordersReady[0][i]
+            request_start       = ordersReady[0][i+1]     #We can try to use this variable to calculate the production cost
+            request_end         = ordersReady[0][i+2]     #It should be the time since production of this order started until enough pieces in stock to delivery
+            request_client      = ordersReady[0][i+3]
+            request_number      = ordersReady[0][i+4]
+            request_workpiece   = ordersReady[0][i+5]
+            request_quantity    = ordersReady[0][i+6]
+            request_duedate     = ordersReady[0][i+7]
             orderToDeliver = self.db.getOrderByNum(request_client, request_number, "erp")
-            delivery_admission  = orderToDeliver[0][2]
+            delivery_admission  = orderToDeliver[0][i]
 
 
             stock_quantity = self.piecesProcessed.count(request_workpiece)
             database_quantity = self.db.countWare(2, "mes", request_workpiece)
             database_quantity = int(database_quantity[0][1]) if database_quantity else 0
-            if stock_quantity == database_quantity and stock_quantity >= request_quantity - request_delivered:
+            if stock_quantity == database_quantity and stock_quantity >= (request_quantity - request_delivered):
                 scheduled_delivery, delivery_limit = self.__scheduleDelivery__(delivery_admission, request_duedate, request_quantity)
-                print("scheduled_delivery: ", scheduled_delivery.time())
-                print("delivery_limit: ", delivery_limit.time())
+                print("scheduled_delivery: ", scheduled_delivery) #TODO SET THE ADMISSION TIME HERE IN ORDER TO BE ABLE TO SCHEDULE DELIVERY
+                print("delivery_limit: ", delivery_limit)
                 print('[Manager, postDoneOrders] Order found: ', ordersReady[0])
                 self.db.setOrderDone(request_client, request_number, "mes")
             else:
-                print("[Manager, postDoneOrders] !!Disparity between number of pieces", request_workpiece, "in database and Manager!! database:", database_quantity, "Manager:", manager_quantity)
+                print("[Manager, postDoneOrders] !!Disparity between number of pieces", request_workpiece, "in database and Manager!! database:", database_quantity, "Manager:", stock_quantity)
             ordersReady = None
 
     def postDoneOrders(self):
@@ -523,16 +524,16 @@ class Manager():
             if ordersReady is None:
                 continue
             for order in ordersReady:
-                i = 1
+                i = 2
+                delivery_id          = order[i-2]
                 delivery_admission   = order[i]
-                delivery_delivery    = order[i+1]
                 delivery_client      = order[i+2]
                 delivery_number      = order[i+3]
                 delivery_workpiece   = order[i+4]
                 delivery_quantity    = order[i+5]
                 delivery_duedate     = order[i+6]
                 orderToDeliver       = self.db.getOrderByNum(delivery_client, delivery_number, "mes")
-                pieces_delivered     = orderToDeliver[0][2]
+                pieces_delivered     = orderToDeliver[0][i]
 
 
                 stock_quantity = self.piecesProcessed.count(delivery_workpiece)
@@ -545,18 +546,35 @@ class Manager():
                     if self.__isPast__(scheduled_delivery):
                         if pieces_delivered < delivery_quantity and stock_quantity > 0:
                             self.piecesProcessed.remove(delivery_workpiece)
-                            if self.db.updateWare(delivery_workpiece, -1, "mes", 2):
-                                self.warehouses[1].outputPiece(delivery_workpiece, lastOutput)
-                                if lastOutput == 10:
-                                    lastOutput = 7
-                                else:
-                                    lastOutput += 1
-                                self.db.updateDeliveredPieces(delivery_client, delivery_number, 1, "mes")
-                                self.db.__fetchWare__(2)
+                                
+                            self.warehouses[1].outputPiece(delivery_workpiece, lastOutput)
+                            if lastOutput == 10:
+                                lastOutput = 7
                             else:
-                                print('                                             [Manager, postDoneOrders] Could not update warehouse')
-                                order = None
-                                continue
+                                lastOutput += 1
+                            self.db.updateDeliveredPieces(delivery_client, delivery_number, 1, "mes")
+
+                            requests = self.db.getWaitingRequests(delivery_workpiece)
+
+                            request_id      = requests[0][0]
+                            request_arrival = requests[0][3]
+                            request_start   = requests[0][4]
+                            request_end     = requests[0][5]
+                            request_dispatch= requests[0][6]
+                            request_raw_cost= requests[0][7]
+                            # if(self.__timeDiff__(delivery_admission, request_arrival) > 0):
+                            #     delivery_admission = self.db.updateColumn("orders", "start", request_arrival, "mes", delivery_id)
+                            request_dispatch = self.db.updateColumn("orders", "dispatch", "CURRENT_TIME()", "requests", request_id)
+                            if(request_raw_cost != None):
+                                print("!![Manager, postDoneOrders] Raw cost unavailable!!")
+                                request_depreciation_cost = request_raw_cost*self.__timeDiff__(request_arrival, request_dispatch)*0.01
+                            else:
+                                request_depreciation_cost = self.__timeDiff__(request_arrival, request_dispatch)*0.01
+                            request_production_cost = self.__timeDiff__(request_start, request_end)
+                            request_cost = request_depreciation_cost+request_production_cost+request_raw_cost
+                            print("[Manager, postDoneOrders] Piece cost {}€ -> Rc = {}€ | Dc = {}€ | Pc = {}€").__format__(request_cost, request_depreciation_cost, request_production_cost)
+                            self.db.__fetchWare__(2)
+                            
                             break
                         elif pieces_delivered == delivery_quantity:
                             diff = self.db.setOrderDone(delivery_client, delivery_number, "erp")
@@ -588,22 +606,30 @@ class Manager():
         result = datetime.datetime.strptime(time1, '%H:%M:%S') + datetime.datetime.strptime(time2, '%H:%M:%S')
         return result
     
+    def __timeDiff__(self, timeStr1, timeStr2):
+        if(timeStr1 == None):
+            return 1
+        time1 = datetime.datetime.strptime(timeStr1, '%H:%M:%S')
+        time2 = datetime.datetime.strptime(timeStr2, '%H:%M:%S')
+        result = datetime.datetime.strptime(time1, '%H:%M:%S') - datetime.datetime.strptime(time2, '%H:%M:%S')
+        return result
+    
     def __scheduleDelivery__(self, request_admission, request_duedate, request_quantity):
-        dueTime = timedelta(minutes = request_duedate)
-        admission_time = datetime.datetime.strptime(request_admission, '%H:%M:%S')
-        delivery_limit = admission_time + dueTime
-        datetime.datetime.strftime(delivery_limit, '%H:%M:%S')
+        dueTime = timedelta(minutes = request_duedate)          #timedelta
+        delivery_limit = request_admission + dueTime            #datetime
+        # datetime.datetime.strftime(delivery_limit, '%H:%M:%S')
 
         deliver_duration = timedelta(seconds = 2*request_quantity)   #in seconds
         scheduled_delivery = delivery_limit - deliver_duration
-        datetime.datetime.strftime(scheduled_delivery, '%H:%M:%S')
+        # datetime.datetime.strftime(scheduled_delivery, '%H:%M:%S')
         
         return scheduled_delivery, delivery_limit
     
     def __isPast__(self, time):
         timeNow = datetime.datetime.now().strftime("%H:%M:%S")
-        timeTarget = datetime.datetime.strftime(time, '%H:%M:%S')
-        timeDiff = datetime.datetime.strptime(timeNow, '%H:%M:%S') - datetime.datetime.strptime(timeTarget, '%H:%M:%S')
+        # timeDiff = timeNow - time
+        timeDiff = datetime.datetime.strptime(timeNow, '%H:%M:%S') - datetime.datetime.strptime(str(time), '%H:%M:%S')
+
         if timeDiff.total_seconds() > 0:
             return True
         else:
